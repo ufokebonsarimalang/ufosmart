@@ -222,14 +222,14 @@
         }
 
         #kamera { 
-            width: 100%; 
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            border-radius: 12px; 
-            background: #1e293b; 
-            transform: scaleX(-1); 
-            border: 1px solid var(--border);
-        }
+    width: 100%; 
+    aspect-ratio: 9 / 16; /* Mengubah proporsi kotak menjadi vertikal penuh (layar HP) */
+    object-fit: cover;
+    border-radius: 12px; 
+    background: #1e293b; 
+    border: 1px solid var(--border);
+    max-height: 480px; /* Batas tinggi agar tidak terlalu panjang di layar HP kecil */
+}
 
         /* TABEL REKAP ADMIN */
         .table-container {
