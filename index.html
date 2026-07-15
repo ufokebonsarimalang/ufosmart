@@ -285,6 +285,26 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* Custom Modal */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; justify-content: center;
+    align-items: center; z-index: 1000;
+}
+.modal-box {
+    background: white; padding: 30px; border-radius: 20px;
+    width: 80%; max-width: 300px; text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
+
+/* Tombol Disabled */
+.btn-disabled {
+    background-color: #d1d5db !important; /* Abu-abu */
+    cursor: not-allowed !important;
+    opacity: 0.7;
+    pointer-events: none;
+}
     </style>
 </head>
 <body>
@@ -480,49 +500,73 @@
         document.getElementById('view-dashboard').style.display = 'block';
     }
 
-    function prosesAbsen() {
-        if(lat === 0 && lng === 0) { 
-            alert("Mencari lokasi GPS Anda, harap tunggu beberapa detik dan coba lagi."); 
-            startGPS();
-            return;
+   // Ganti fungsi tampilkanPesan untuk menggantikan alert
+function tampilkanPesan(pesan, status) {
+    document.getElementById('modal-pesan').innerText = pesan;
+    document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
+    document.getElementById('modal-notif').style.display = 'flex';
+}
+
+function tutupModal() {
+    document.getElementById('modal-notif').style.display = 'none';
+}
+
+// Update fungsi prosesAbsen
+function prosesAbsen() {
+    if(lat === 0 && lng === 0) { 
+        tampilkanPesan("Lokasi GPS belum terbaca, harap tunggu sebentar..."); 
+        startGPS();
+        return;
+    }
+    
+    const video = document.getElementById('kamera');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const dataFoto = canvas.toDataURL('image/jpeg');
+
+    const btn = document.getElementById('btnAbsen');
+    const spinner = document.getElementById('absen-spinner');
+    
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            aksi: "absen", 
+            nama: namaLogin, 
+            status: tipeAbsen, 
+            lat: lat, 
+            lng: lng, 
+            foto: dataFoto 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        
+        // --- LOGIKA DISABLE TOMBOL ---
+        if(data.pesan.includes("berhasil")) {
+            if(tipeAbsen === 'Check In') {
+                document.querySelector('.btn-checkin').classList.add('btn-disabled');
+                document.querySelector('.btn-checkin').disabled = true;
+            } else if(tipeAbsen === 'Check Out') {
+                document.querySelector('.btn-checkout').classList.add('btn-disabled');
+                document.querySelector('.btn-checkout').disabled = true;
+            }
         }
         
-        const video = document.getElementById('kamera');
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const dataFoto = canvas.toDataURL('image/jpeg');
-
-        const btn = document.getElementById('btnAbsen');
-        const spinner = document.getElementById('absen-spinner');
-        
-        btn.disabled = true;
-        spinner.style.display = 'inline-block';
-        
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                aksi: "absen", 
-                nama: namaLogin, 
-                status: tipeAbsen, // Mengirim data status 'Check In' atau 'Check Out'
-                lat: lat, 
-                lng: lng, 
-                foto: dataFoto 
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            spinner.style.display = 'none';
-            btn.disabled = false;
-            alert(data.pesan);
-            kembaliKeDashboard();
-        })
-        .catch(err => {
-            spinner.style.display = 'none';
-            btn.disabled = false;
-            alert("Terjadi kesalahan saat mengirim absensi.");
-        });
-    }
+        tampilkanPesan(data.pesan, 'sukses');
+        kembaliKeDashboard();
+    })
+    .catch(err => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        tampilkanPesan("Terjadi kesalahan jaringan.");
+    });
+}
 
     function muatDataAdmin() {
         fetch(SCRIPT_URL, {
@@ -570,5 +614,13 @@
         document.getElementById('user').value = ""; document.getElementById('pass').value = "";
     }
 </script>
+   <!-- Modal Notifikasi -->
+<div id="modal-notif" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <h3 id="modal-title">Info</h3>
+        <p id="modal-pesan">Pesan di sini</p>
+        <button onclick="tutupModal()">TUTUP</button>
+    </div>
+</div> 
 </body>
 </html>
