@@ -513,16 +513,16 @@ function prosesLogin() {
                 startGPS();
             }
         } else {
-            tampilkanPesan("Username atau Password salah!", "info");
+            // DI SINI PERUBAHANNYA: Menggunakan pop-up custom kita yang elegan
+            tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
         }
     })
     .catch(err => {
         btn.disabled = false;
         spinner.style.display = 'none';
-        tampilkanPesan("Gagal terhubung ke server.", "info");
+        tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
     });
 }
-
 // MENYALAKAN GPS HP
 function startGPS() {
     if (navigator.geolocation) {
