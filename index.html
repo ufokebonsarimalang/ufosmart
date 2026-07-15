@@ -3,57 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Cloud GitHub</title>
+    <title>Sistem Absensi Karyawan</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-        .box { max-width: 400px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: auto; }
-        .box-admin { max-width: 800px; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-absen { background: #28a745; }
-        .btn-logout { background: #dc3545; font-size: 14px; padding: 8px; }
-        #kamera { width: 100%; border-radius: 5px; background: #eee; transform: scaleX(-1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 13px; }
-        th { background: #007bff; color: white; }
-        img { width: 50px; border-radius: 3px; }
+        :root {
+            --primary: #1967d2; /* Warna Biru Khas UFO */
+            --primary-hover: #1557b0;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #000000;
+            --text-muted: #757575;
+            --border: #e0e0e0;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--background); 
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .box { 
+            width: 100%;
+            max-width: 360px; 
+            background: var(--card-bg); 
+            padding: 35px 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+            border: 1px solid rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .box-admin { 
+            max-width: 900px; 
+        }
+
+        /* LOGO BULAT SERAGAM */
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            border: 3px solid #eef2f6;
+            padding: 3px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-toko {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        h2 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .sub-title {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 0 0 25px 0;
+            font-weight: 500;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333333;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border);
+            background: #ffffff;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(25, 103, 210, 0.1);
+        }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px;
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-absen { 
+            background: var(--success); 
+            color: white;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .btn-absen:hover {
+            background: var(--success-hover);
+        }
+
+        .btn-logout { 
+            background: transparent; 
+            color: var(--danger); 
+            border: 1.5px solid var(--danger);
+            font-size: 12px; 
+            padding: 8px; 
+            margin-top: 15px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        #kamera { 
+            width: 100%; 
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 12px; 
+            background: #1e293b; 
+            transform: scaleX(-1); 
+            border: 1px solid var(--border);
+        }
+
+        /* TABEL ADMIN */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left;
+        }
+
+        th, td { 
+            padding: 14px 18px; 
+            font-size: 14px; 
+        }
+
+        th { 
+            background: #f8fafc; 
+            color: var(--text-main);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .badge-gps {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .img-preview { 
+            width: 50px; 
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px; 
+            border: 1px solid var(--border);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .admin-header button {
+            margin: 0;
+            width: auto;
+            padding: 8px 16px;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 2px solid #fff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
+<!-- 1. HALAMAN LOGIN -->
 <div id="view-login" class="box">
-    <h2>Login Absensi</h2>
-    <input type="text" id="user" placeholder="Username">
-    <input type="password" id="pass" placeholder="Password">
-    <button onclick="prosesLogin()">Masuk</button>
+    <div class="logo-container">
+        <!-- Pastikan nama file logo kamu di GitHub sudah sesuai (misal: logo.png) -->
+        <img src="logo.png" class="logo-toko" alt="Logo UFO">
+    </div>
+    <h2>UFO Kebonsari Malang</h2>
+    <div class="sub-title">Sistem Absensi Karyawan</div>
+    
+    <div class="input-group">
+        <label for="user">Username</label>
+        <input type="text" id="user" placeholder="">
+    </div>
+    
+    <div class="input-group">
+        <label for="pass">Password</label>
+        <input type="password" id="pass" placeholder="">
+    </div>
+    
+    <button class="btn-primary" onclick="prosesLogin()">
+        <span>Masuk</span>
+        <div class="spinner" id="login-spinner"></div>
+    </button>
 </div>
 
+<!-- 2. HALAMAN ABSEN KARYAWAN -->
 <div id="view-karyawan" class="box" style="display:none;">
-    <h2>Halo, <span id="nama-user"></span>!</h2>
+    <div class="logo-container">
+        <img src="logo.png" class="logo-toko" alt="Logo UFO">
+    </div>
+    <h2>Halo, <span id="nama-user" style="color: var(--primary);"></span>!</h2>
+    <div class="sub-title">Silakan ambil selfie untuk melakukan absensi</div>
+    
     <video id="kamera" autoplay playsinline></video>
-    <button class="btn-absen" id="btnAbsen" onclick="prosesAbsen()">Kirim Absen Sekarang</button>
-    <button class="btn-logout" onclick="logout()">Logout</button>
+    
+    <button class="btn-absen" id="btnAbsen" onclick="prosesAbsen()">
+        <span>Kirim Absen Sekarang</span>
+        <div class="spinner" id="absen-spinner"></div>
+    </button>
+    <button class="btn-logout" onclick="logout()">Keluar / Logout</button>
 </div>
 
+<!-- 3. HALAMAN DASHBOARD ADMIN -->
 <div id="view-admin" class="box box-admin" style="display:none;">
-    <h2>Rekap Absensi Karyawan (Admin)</h2>
-    <button class="btn-logout" onclick="logout()" style="width:150px; float:right;">Logout</button>
-    <table>
-        <thead><tr><th>Waktu</th><th>Nama</th><th>Koordinat</th><th>Foto</th></tr></thead>
-        <tbody id="isi-tabel"></tbody>
-    </table>
+    <div class="admin-header">
+        <div>
+            <h2 style="text-align: left;">Rekap Absensi Karyawan</h2>
+            <span style="color: var(--text-muted); font-size: 13px;">Data tersinkronisasi otomatis dengan Google Sheets</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">Keluar</button>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Waktu</th>
+                    <th>Nama</th>
+                    <th>Lokasi</th>
+                    <th>Foto Selfie</th>
+                </tr>
+            </thead>
+            <tbody id="isi-tabel">
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP KAMU YANG DIDAPAT NANTI DI LANGKAH 4
+    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP KAMU YANG SEBELUMNYA
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
     let streamKamera = null;
     let lat = 0, lng = 0, namaLogin = "";
 
     function prosesLogin() {
-        var u = document.getElementById('user').value;
-        var p = document.getElementById('pass').value;
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        const spinner = document.getElementById('login-spinner');
+        
+        if (!u || !p) {
+            alert("Harap isi username dan password!");
+            return;
+        }
+
+        spinner.style.display = 'inline-block';
         
         fetch(SCRIPT_URL, {
             method: 'POST',
@@ -61,6 +365,7 @@
         })
         .then(res => res.json())
         .then(res => {
+            spinner.style.display = 'none';
             if(res.status === "sukses") {
                 namaLogin = res.nama;
                 document.getElementById('view-login').style.display = 'none';
@@ -76,14 +381,18 @@
             } else {
                 alert("Username atau Password salah!");
             }
-        }).catch(err => alert("Gagal menghubungi server. Pastikan URL Apps Script benar dan sudah di-deploy ulang."));
+        })
+        .catch(err => {
+            spinner.style.display = 'none';
+            alert("Gagal terhubung ke server. Periksa URL Apps Script Anda.");
+        });
     }
 
     function startKamera() {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(s => {
             streamKamera = s;
             document.getElementById('kamera').srcObject = s;
-        }).catch(e => alert("Kamera gagal diakses! Pastikan situs ini dibuka lewat HTTPS."));
+        }).catch(e => alert("Kamera gagal diakses! Pastikan situs dibuka lewat protokol aman HTTPS."));
     }
 
     function startGPS() {
@@ -95,14 +404,18 @@
     }
 
     function prosesAbsen() {
-        if(lat === 0 && lng === 0) { return alert("Mencari GPS, tunggu..."); }
+        if(lat === 0 && lng === 0) { return alert("Mencari GPS Anda, tunggu sebentar..."); }
         const video = document.getElementById('kamera');
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
         const dataFoto = canvas.toDataURL('image/jpeg');
 
-        document.getElementById('btnAbsen').innerText = "Mengirim...";
+        const btn = document.getElementById('btnAbsen');
+        const spinner = document.getElementById('absen-spinner');
+        
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
         
         fetch(SCRIPT_URL, {
             method: 'POST',
@@ -110,8 +423,14 @@
         })
         .then(res => res.json())
         .then(data => {
+            spinner.style.display = 'none';
+            btn.disabled = false;
             alert(data.pesan);
-            document.getElementById('btnAbsen').innerText = "Kirim Absen Sekarang";
+        })
+        .catch(err => {
+            spinner.style.display = 'none';
+            btn.disabled = false;
+            alert("Terjadi kesalahan pengiriman.");
         });
     }
 
@@ -123,13 +442,17 @@
         .then(res => res.json())
         .then(data => {
             let html = "";
-            for(let i = 1; i < data.length; i++) {
-                html += `<tr>
-                    <td>${data[i][0]}</td>
-                    <td><b>${data[i][1]}</b></td>
-                    <td><a href="https://maps.google.com/?q=${data[i][2]},${data[i][3]}" target="_blank">Lihat Peta</a></td>
-                    <td><a href="${data[i][4]}" target="_blank"><img src="${data[i][4]}"></a></td>
-                </tr>`;
+            if (data.length <= 1) {
+                html = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">Belum ada data absensi masuk.</td></tr>`;
+            } else {
+                for(let i = 1; i < data.length; i++) {
+                    html += `<tr>
+                        <td>${data[i][0]}</td>
+                        <td><strong style="color: var(--primary);">${data[i][1]}</strong></td>
+                        <td><a href="https://maps.google.com/?q=${data[i][2]},${data[i][3]}" target="_blank" class="badge-gps">📍 Lihat Peta</a></td>
+                        <td><a href="${data[i][4]}" target="_blank"><img src="${data[i][4]}" class="img-preview" alt="Selfie"></a></td>
+                    </tr>`;
+                }
             }
             document.getElementById('isi-tabel').innerHTML = html;
         });
