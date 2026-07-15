@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Karyawan</title>
+    <title>Sistem Absensi Karyawan - UFO Kebonsari</title>
     <style>
         :root {
-            --primary: #1967d2; /* Warna Biru Khas UFO */
+            --primary: #1967d2; /* Biru UFO */
             --primary-hover: #1557b0;
-            --success: #10b981;
+            --success: #10b981; /* Hijau Check In */
             --success-hover: #059669;
+            --warning: #f59e0b; /* Jingga Check Out */
+            --warning-hover: #d97706;
             --danger: #ef4444;
             --danger-hover: #dc2626;
             --background: #f8fafc;
@@ -86,6 +88,31 @@
             font-weight: 500;
         }
 
+        /* JAM DIGITAL */
+        .jam-digital {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 15px 0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+        }
+
+        .tanggal-digital {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        /* DUA TOMBOL ABSEN */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .input-group {
             text-align: left;
             margin-bottom: 15px;
@@ -143,16 +170,36 @@
             background: var(--primary-hover);
         }
 
-        .btn-absen { 
-            background: var(--success); 
+        .btn-checkin {
+            background: var(--success);
+            color: white;
+            padding: 18px 10px;
+            border-radius: 12px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-checkin:hover { background: var(--success-hover); }
+
+        .btn-checkout {
+            background: var(--warning);
+            color: white;
+            padding: 18px 10px;
+            border-radius: 12px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-checkout:hover { background: var(--warning-hover); }
+
+        .btn-absen-kirim { 
+            background: var(--primary); 
             color: white;
             font-size: 14px;
             margin-top: 20px;
         }
 
-        .btn-absen:hover {
-            background: var(--success-hover);
-        }
+        .btn-absen-kirim:hover { background: var(--primary-hover); }
 
         .btn-logout { 
             background: transparent; 
@@ -163,8 +210,15 @@
             margin-top: 15px;
         }
 
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.05);
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.05); }
+
+        .btn-kembali {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            padding: 8px;
+            margin-top: 10px;
         }
 
         #kamera { 
@@ -177,7 +231,7 @@
             border: 1px solid var(--border);
         }
 
-        /* TABEL ADMIN */
+        /* TABEL REKAP ADMIN */
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -186,37 +240,13 @@
             margin-top: 20px;
         }
 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            text-align: left;
-        }
-
-        th, td { 
-            padding: 14px 18px; 
-            font-size: 14px; 
-        }
-
-        th { 
-            background: #f8fafc; 
-            color: var(--text-main);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 14px 18px; font-size: 14px; }
+        th { background: #f8fafc; color: var(--text-main); font-weight: 600; border-bottom: 2px solid var(--border); }
+        td { border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8fafc; }
+        
         .badge-gps {
             display: inline-block;
             background: #e0f2fe;
@@ -228,14 +258,8 @@
             text-decoration: none;
         }
 
-        .img-preview { 
-            width: 50px; 
-            height: 50px;
-            object-fit: cover;
-            border-radius: 6px; 
-            border: 1px solid var(--border);
-        }
-
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+        
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -245,11 +269,7 @@
             padding-bottom: 15px;
         }
 
-        .admin-header button {
-            margin: 0;
-            width: auto;
-            padding: 8px 16px;
-        }
+        .admin-header button { margin: 0; width: auto; padding: 8px 16px; }
 
         .spinner {
             border: 2px solid rgba(255,255,255,0.3);
@@ -272,7 +292,6 @@
 <!-- 1. HALAMAN LOGIN -->
 <div id="view-login" class="box">
     <div class="logo-container">
-        <!-- Pastikan nama file logo kamu di GitHub sudah sesuai (misal: logo.png) -->
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2>UFO Kebonsari Malang</h2>
@@ -294,24 +313,51 @@
     </button>
 </div>
 
-<!-- 2. HALAMAN ABSEN KARYAWAN -->
-<div id="view-karyawan" class="box" style="display:none;">
+<!-- 2. HALAMAN DASHBOARD KARYAWAN (PRO) -->
+<div id="view-dashboard" class="box" style="display:none;">
     <div class="logo-container">
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2>Halo, <span id="nama-user" style="color: var(--primary);"></span>!</h2>
-    <div class="sub-title">Silakan ambil selfie untuk melakukan absensi</div>
+    <div class="sub-title">Selamat datang di sistem absensi toko</div>
+
+    <!-- Jam & Tanggal Live -->
+    <div class="jam-digital" id="live-jam">00:00:00</div>
+    <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
     
-    <video id="kamera" autoplay playsinline></video>
-    
-    <button class="btn-absen" id="btnAbsen" onclick="prosesAbsen()">
-        <span>Kirim Absen Sekarang</span>
-        <div class="spinner" id="absen-spinner"></div>
-    </button>
+    <!-- Pilihan Menu Tombol -->
+    <div class="btn-grid">
+        <button class="btn-checkin" onclick="pilihAksi('Check In')">
+            <span style="font-size: 20px;">📥</span>
+            <span>Check In</span>
+        </button>
+        <button class="btn-checkout" onclick="pilihAksi('Check Out')">
+            <span style="font-size: 20px;">📤</span>
+            <span>Check Out</span>
+        </button>
+    </div>
+
     <button class="btn-logout" onclick="logout()">Keluar / Logout</button>
 </div>
 
-<!-- 3. HALAMAN DASHBOARD ADMIN -->
+<!-- 3. HALAMAN KAMERA SELFIE -->
+<div id="view-kamera" class="box" style="display:none;">
+    <div class="logo-container">
+        <img src="logo.png" class="logo-toko" alt="Logo UFO">
+    </div>
+    <h2 id="judul-kamera">Absen</h2>
+    <div class="sub-title" id="sub-kamera">Posisikan wajah Anda di tengah kamera</div>
+    
+    <video id="kamera" autoplay playsinline></video>
+    
+    <button class="btn-absen-kirim" id="btnAbsen" onclick="prosesAbsen()">
+        <span>Kirim Absen Sekarang</span>
+        <div class="spinner" id="absen-spinner"></div>
+    </button>
+    <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
+</div>
+
+<!-- 4. HALAMAN DASHBOARD ADMIN -->
 <div id="view-admin" class="box box-admin" style="display:none;">
     <div class="admin-header">
         <div>
@@ -327,13 +373,14 @@
                 <tr>
                     <th>Waktu</th>
                     <th>Nama</th>
+                    <th>Status</th>
                     <th>Lokasi</th>
                     <th>Foto Selfie</th>
                 </tr>
             </thead>
             <tbody id="isi-tabel">
                 <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
                 </tr>
             </tbody>
         </table>
@@ -341,11 +388,24 @@
 </div>
 
 <script>
-    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP KAMU YANG SEBELUMNYA
+    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP (APPS SCRIPT) KAMU
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
     let streamKamera = null;
-    let lat = 0, lng = 0, namaLogin = "";
+    let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "";
+
+    // FITUR JAM & TANGGAL REALTIME
+    function updateWaktu() {
+        const sekarang = new Date();
+        
+        // Jam
+        document.getElementById('live-jam').innerText = sekarang.toLocaleTimeString('id-ID', { hour12: false });
+        
+        // Tanggal Bahasa Indonesia
+        const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('live-tanggal').innerText = sekarang.toLocaleDateString('id-ID', opsi);
+    }
+    setInterval(updateWaktu, 1000);
 
     function prosesLogin() {
         const u = document.getElementById('user').value;
@@ -373,9 +433,9 @@
                     document.getElementById('view-admin').style.display = 'block';
                     muatDataAdmin();
                 } else {
-                    document.getElementById('view-karyawan').style.display = 'block';
+                    document.getElementById('view-dashboard').style.display = 'block';
                     document.getElementById('nama-user').innerText = res.nama;
-                    startKamera();
+                    updateWaktu();
                     startGPS();
                 }
             } else {
@@ -388,23 +448,45 @@
         });
     }
 
-    function startKamera() {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(s => {
-            streamKamera = s;
-            document.getElementById('kamera').srcObject = s;
-        }).catch(e => alert("Kamera gagal diakses! Pastikan situs dibuka lewat protokol aman HTTPS."));
-    }
-
     function startGPS() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
                 lat = pos.coords.latitude; lng = pos.coords.longitude;
+            }, err => {
+                console.log("GPS diblokir atau gagal membaca lokasi.");
             });
         }
     }
 
+    function pilihAksi(tipe) {
+        tipeAbsen = tipe; // 'Check In' atau 'Check Out'
+        document.getElementById('judul-kamera').innerText = "Absen " + tipe;
+        document.getElementById('sub-kamera').innerText = "Ambil selfie untuk keperluan " + tipe;
+        
+        document.getElementById('view-dashboard').style.display = 'none';
+        document.getElementById('view-kamera').style.display = 'block';
+        
+        // Hidupkan Kamera saat masuk halaman selfie
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(s => {
+            streamKamera = s;
+            document.getElementById('kamera').srcObject = s;
+        }).catch(e => alert("Kamera gagal diakses! Pastikan izin kamera diaktifkan."));
+    }
+
+    function kembaliKeDashboard() {
+        // Matikan Kamera
+        if(streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
+        document.getElementById('view-kamera').style.display = 'none';
+        document.getElementById('view-dashboard').style.display = 'block';
+    }
+
     function prosesAbsen() {
-        if(lat === 0 && lng === 0) { return alert("Mencari GPS Anda, tunggu sebentar..."); }
+        if(lat === 0 && lng === 0) { 
+            alert("Mencari lokasi GPS Anda, harap tunggu beberapa detik dan coba lagi."); 
+            startGPS();
+            return;
+        }
+        
         const video = document.getElementById('kamera');
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
@@ -419,18 +501,26 @@
         
         fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ aksi: "absen", nama: namaLogin, lat: lat, lng: lng, foto: dataFoto })
+            body: JSON.stringify({ 
+                aksi: "absen", 
+                nama: namaLogin, 
+                status: tipeAbsen, // Mengirim data status 'Check In' atau 'Check Out'
+                lat: lat, 
+                lng: lng, 
+                foto: dataFoto 
+            })
         })
         .then(res => res.json())
         .then(data => {
             spinner.style.display = 'none';
             btn.disabled = false;
             alert(data.pesan);
+            kembaliKeDashboard();
         })
         .catch(err => {
             spinner.style.display = 'none';
             btn.disabled = false;
-            alert("Terjadi kesalahan pengiriman.");
+            alert("Terjadi kesalahan saat mengirim absensi.");
         });
     }
 
@@ -443,14 +533,27 @@
         .then(data => {
             let html = "";
             if (data.length <= 1) {
-                html = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">Belum ada data absensi masuk.</td></tr>`;
+                html = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Belum ada data absensi masuk.</td></tr>`;
             } else {
                 for(let i = 1; i < data.length; i++) {
+                    // Cek jika kolom status (kolom ke-3 / index 2) ada data, sesuaikan penomoran kolom
+                    let statusAbsen = data[i][2] ? data[i][2] : "Absen";
+                    let lokasiPeta = `https://maps.google.com/?q=${data[i][3]},${data[i][4]}`;
+                    let linkFoto = data[i][5];
+
+                    // Jika Google Sheet lama kamu belum punya kolom status, kode ini otomatis menyesuaikan agar tidak error
+                    if(data[i][2] && data[i][2].includes("data:image")) {
+                        statusAbsen = "Absen";
+                        lokasiPeta = `https://maps.google.com/?q=${data[i][2]},${data[i][3]}`;
+                        linkFoto = data[i][4];
+                    }
+
                     html += `<tr>
                         <td>${data[i][0]}</td>
                         <td><strong style="color: var(--primary);">${data[i][1]}</strong></td>
-                        <td><a href="https://maps.google.com/?q=${data[i][2]},${data[i][3]}" target="_blank" class="badge-gps">📍 Lihat Peta</a></td>
-                        <td><a href="${data[i][4]}" target="_blank"><img src="${data[i][4]}" class="img-preview" alt="Selfie"></a></td>
+                        <td><span style="font-weight:600; color: ${statusAbsen === 'Check In' ? 'var(--success)' : 'var(--warning)'}">${statusAbsen}</span></td>
+                        <td><a href="${lokasiPeta}" target="_blank" class="badge-gps">📍 Lihat Peta</a></td>
+                        <td><a href="${linkFoto}" target="_blank"><img src="${linkFoto}" class="img-preview" alt="Selfie"></a></td>
                     </tr>`;
                 }
             }
@@ -460,7 +563,8 @@
 
     function logout() {
         if(streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
-        document.getElementById('view-karyawan').style.display = 'none';
+        document.getElementById('view-dashboard').style.display = 'none';
+        document.getElementById('view-kamera').style.display = 'none';
         document.getElementById('view-admin').style.display = 'none';
         document.getElementById('view-login').style.display = 'block';
         document.getElementById('user').value = ""; document.getElementById('pass').value = "";
