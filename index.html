@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Cloud GitHub</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
+        .box { max-width: 400px; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: auto; }
+        .box-admin { max-width: 800px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-absen { background: #28a745; }
+        .btn-logout { background: #dc3545; font-size: 14px; padding: 8px; }
+        #kamera { width: 100%; border-radius: 5px; background: #eee; transform: scaleX(-1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 13px; }
+        th { background: #007bff; color: white; }
+        img { width: 50px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div id="view-login" class="box">
+    <h2>Login Absensi</h2>
+    <input type="text" id="user" placeholder="Username">
+    <input type="password" id="pass" placeholder="Password">
+    <button onclick="prosesLogin()">Masuk</button>
+</div>
+
+<div id="view-karyawan" class="box" style="display:none;">
+    <h2>Halo, <span id="nama-user"></span>!</h2>
+    <video id="kamera" autoplay playsinline></video>
+    <button class="btn-absen" id="btnAbsen" onclick="prosesAbsen()">Kirim Absen Sekarang</button>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+</div>
+
+<div id="view-admin" class="box box-admin" style="display:none;">
+    <h2>Rekap Absensi Karyawan (Admin)</h2>
+    <button class="btn-logout" onclick="logout()" style="width:150px; float:right;">Logout</button>
+    <table>
+        <thead><tr><th>Waktu</th><th>Nama</th><th>Koordinat</th><th>Foto</th></tr></thead>
+        <tbody id="isi-tabel"></tbody>
+    </table>
+</div>
+
+<script>
+    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP KAMU YANG DIDAPAT NANTI DI LANGKAH 4
+    const SCRIPT_URL = "URL_APPS_SCRIPT_MU";
+
+    let streamKamera = null;
+    let lat = 0, lng = 0, namaLogin = "";
+
+    function prosesLogin() {
+        var u = document.getElementById('user').value;
+        var p = document.getElementById('pass').value;
+        
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ aksi: "login", username: u, password: p })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === "sukses") {
+                namaLogin = res.nama;
+                document.getElementById('view-login').style.display = 'none';
+                if(res.role === "admin") {
+                    document.getElementById('view-admin').style.display = 'block';
+                    muatDataAdmin();
+                } else {
+                    document.getElementById('view-karyawan').style.display = 'block';
+                    document.getElementById('nama-user').innerText = res.nama;
+                    startKamera();
+                    startGPS();
+                }
+            } else {
+                alert("Username atau Password salah!");
+            }
+        }).catch(err => alert("Gagal menghubungi server. Pastikan URL Apps Script benar dan sudah di-deploy ulang."));
+    }
+
+    function startKamera() {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(s => {
+            streamKamera = s;
+            document.getElementById('kamera').srcObject = s;
+        }).catch(e => alert("Kamera gagal diakses! Pastikan situs ini dibuka lewat HTTPS."));
+    }
+
+    function startGPS() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                lat = pos.coords.latitude; lng = pos.coords.longitude;
+            });
+        }
+    }
+
+    function prosesAbsen() {
+        if(lat === 0 && lng === 0) { return alert("Mencari GPS, tunggu..."); }
+        const video = document.getElementById('kamera');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const dataFoto = canvas.toDataURL('image/jpeg');
+
+        document.getElementById('btnAbsen').innerText = "Mengirim...";
+        
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ aksi: "absen", nama: namaLogin, lat: lat, lng: lng, foto: dataFoto })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.pesan);
+            document.getElementById('btnAbsen').innerText = "Kirim Absen Sekarang";
+        });
+    }
+
+    function muatDataAdmin() {
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ aksi: "get_laporan" })
+        })
+        .then(res => res.json())
+        .then(data => {
+            let html = "";
+            for(let i = 1; i < data.length; i++) {
+                html += `<tr>
+                    <td>${data[i][0]}</td>
+                    <td><b>${data[i][1]}</b></td>
+                    <td><a href="https://maps.google.com/?q=${data[i][2]},${data[i][3]}" target="_blank">Lihat Peta</a></td>
+                    <td><a href="${data[i][4]}" target="_blank"><img src="${data[i][4]}"></a></td>
+                </tr>`;
+            }
+            document.getElementById('isi-tabel').innerHTML = html;
+        });
+    }
+
+    function logout() {
+        if(streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
+        document.getElementById('view-karyawan').style.display = 'none';
+        document.getElementById('view-admin').style.display = 'none';
+        document.getElementById('view-login').style.display = 'block';
+        document.getElementById('user').value = ""; document.getElementById('pass').value = "";
+    }
+</script>
+</body>
+</html>
