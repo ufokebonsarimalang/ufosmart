@@ -2,450 +2,182 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi Karyawan - UFO Kebonsari</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Absensi Selfie - UFO Kebonsari</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary: #1967d2; /* Biru UFO */
-            --primary-hover: #1557b0;
-            --success: #10b981; /* Hijau Check In */
-            --success-hover: #059669;
-            --warning: #f59e0b; /* Jingga Check Out */
-            --warning-hover: #d97706;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --background: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #000000;
-            --text-muted: #757575;
-            --border: #e0e0e0;
+        /* Sembunyikan scrollbar bawaan agar benar-benar terasa seperti aplikasi native */
+        body {
+            -webkit-tap-highlight-color: transparent;
         }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--background); 
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+        /* Custom scrollbar untuk tabel admin */
+        .custom-scroll::-webkit-scrollbar {
+            height: 6px;
         }
-
-        .box { 
-            width: 100%;
-            max-width: 360px; 
-            background: var(--card-bg); 
-            padding: 35px 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            box-sizing: border-box;
-            border: 1px solid rgba(0,0,0,0.03);
-            text-align: center;
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #1e293b;
         }
-
-        .box-admin { 
-            max-width: 900px; 
-        }
-
-        /* LOGO BULAT SERAGAM */
-        .logo-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px auto;
-            border-radius: 50%;
-            border: 3px solid #eef2f6;
-            padding: 3px;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-toko {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        h2 {
-            margin: 0 0 5px 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .sub-title {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin: 0 0 25px 0;
-            font-weight: 500;
-        }
-
-        /* JAM DIGITAL */
-        .jam-digital {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 15px 0;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 1px;
-        }
-
-        .tanggal-digital {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            font-weight: 500;
-        }
-
-        /* DUA TOMBOL ABSEN */
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333333;
-        }
-
-        input { 
-            width: 100%; 
-            padding: 12px 16px; 
-            border-radius: 10px; 
-            border: 1px solid var(--border);
-            background: #ffffff;
-            font-size: 15px;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(25, 103, 210, 0.1);
-        }
-
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 10px;
-            border-radius: 8px; 
-            font-size: 14px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            border: none;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-checkin {
-            background: var(--success);
-            color: white;
-            padding: 18px 10px;
-            border-radius: 12px;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .btn-checkin:hover { background: var(--success-hover); }
-
-        .btn-checkout {
-            background: var(--warning);
-            color: white;
-            padding: 18px 10px;
-            border-radius: 12px;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .btn-checkout:hover { background: var(--warning-hover); }
-
-        .btn-absen-kirim { 
-            background: var(--primary); 
-            color: white;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-
-        .btn-absen-kirim:hover { background: var(--primary-hover); }
-
-        .btn-logout { 
-            background: transparent; 
-            color: var(--danger); 
-            border: 1.5px solid var(--danger);
-            font-size: 12px; 
-            padding: 8px; 
-            margin-top: 15px;
-        }
-
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.05); }
-
-        .btn-kembali {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            font-size: 12px;
-            padding: 8px;
-            margin-top: 10px;
-        }
-
-        #kamera { 
-    width: 100%; 
-    aspect-ratio: 9 / 16; /* Mengubah proporsi kotak menjadi vertikal penuh (layar HP) */
-    object-fit: cover;
-    border-radius: 12px; 
-    background: #1e293b; 
-    border: 1px solid var(--border);
-    max-height: 480px; /* Batas tinggi agar tidak terlalu panjang di layar HP kecil */
-}
-
-        /* TABEL REKAP ADMIN */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            margin-top: 20px;
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 14px 18px; font-size: 14px; }
-        th { background: #f8fafc; color: var(--text-main); font-weight: 600; border-bottom: 2px solid var(--border); }
-        td { border-bottom: 1px solid var(--border); vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #f8fafc; }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-in { background: #d1fae5; color: #065f46; }
-        .badge-out { background: #fef3c7; color: #92400e; }
-
-        .btn-lihat {
-            display: inline-block;
-            background: #e0f2fe;
-            color: #0369a1;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
-        
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-
-        .admin-header button { margin: 0; width: auto; padding: 8px 16px; }
-
-        .spinner {
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 2px solid #fff;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Custom Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: flex; justify-content: center;
-            align-items: center; z-index: 1000;
-        }
-        .modal-box {
-            background: white; padding: 30px; border-radius: 20px;
-            width: 80%; max-width: 300px; text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
-
-        /* Tombol Disabled */
-        .btn-disabled {
-            background-color: #d1d5db !important; /* Abu-abu */
-            cursor: not-allowed !important;
-            opacity: 0.7;
-            pointer-events: none;
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-center items-center p-4">
 
-<!-- 1. HALAMAN LOGIN -->
-<div id="view-login" class="box">
-    <div class="logo-container">
-        <img src="logo.png" class="logo-toko" alt="Logo UFO">
+<div id="view-login" class="w-full max-w-sm bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 p-8 text-center transition-all">
+    <div class="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full border-2 border-slate-800 p-1 flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <i data-lucide="shield-check" class="w-10 h-10"></i>
     </div>
-    <h2>UFO Kebonsari Malang</h2>
-    <div class="sub-title">Sistem Absensi Karyawan</div>
+    <h2 class="text-2xl font-black tracking-wide text-slate-100">UFO KEBONSARI</h2>
+    <div class="text-xs text-emerald-400 font-semibold tracking-widest uppercase mb-8">Sistem Absensi Selfie</div>
     
-    <div class="input-group">
-        <label for="user">Username</label>
-        <input type="text" id="user" placeholder="">
-    </div>
-    
-    <div class="input-group">
-        <label for="pass">Password</label>
-        <input type="password" id="pass" placeholder="">
-    </div>
-    
-    <button class="btn-primary" onclick="prosesLogin()">
-        <span>Masuk</span>
-        <div class="spinner" id="login-spinner"></div>
-    </button>
-</div>
-
-<!-- 2. HALAMAN DASHBOARD KARYAWAN -->
-<div id="view-dashboard" class="box" style="display:none;">
-    <div class="logo-container">
-        <img src="logo.png" class="logo-toko" alt="Logo UFO">
-    </div>
-    <h2>Halo, <span id="nama-user" style="color: var(--primary);"></span>!</h2>
-    <div class="sub-title">Selamat datang di sistem absensi toko</div>
-
-    <!-- Jam & Tanggal Live -->
-    <div class="jam-digital" id="live-jam">00:00:00</div>
-    <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
-    
-    <!-- Pilihan Menu Tombol -->
-    <div class="btn-grid">
-        <button class="btn-checkin" onclick="pilihAksi('Check In')">
-            <span style="font-size: 20px;">📥</span>
-            <span>Check In</span>
-        </button>
-        <button class="btn-checkout" onclick="pilihAksi('Check Out')">
-            <span style="font-size: 20px;">📤</span>
-            <span>Check Out</span>
-        </button>
-    </div>
-
-    <button class="btn-logout" onclick="logout()">Keluar / Logout</button>
-</div>
-
-<!-- 3. HALAMAN KAMERA SELFIE -->
-<div id="view-kamera" class="box" style="display:none;">
-    <div class="logo-container">
-        <img src="logo.png" class="logo-toko" alt="Logo UFO">
-    </div>
-    <h2 id="judul-kamera">Absen</h2>
-    <!-- Teks sub-title diganti sedikit agar pas dengan instruksi foto seluruh badan -->
-    <div class="sub-title">Posisikan seluruh badan Anda di dalam kamera</div>
-    
-    <video id="kamera" autoplay playsinline></video>
-    
-    <!-- 🔄 TOMBOL BARU DISELIPKAN DI SINI -->
-    <button class="btn-kembali" id="btnGantiKamera" onclick="gantiKamera()" style="margin-top: 10px; margin-bottom: 10px; background: #e2e8f0; color: #334155; border: none;">
-        🔄 Ganti Kamera (Depan/Belakang)
-    </button>
-    
-    <button class="btn-absen-kirim" id="btnAbsen" onclick="prosesAbsen()">
-        <span>Kirim Absen Sekarang</span>
-        <div class="spinner" id="absen-spinner"></div>
-    </button>
-    <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
-</div>
-<!-- 4. HALAMAN DASHBOARD ADMIN -->
-<div id="view-admin" class="box box-admin" style="display:none;">
-    <div class="admin-header">
+    <div class="text-left space-y-4 mb-6">
         <div>
-            <h2 style="text-align: left;">Rekap Absensi Karyawan</h2>
-            <span style="color: var(--text-muted); font-size: 13px;">Data tersinkronisasi otomatis dengan Google Sheets</span>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username</label>
+            <input type="text" id="user" placeholder="Masukkan username" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition">
         </div>
-        <button class="btn-logout" onclick="logout()">Keluar</button>
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+            <input type="password" id="pass" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition">
+        </div>
     </div>
     
-    <div class="table-container">
-        <table>
+    <button onclick="prosesLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-98 flex justify-center items-center gap-2 cursor-pointer">
+        <span>Masuk Aplikasi</span>
+        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin hidden" id="login-spinner"></div>
+    </button>
+</div>
+
+<div id="view-dashboard" class="w-full max-w-md bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 p-6 hidden">
+    <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+        <div>
+            <h1 class="text-xs font-bold text-emerald-400 uppercase tracking-widest">UFO Kebonsari</h1>
+            <h2 class="text-lg font-black text-slate-100">Halo, <span id="nama-user" class="text-emerald-400"></span>!</h2>
+        </div>
+        <button onclick="logout()" class="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl transition cursor-pointer" title="Keluar">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <div class="text-center py-4 bg-slate-950/50 rounded-2xl border border-slate-800/80 mb-6">
+        <div class="text-3xl font-black text-emerald-400 tracking-widest" id="live-jam">00:00:00</div>
+        <div class="text-xs text-slate-400 font-medium mt-1" id="live-tanggal">Mencari Tanggal...</div>
+    </div>
+
+    <div class="bg-slate-950/80 border border-slate-800/50 rounded-2xl p-4 mb-6 text-center">
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Akumulasi Bulan Ini</p>
+        <p class="text-2xl font-black text-slate-200"><span id="total-masuk" class="text-emerald-400">0</span> Hari Kerja</p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <button id="btn-checkin" onclick="pilihAksi('Check In')" class="py-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg transition active:scale-95 flex flex-col items-center justify-center gap-1.5 border border-emerald-500/20 cursor-pointer">
+            <i data-lucide="log-in" class="w-6 h-6"></i>
+            <span class="text-xs tracking-wider">Check In</span>
+        </button>
+        
+        <button id="btn-off" onclick="prosesAbsenOff()" class="py-4 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg transition active:scale-95 flex flex-col items-center justify-center gap-1.5 border border-amber-500/20 cursor-pointer">
+            <i data-lucide="calendar-off" class="w-6 h-6"></i>
+            <span class="text-xs tracking-wider">OFF</span>
+        </button>
+        
+        <button id="btn-checkout" onclick="pilihAksi('Check Out')" class="py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 disabled:opacity-50 text-white font-bold rounded-2xl shadow-lg transition active:scale-95 flex flex-col items-center justify-center gap-1.5 border border-blue-500/20 cursor-pointer">
+            <i data-lucide="log-out" class="w-6 h-6"></i>
+            <span class="text-xs tracking-wider">Check Out</span>
+        </button>
+    </div>
+
+    <div id="status-log" class="text-center text-xs text-slate-400 bg-slate-950 p-4 rounded-2xl min-h-[50px] flex items-center justify-center border border-slate-800/80">
+        Menghubungkan GPS Satelit...
+    </div>
+</div>
+
+<div id="view-kamera" class="w-full max-w-md bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 p-6 hidden">
+    <h2 id="judul-kamera" class="text-center text-lg font-black text-slate-100 uppercase tracking-wider mb-1">Absen</h2>
+    <p class="text-center text-xs text-slate-400 mb-4">Posisikan wajah & badan Anda di dalam kamera</p>
+    
+    <div class="relative w-full aspect-[3/4] bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden mb-4">
+        <video id="kamera" autoplay playsinline class="w-full h-full object-cover"></video>
+    </div>
+    
+    <div class="space-y-3">
+        <button id="btnGantiKamera" onclick="gantiKamera()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition flex justify-center items-center gap-2 text-xs uppercase tracking-wider border border-slate-700 cursor-pointer">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Ganti Kamera
+        </button>
+        
+        <button id="btnAbsen" onclick="prosesAbsen()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-98 flex justify-center items-center gap-2 cursor-pointer text-sm uppercase tracking-wider">
+            <span>Kirim Absen Sekarang</span>
+            <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin hidden" id="absen-spinner"></div>
+        </button>
+        
+        <button onclick="kembaliKeDashboard()" class="w-full bg-transparent hover:bg-slate-800 text-slate-400 font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider cursor-pointer">
+            Batal / Kembali
+        </button>
+    </div>
+</div>
+
+<div id="view-admin" class="w-full max-w-5xl bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 p-6 hidden">
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 border-b border-slate-800 pb-4">
+        <div>
+            <h2 class="text-xl font-black text-slate-100">Rekap Absensi Karyawan</h2>
+            <p class="text-xs text-emerald-400 mt-1">Data sinkron otomatis dengan Google Sheets</p>
+        </div>
+        <button onclick="logout()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-2.5 rounded-xl transition flex justify-center items-center gap-2 text-xs uppercase tracking-wider cursor-pointer">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Keluar Admin
+        </button>
+    </div>
+    
+    <div class="table-container overflow-x-auto custom-scroll border border-slate-800 rounded-2xl">
+        <table class="w-full border-collapse text-left min-w-[700px]">
             <thead>
-                <tr>
-                    <th>Waktu</th>
-                    <th>Nama</th>
-                    <th>Status</th>
-                    <th>Lat</th>
-                    <th>Lng</th>
-                    <th>Foto Selfie</th>
+                <tr class="bg-slate-950 border-b border-slate-800">
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Waktu</th>
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Nama</th>
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Latitude</th>
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Longitude</th>
+                    <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Foto Selfie</th>
                 </tr>
             </thead>
-            <tbody id="isi-tabel">
+            <tbody id="isi-tabel" class="divide-y divide-slate-800/50">
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
+                    <td colspan="6" class="p-8 text-center text-slate-500 text-sm">Sedang memuat data laporan...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Custom Modal Notifikasi -->
-<div id="modal-notif" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-        <h3 id="modal-title">Info</h3>
-        <p id="modal-pesan">Pesan di sini</p>
-        <button onclick="tutupModal()">TUTUP</button>
+<div id="modal-notif" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center z-50 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-[90%] max-w-sm text-center shadow-2xl">
+        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20" id="modal-icon-box">
+            <i data-lucide="info" class="w-8 h-8" id="modal-icon"></i>
+        </div>
+        <h3 id="modal-title" class="text-lg font-black text-slate-100 mb-2">Info</h3>
+        <p id="modal-pesan" class="text-sm text-slate-400 leading-relaxed mb-6">Pesan di sini</p>
+        <button onclick="tutupModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition cursor-pointer text-xs uppercase tracking-wider border border-slate-700">TUTUP</button>
     </div>
 </div> 
 
 <script>
-// ⚠️ GANTI DENGAN URL GOOGLE WEB APP (APPS SCRIPT) KAMU
+// ⚠️ URL GOOGLE WEB APP (APPS SCRIPT) MILIK BOS UFO
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
-// KOORDINAT TOKO UFO KEBONSARI MALANG
+// KOORDINAT PERSIS TOKO UFO KEBONSARI MALANG
 const TOKO_LAT = -8.020496288923635;
 const TOKO_LNG = 112.61885029434528;
 const RADIUS_MAKSIMAL = 100; // Radius toleransi dalam meter
 
 let streamKamera = null;
-let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "";
+let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "", totalHadir = 0;
+let isGpsValid = false;
+let modeKamera = "user"; // "user" = depan, "environment" = belakang
+let gpsWatcher = null;
 
-// FITUR JAM & TANGGAL REALTIME DI DASHBOARD
+// 1. UPDATE LIVE TIME & DATE
 function updateWaktu() {
     const sekarang = new Date();
     const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -458,43 +190,60 @@ function updateWaktu() {
 }
 setInterval(updateWaktu, 1000);
 
-// FUNGSI HITUNG JARAK (GEOFENCING)
+// 2. FUNGSI HITUNG GEOLOCATION (HAVERSINE METRIC)
 function hitungJarak(lat1, lon1, lat2, lon2) {
-    var R = 6371000; // Radius bumi dalam meter
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    const R = 6371000; // Radius bumi dalam meter
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Hasil dalam meter
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
-// FUNGSI POP-UP NOTIFIKASI CUSTOM
+// 3. POP-UP CUSTOM NOTIFIKASI ELEGAN
 function tampilkanPesan(pesan, status) {
-    document.getElementById('modal-pesan').innerText = pesan;
-    document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    document.getElementById('modal-notif').style.display = 'flex';
+    const modal = document.getElementById('modal-notif');
+    const title = document.getElementById('modal-title');
+    const text = document.getElementById('modal-pesan');
+    const iconBox = document.getElementById('modal-icon-box');
+    const icon = document.getElementById('modal-icon');
+
+    text.innerText = pesan;
+    
+    if (status === 'sukses') {
+        title.innerText = 'Berhasil';
+        iconBox.className = "w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20";
+        icon.setAttribute('data-lucide', 'check-circle');
+    } else {
+        title.innerText = 'Informasi';
+        iconBox.className = "w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20";
+        icon.setAttribute('data-lucide', 'alert-circle');
+    }
+    
+    lucide.createIcons();
+    modal.classList.remove('hidden');
 }
 
 function tutupModal() {
-    document.getElementById('modal-notif').style.display = 'none';
+    document.getElementById('modal-notif').classList.add('hidden');
 }
 
-// PROSES LOGIN KARYAWAN / ADMIN
+// 4. PROSES LOGIN & FULLSCREEN API
 function prosesLogin() {
-    const user = document.getElementById('user').value;
-    const pass = document.getElementById('pass').value;
+    const user = document.getElementById('user').value.trim();
+    const pass = document.getElementById('pass').value.trim();
     const btn = document.querySelector('#view-login button');
     const spinner = document.getElementById('login-spinner');
     
     if(!user || !pass) {
-        tampilkanPesan("Username dan Password harus diisi!", "info");
+        tampilkanPesan("Username dan Password wajib diisi!", "info");
         return;
     }
     
     btn.disabled = true;
-    spinner.style.display = 'inline-block';
+    spinner.classList.remove('hidden');
     
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -503,223 +252,12 @@ function prosesLogin() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        spinner.style.display = 'none';
+        spinner.classList.add('hidden');
         
         if(data.status === "sukses") {
             namaLogin = data.nama;
-            document.getElementById('view-login').style.display = 'none';
             
-            if(data.role === "admin") {
-                document.getElementById('view-admin').style.display = 'block';
-                muatDataAdmin();
-            } else {
-                document.getElementById('view-dashboard').style.display = 'block';
-                document.getElementById('nama-user').innerText = namaLogin;
-                startGPS();
-            }
-        } else {
-            // DI SINI PERUBAHANNYA: Menggunakan pop-up custom kita yang elegan
-            tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
-        }
-    })
-    .catch(err => {
-        btn.disabled = false;
-        spinner.style.display = 'none';
-        tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
-    });
-}
-// MENYALAKAN GPS HP
-function startGPS() {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(
-            (position) => {
-                lat = position.coords.latitude;
-                lng = position.coords.longitude;
-                console.log("GPS Terbaca:", lat, lng);
-            },
-            (error) => {
-                tampilkanPesan("Gagal memuat GPS. Pastikan izin lokasi di HP sudah aktif!", "info");
-            },
-            { enableHighAccuracy: true }
-        );
-    } else {
-        tampilkanPesan("Browser kamu tidak mendukung GPS.", "info");
-    }
-}
-
-let modeKamera = "user"; // "user" = kamera depan, "environment" = kamera belakang
-
-// KETIKA TOMBOL CHECK IN / CHECK OUT DIKLIK
-function pilihAksi(tipe) {
-    tipeAbsen = tipe;
-    document.getElementById('view-dashboard').style.display = 'none';
-    document.getElementById('view-kamera').style.display = 'block';
-    document.getElementById('judul-kamera').innerText = "Kamera " + tipe;
-    
-    jalankanKamera();
-}
-
-// FUNGSI UTAMA UNTUK MENYALAKAN KAMERA
-function jalankanKamera() {
-    // Hentikan kamera yang sedang aktif terlebih dahulu sebelum ganti mode
-    if(streamKamera) {
-        streamKamera.getTracks().forEach(track => track.stop());
-    }
-
-    // Atur efek cermin (mirroring): Hanya aktif kalau pakai kamera depan ("user")
-    const elKamera = document.getElementById('kamera');
-    if (modeKamera === "user") {
-        elKamera.style.transform = "scaleX(-1)"; // Efek cermin untuk selfie
-    } else {
-        elKamera.style.transform = "scaleX(1)";  // Normal untuk kamera belakang
-    }
-
-    navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: modeKamera } 
-    })
-    .then(stream => {
-        streamKamera = stream;
-        elKamera.srcObject = stream;
-    })
-    .catch(err => {
-        tampilkanPesan("Gagal membuka kamera. Pastikan izin kamera aktif!", "info");
-        kembaliKeDashboard();
-    });
-}
-
-// FUNGSI KETIKA TOMBOL GANTI KAMERA DIKLIK
-function gantiKamera() {
-    // Tukar mode kamera depan/belakang
-    modeKamera = (modeKamera === "user") ? "environment" : "user";
-    jalankanKamera();
-}
-
-// FUNGSI UNTUK KEMBALI KE DASHBOARD
-function kembaliKeDashboard() {
-    if(streamKamera) {
-        streamKamera.getTracks().forEach(track => track.stop());
-    }
-    document.getElementById('view-kamera').style.display = 'none';
-    document.getElementById('view-dashboard').style.display = 'block';
-}
-// PROSES PENGIRIMAN DATA ABSEN (DENGAN RADIUS DAN JAM SUKSES)
-function prosesAbsen() {
-    if(lat === 0 && lng === 0) { 
-        tampilkanPesan("Lokasi GPS belum terbaca, harap tunggu sebentar...", "info"); 
-        startGPS();
-        return;
-    }
-
-    // VALIDASI GEOLOCATION (CEK RADIUS)
-    var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
-    if (jarak > RADIUS_MAKSIMAL) {
-        tampilkanPesan("Anda berada di luar radius toko (" + Math.round(jarak) + " meter dari toko). Absen ditolak.", "info");
-        return;
-    }
-    
-    const video = document.getElementById('kamera');
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    const dataFoto = canvas.toDataURL('image/jpeg');
-
-    const btn = document.getElementById('btnAbsen');
-    const spinner = document.getElementById('absen-spinner');
-    
-    btn.disabled = true;
-    spinner.style.display = 'inline-block';
-    
-    // CATAT JAM SAAT INI
-    const waktuSekarang = new Date().toLocaleTimeString('id-ID');
-    
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ 
-            aksi: "absen", 
-            nama: namaLogin, 
-            status: tipeAbsen, 
-            lat: lat, 
-            lng: lng, 
-            foto: dataFoto 
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        spinner.style.display = 'none';
-        btn.disabled = false;
-        
-        if(data.pesan.includes("berhasil")) {
-            // LOGIKA DISABLE TOMBOL AGAR BERUBAH ABU-ABU
-            if(tipeAbsen === 'Check In') {
-                document.querySelector('.btn-checkin').classList.add('btn-disabled');
-                document.querySelector('.btn-checkin').disabled = true;
-            } else if(tipeAbsen === 'Check Out') {
-                document.querySelector('.btn-checkout').classList.add('btn-disabled');
-                document.querySelector('.btn-checkout').disabled = true;
-            }
-            
-            // Tampilkan Pesan Sukses Berisi Jam
-            tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!", 'sukses');
-        } else {
-            tampilkanPesan(data.pesan, 'info');
-        }
-        
-        kembaliKeDashboard();
-    })
-    .catch(err => {
-        spinner.style.display = 'none';
-        btn.disabled = false;
-        tampilkanPesan("Terjadi kesalahan jaringan.", "info");
-    });
-}
-
-// MEMUAT DATA LAPORAN DI HALAMAN ADMIN
-function muatDataAdmin() {
-    const tabelBody = document.getElementById('isi-tabel');
-    tabelBody.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Memuat data laporan...</td></tr>";
-    
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ aksi: "get_laporan" })
-    })
-    .then(res => res.json())
-    .then(data => {
-        tabelBody.innerHTML = "";
-        // Dimulai dari i = 1 karena baris ke-0 adalah Judul Kolom di Sheets
-        for(let i = 1; i < data.length; i++) {
-            let row = data[i];
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0] || '-'}</td>
-                <td>${row[1] || '-'}</td>
-                <td><span class="badge ${row[2] === 'Check In' ? 'badge-in' : 'badge-out'}">${row[2] || '-'}</span></td>
-                <td>${row[3] || '-'}</td>
-                <td>${row[4] || '-'}</td>
-                <td><a href="${row[5]}" target="_blank" class="btn-lihat">Lihat Foto</a></td>
-            `;
-            tabelBody.appendChild(tr);
-        }
-    })
-    .catch(err => {
-        tabelBody.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Gagal memuat data.</td></tr>";
-    });
-}
-
-// LOGOUT UTK KEMBALI KE HALAMAN LOGIN
-function logout() {
-    namaLogin = "";
-    document.getElementById('user').value = "";
-    document.getElementById('pass').value = "";
-    document.getElementById('view-dashboard').style.display = 'none';
-    document.getElementById('view-admin').style.display = 'none';
-    document.getElementById('view-login').style.display = 'block';
-    
-    // Reset tombol agar tidak disabled lagi saat ganti akun/esok hari
-    const btnIn = document.querySelector('.btn-checkin');
-    const btnOut = document.querySelector('.btn-checkout');
-    if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
-    if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
-}
-</script>
-</body>
-</html>
+            // AKTIFKAN FULLSCREEN API SAAT LOGIN BERHASIL
+            const docEl = document.documentElement;
+            if (docEl.requestFullscreen) docEl.requestFullscreen();
+            else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
