@@ -623,7 +623,7 @@ function cekValidasiHarian() {
 
     if (status.includes('OFF') || status.includes('Check Out')) {
         kunciSemuaTombol(true);
-        document.getElementById('status-log').innerText = "Selesai! Slot absen Anda hari ini sudah ditutup.";
+        document.getElementById('status-log').innerText = "Selesai! Terima Kasih kerja anda hari ini.";
     } else if (status.includes('Check In')) {
         document.getElementById('btn-checkin').classList.add('btn-disabled');
         document.getElementById('btn-checkin').disabled = true;
