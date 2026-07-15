@@ -247,7 +247,17 @@
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8fafc; }
         
-        .badge-gps {
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-in { background: #d1fae5; color: #065f46; }
+        .badge-out { background: #fef3c7; color: #92400e; }
+
+        .btn-lihat {
             display: inline-block;
             background: #e0f2fe;
             color: #0369a1;
@@ -285,26 +295,27 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Custom Modal */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); display: flex; justify-content: center;
-    align-items: center; z-index: 1000;
-}
-.modal-box {
-    background: white; padding: 30px; border-radius: 20px;
-    width: 80%; max-width: 300px; text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-.modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
 
-/* Tombol Disabled */
-.btn-disabled {
-    background-color: #d1d5db !important; /* Abu-abu */
-    cursor: not-allowed !important;
-    opacity: 0.7;
-    pointer-events: none;
-}
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center;
+            align-items: center; z-index: 1000;
+        }
+        .modal-box {
+            background: white; padding: 30px; border-radius: 20px;
+            width: 80%; max-width: 300px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
+
+        /* Tombol Disabled */
+        .btn-disabled {
+            background-color: #d1d5db !important; /* Abu-abu */
+            cursor: not-allowed !important;
+            opacity: 0.7;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -333,7 +344,7 @@
     </button>
 </div>
 
-<!-- 2. HALAMAN DASHBOARD KARYAWAN (PRO) -->
+<!-- 2. HALAMAN DASHBOARD KARYAWAN -->
 <div id="view-dashboard" class="box" style="display:none;">
     <div class="logo-container">
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
@@ -366,7 +377,7 @@
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2 id="judul-kamera">Absen</h2>
-    <div class="sub-title" id="sub-kamera">Posisikan wajah Anda di tengah kamera</div>
+    <div class="sub-title">Posisikan wajah Anda di tengah kamera</div>
     
     <video id="kamera" autoplay playsinline></video>
     
@@ -394,21 +405,31 @@
                     <th>Waktu</th>
                     <th>Nama</th>
                     <th>Status</th>
-                    <th>Lokasi</th>
+                    <th>Lat</th>
+                    <th>Lng</th>
                     <th>Foto Selfie</th>
                 </tr>
             </thead>
             <tbody id="isi-tabel">
                 <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Custom Modal Notifikasi -->
+<div id="modal-notif" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <h3 id="modal-title">Info</h3>
+        <p id="modal-pesan">Pesan di sini</p>
+        <button onclick="tutupModal()">TUTUP</button>
+    </div>
+</div> 
+
 <script>
-    // ⚠️ GANTI DENGAN URL GOOGLE WEB APP (APPS SCRIPT) KAMU
+// ⚠️ GANTI DENGAN URL GOOGLE WEB APP (APPS SCRIPT) KAMU
 const SCRIPT_URL = "URL_APPS_SCRIPT_MU";
 
 // KOORDINAT TOKO UFO KEBONSARI MALANG
@@ -424,8 +445,8 @@ function updateWaktu() {
     const sekarang = new Date();
     const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     
-    const elTanggal = document.getElementById('dashboard-tanggal');
-    const elJam = document.getElementById('dashboard-jam');
+    const elTanggal = document.getElementById('live-tanggal');
+    const elJam = document.getElementById('live-jam');
     
     if(elTanggal) elTanggal.innerText = sekarang.toLocaleDateString('id-ID', opsiTanggal);
     if(elJam) elJam.innerText = sekarang.toLocaleTimeString('id-ID');
@@ -457,9 +478,10 @@ function tutupModal() {
 
 // PROSES LOGIN KARYAWAN / ADMIN
 function prosesLogin() {
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const btn = document.querySelector('.box button');
+    const user = document.getElementById('user').value;
+    const pass = document.getElementById('pass').value;
+    const btn = document.querySelector('#view-login button');
+    const spinner = document.getElementById('login-spinner');
     
     if(!user || !pass) {
         tampilkanPesan("Username dan Password harus diisi!", "info");
@@ -467,7 +489,7 @@ function prosesLogin() {
     }
     
     btn.disabled = true;
-    btn.innerText = "Memeriksa...";
+    spinner.style.display = 'inline-block';
     
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -476,7 +498,7 @@ function prosesLogin() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.innerText = "LOGIN";
+        spinner.style.display = 'none';
         
         if(data.status === "sukses") {
             namaLogin = data.nama;
@@ -487,7 +509,7 @@ function prosesLogin() {
                 muatDataAdmin();
             } else {
                 document.getElementById('view-dashboard').style.display = 'block';
-                document.getElementById('user-nama').innerText = namaLogin;
+                document.getElementById('nama-user').innerText = namaLogin;
                 startGPS();
             }
         } else {
@@ -496,7 +518,7 @@ function prosesLogin() {
     })
     .catch(err => {
         btn.disabled = false;
-        btn.innerText = "LOGIN";
+        spinner.style.display = 'none';
         tampilkanPesan("Gagal terhubung ke server.", "info");
     });
 }
@@ -525,7 +547,7 @@ function pilihAksi(tipe) {
     tipeAbsen = tipe;
     document.getElementById('view-dashboard').style.display = 'none';
     document.getElementById('view-kamera').style.display = 'block';
-    document.getElementById('judul-aksi').innerText = "Kamera " + tipe;
+    document.getElementById('judul-kamera').innerText = "Kamera " + tipe;
     
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
     .then(stream => {
@@ -619,8 +641,8 @@ function prosesAbsen() {
 
 // MEMUAT DATA LAPORAN DI HALAMAN ADMIN
 function muatDataAdmin() {
-    const tabelBody = document.getElementById('tabel-laporan');
-    tabelBody.innerHTML = "<tr><td colspan='6'>Memuat data laporan...</td></tr>";
+    const tabelBody = document.getElementById('isi-tabel');
+    tabelBody.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Memuat data laporan...</td></tr>";
     
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -645,15 +667,15 @@ function muatDataAdmin() {
         }
     })
     .catch(err => {
-        tabelBody.innerHTML = "<tr><td colspan='6'>Gagal memuat data.</td></tr>";
+        tabelBody.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Gagal memuat data.</td></tr>";
     });
 }
 
 // LOGOUT UTK KEMBALI KE HALAMAN LOGIN
 function logout() {
     namaLogin = "";
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
+    document.getElementById('user').value = "";
+    document.getElementById('pass').value = "";
     document.getElementById('view-dashboard').style.display = 'none';
     document.getElementById('view-admin').style.display = 'none';
     document.getElementById('view-login').style.display = 'block';
@@ -665,13 +687,5 @@ function logout() {
     if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
 }
 </script>
-   <!-- Modal Notifikasi -->
-<div id="modal-notif" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-        <h3 id="modal-title">Info</h3>
-        <p id="modal-pesan">Pesan di sini</p>
-        <button onclick="tutupModal()">TUTUP</button>
-    </div>
-</div> 
 </body>
 </html>
