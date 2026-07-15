@@ -547,6 +547,8 @@ function startGPS() {
     }
 }
 
+let modeKamera = "user"; // "user" = kamera depan, "environment" = kamera belakang
+
 // KETIKA TOMBOL CHECK IN / CHECK OUT DIKLIK
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
@@ -554,17 +556,45 @@ function pilihAksi(tipe) {
     document.getElementById('view-kamera').style.display = 'block';
     document.getElementById('judul-kamera').innerText = "Kamera " + tipe;
     
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+    jalankanKamera();
+}
+
+// FUNGSI UTAMA UNTUK MENYALAKAN KAMERA
+function jalankanKamera() {
+    // Hentikan kamera yang sedang aktif terlebih dahulu sebelum ganti mode
+    if(streamKamera) {
+        streamKamera.getTracks().forEach(track => track.stop());
+    }
+
+    // Atur efek cermin (mirroring): Hanya aktif kalau pakai kamera depan ("user")
+    const elKamera = document.getElementById('kamera');
+    if (modeKamera === "user") {
+        elKamera.style.transform = "scaleX(-1)"; // Efek cermin untuk selfie
+    } else {
+        elKamera.style.transform = "scaleX(1)";  // Normal untuk kamera belakang
+    }
+
+    navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: modeKamera } 
+    })
     .then(stream => {
         streamKamera = stream;
-        document.getElementById('kamera').srcObject = stream;
+        elKamera.srcObject = stream;
     })
     .catch(err => {
-        tampilkanPesan("Gagal membuka kamera frontal.", "info");
+        tampilkanPesan("Gagal membuka kamera. Pastikan izin kamera aktif!", "info");
         kembaliKeDashboard();
     });
 }
 
+// FUNGSI KETIKA TOMBOL GANTI KAMERA DIKLIK
+function gantiKamera() {
+    // Tukar mode kamera depan/belakang
+    modeKamera = (modeKamera === "user") ? "environment" : "user";
+    jalankanKamera();
+}
+
+// FUNGSI UNTUK KEMBALI KE DASHBOARD
 function kembaliKeDashboard() {
     if(streamKamera) {
         streamKamera.getTracks().forEach(track => track.stop());
@@ -572,7 +602,6 @@ function kembaliKeDashboard() {
     document.getElementById('view-kamera').style.display = 'none';
     document.getElementById('view-dashboard').style.display = 'block';
 }
-
 // PROSES PENGIRIMAN DATA ABSEN (DENGAN RADIUS DAN JAM SUKSES)
 function prosesAbsen() {
     if(lat === 0 && lng === 0) { 
