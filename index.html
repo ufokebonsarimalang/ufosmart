@@ -377,9 +377,15 @@
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2 id="judul-kamera">Absen</h2>
-    <div class="sub-title">Posisikan wajah Anda di tengah kamera</div>
+    <!-- Teks sub-title diganti sedikit agar pas dengan instruksi foto seluruh badan -->
+    <div class="sub-title">Posisikan seluruh badan Anda di dalam kamera</div>
     
     <video id="kamera" autoplay playsinline></video>
+    
+    <!-- 🔄 TOMBOL BARU DISELIPKAN DI SINI -->
+    <button class="btn-kembali" id="btnGantiKamera" onclick="gantiKamera()" style="margin-top: 10px; margin-bottom: 10px; background: #e2e8f0; color: #334155; border: none;">
+        🔄 Ganti Kamera (Depan/Belakang)
+    </button>
     
     <button class="btn-absen-kirim" id="btnAbsen" onclick="prosesAbsen()">
         <span>Kirim Absen Sekarang</span>
@@ -387,7 +393,6 @@
     </button>
     <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
 </div>
-
 <!-- 4. HALAMAN DASHBOARD ADMIN -->
 <div id="view-admin" class="box box-admin" style="display:none;">
     <div class="admin-header">
