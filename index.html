@@ -8,13 +8,11 @@
         :root {
             --primary: #1967d2; /* Biru UFO */
             --primary-hover: #1557b0;
-            --success: #10b981; /* Hijau Check In */
-            --success-hover: #059669;
-            --warning: #f59e0b; /* Jingga Check Out */
+            --success: #1967d2; /* Check In sekarang Biru */
+            --success-hover: #1557b0;
+            --warning: #f59e0b; /* Check Out Jingga */
             --warning-hover: #d97706;
-            --off: #6b7280; /* Abu-abu untuk tombol OFF */
-            --off-hover: #4b5563;
-            --danger: #ef4444;
+            --danger: #ef4444; /* Tombol OFF sekarang Merah */
             --danger-hover: #dc2626;
             --background: #f8fafc;
             --card-bg: #ffffff;
@@ -52,7 +50,6 @@
             max-width: 900px; 
         }
 
-        /* LOGO BULAT SERAGAM */
         .logo-container {
             width: 100px;
             height: 100px;
@@ -90,7 +87,6 @@
             font-weight: 500;
         }
 
-        /* JAM DIGITAL */
         .jam-digital {
             font-size: 32px;
             font-weight: 800;
@@ -107,12 +103,22 @@
             font-weight: 500;
         }
 
-        /* TIGA TOMBOL ABSEN (LAYOUT BARU: OFF DI TENGAH) */
+        /* BTN GRID DENGAN IKON BARU */
         .btn-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* Tiga Kolom */
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin-bottom: 20px;
+        }
+
+        .btn-grid button svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .input-group {
@@ -172,35 +178,38 @@
             background: var(--primary-hover);
         }
 
+        /* Check in - Biru */
         .btn-checkin {
             background: var(--success);
             color: white;
             padding: 18px 5px;
             border-radius: 12px;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
             font-size: 11px;
         }
         .btn-checkin:hover { background: var(--success-hover); }
 
+        /* Off - Merah */
         .btn-off {
-            background: var(--off);
+            background: var(--danger);
             color: white;
             padding: 18px 5px;
             border-radius: 12px;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
             font-size: 11px;
         }
-        .btn-off:hover { background: var(--off-hover); }
+        .btn-off:hover { background: var(--danger-hover); }
 
+        /* Check Out - Jingga */
         .btn-checkout {
             background: var(--warning);
             color: white;
             padding: 18px 5px;
             border-radius: 12px;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
             font-size: 11px;
         }
         .btn-checkout:hover { background: var(--warning-hover); }
@@ -242,7 +251,6 @@
             max-height: 480px;
         }
 
-        /* STATISTIK KARYAWAN */
         .stat-box {
             background: #f1f5f9;
             border: 1px solid #e2e8f0;
@@ -258,7 +266,6 @@
             font-weight: 800;
         }
 
-        /* STATUS REAL-TIME LOG */
         #status-log {
             font-size: 12px;
             color: var(--text-muted);
@@ -270,7 +277,6 @@
             font-weight: 500;
         }
 
-        /* TABEL REKAP ADMIN */
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -295,7 +301,7 @@
         }
         .badge-in { background: #d1fae5; color: #065f46; }
         .badge-out { background: #fef3c7; color: #92400e; }
-        .badge-off { background: #e2e8f0; color: #475569; }
+        .badge-off { background: #fee2e2; color: #991b1b; }
 
         .btn-lihat {
             display: inline-block;
@@ -334,7 +340,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Custom Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: flex; justify-content: center;
@@ -347,7 +352,6 @@
         }
         .modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
 
-        /* Tombol Disabled */
         .btn-disabled {
             background-color: #d1d5db !important;
             cursor: not-allowed !important;
@@ -358,7 +362,6 @@
 </head>
 <body>
 
-<!-- 1. HALAMAN LOGIN -->
 <div id="view-login" class="box">
     <div class="logo-container">
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
@@ -382,7 +385,6 @@
     </button>
 </div>
 
-<!-- 2. HALAMAN DASHBOARD KARYAWAN -->
 <div id="view-dashboard" class="box" style="display:none;">
     <div class="logo-container">
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
@@ -390,30 +392,26 @@
     <h2>Halo, <span id="nama-user" style="color: var(--primary);"></span>!</h2>
     <div class="sub-title">Selamat datang di sistem absensi toko</div>
 
-    <!-- Jam & Tanggal Live -->
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
-    <!-- Statistik Personal Real-time -->
     <div class="stat-box">
         Total Masuk Bulan Ini: <span id="total-masuk">0</span> Hari
     </div>
 
-    <!-- Log Indikator GPS Real-time -->
     <div id="status-log">Menghubungkan GPS...</div>
     
-    <!-- Pilihan Menu Tombol Baru (OFF Di Tengah) -->
     <div class="btn-grid">
         <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')">
-            <span style="font-size: 20px;">📥</span>
+            <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
             <span>Check In</span>
         </button>
         <button class="btn-off" id="btn-off" onclick="prosesAbsenOff()">
-            <span style="font-size: 20px;">🌴</span>
+            <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>OFF</span>
         </button>
         <button class="btn-checkout" id="btn-checkout" onclick="pilihAksi('Check Out')">
-            <span style="font-size: 20px;">📤</span>
+            <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
             <span>Check Out</span>
         </button>
     </div>
@@ -421,7 +419,6 @@
     <button class="btn-logout" onclick="logout()">Keluar / Logout</button>
 </div>
 
-<!-- 3. HALAMAN KAMERA SELFIE -->
 <div id="view-kamera" class="box" style="display:none;">
     <div class="logo-container">
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
@@ -442,7 +439,6 @@
     <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
 </div>
 
-<!-- 4. HALAMAN DASHBOARD ADMIN -->
 <div id="view-admin" class="box box-admin" style="display:none;">
     <div class="admin-header">
         <div>
@@ -473,7 +469,6 @@
     </div>
 </div>
 
-<!-- Custom Modal Notifikasi -->
 <div id="modal-notif" class="modal-overlay" style="display:none;">
     <div class="modal-box">
         <h3 id="modal-title">Info</h3>
@@ -485,10 +480,9 @@
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
-// KOORDINAT TOKO UFO KEBONSARI MALANG
 const TOKO_LAT = -8.020496288923635;
 const TOKO_LNG = 112.61885029434528;
-const RADIUS_MAKSIMAL = 100; // Radius toleransi dalam meter
+const RADIUS_MAKSIMAL = 100;
 
 let streamKamera = null;
 let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "", totalHadir = 0;
@@ -496,7 +490,6 @@ let isGpsValid = false;
 let modeKamera = "user";
 let gpsWatcher = null;
 
-// JAM & TANGGAL LIVE
 function updateWaktu() {
     const sekarang = new Date();
     const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -509,7 +502,6 @@ function updateWaktu() {
 }
 setInterval(updateWaktu, 1000);
 
-// HITUNG GEOLOCATION (RADIUS)
 function hitungJarak(lat1, lon1, lat2, lon2) {
     var R = 6371000;
     var dLat = (lat2 - lat1) * Math.PI / 180;
@@ -521,7 +513,6 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// POP-UP CUSTOM
 function tampilkanPesan(pesan, status) {
     document.getElementById('modal-pesan').innerText = pesan;
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
@@ -532,7 +523,6 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
-// LOGIN & FULLSCREEN API
 function prosesLogin() {
     const user = document.getElementById('user').value.trim();
     const pass = document.getElementById('pass').value.trim();
@@ -559,7 +549,6 @@ function prosesLogin() {
         if(data.status === "sukses") {
             namaLogin = data.nama;
             
-            // Aktifkan Fullscreen API agar address bar sembunyi saat bekerja
             const docEl = document.documentElement;
             if (docEl.requestFullscreen) docEl.requestFullscreen();
             else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
@@ -570,7 +559,7 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                totalHadir = data.total_masuk || 0; // Data statistik masuk real-time dari sheets
+                totalHadir = data.total_masuk || 0;
                 document.getElementById('total-masuk').innerText = totalHadir;
                 
                 document.getElementById('view-dashboard').style.display = 'block';
@@ -588,7 +577,6 @@ function prosesLogin() {
     });
 }
 
-// MENYALAKAN GPS MONITORING
 function startGPS() {
     if (navigator.geolocation) {
         gpsWatcher = navigator.geolocation.watchPosition(
@@ -619,14 +607,12 @@ function startGPS() {
     }
 }
 
-// VALIDASI LOCKOUT HARIAN & JADWAL KERJA
 function cekValidasiHarian() {
-    if (!isGpsValid) return; // GPS di luar toko = tetap lock
+    if (!isGpsValid) return;
 
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    // Reset sistem kunci jika hari sudah berganti
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         kunciSemuaTombol(false);
@@ -670,7 +656,6 @@ function kunciSemuaTombol(statusKunci) {
     }
 }
 
-// AKSEN PILIH INSTAN UNTUK MEMBUKA KAMERA
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
     document.getElementById('view-dashboard').style.display = 'none';
@@ -715,7 +700,6 @@ function kembaliKeDashboard() {
     cekValidasiHarian();
 }
 
-// PROSES ABSEN HARIAN OFF (TIDAK BUTUH KAMERA)
 function prosesAbsenOff() {
     if (confirm("Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini? Tombol absen akan langsung dikunci.")) {
         const tglSekarang = new Date().toDateString();
@@ -724,7 +708,6 @@ function prosesAbsenOff() {
         logAbsenHariIni.status.push('OFF');
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
-        // Tambah akumulasi hari kerja secara real-time
         totalHadir++;
         document.getElementById('total-masuk').innerText = totalHadir;
 
@@ -733,7 +716,6 @@ function prosesAbsenOff() {
     }
 }
 
-// PROSES KANVAS KAMERA & KIRIM KE SHEET
 function prosesAbsen() {
     if(lat === 0 && lng === 0) { 
         tampilkanPesan("Lokasi GPS belum terbaca, harap tunggu sebentar...", "info"); 
@@ -801,7 +783,6 @@ function prosesAbsen() {
     });
 }
 
-// DATA LAPORAN ADMIN
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     tabelBody.innerHTML = "<tr><td colspan='6' style='text-align: center;'>Memuat data laporan...</td></tr>";
@@ -837,7 +818,6 @@ function muatDataAdmin() {
     });
 }
 
-// LOGOUT DAN LEPAS FULLSCREEN
 function logout() {
     if (document.fullscreenElement) {
         if (document.exitFullscreen) document.exitFullscreen();
