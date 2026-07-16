@@ -395,12 +395,20 @@
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
-   <div class="stat-box" style="text-align: left; padding: 15px; line-height: 2;">
-    Total Kehadiran Bulan Ini : <span id="total-masuk" style="float: right; font-weight: bold;">0 hari</span><br>
-    Total OFF Bulan Ini : <span id="total-off" style="float: right; color: var(--danger); font-weight: bold;">0 hari</span><br>
-    Total PS Bulan Ini : <span id="total-ps" style="float: right; color: var(--warning); font-weight: bold;">0 hari</span>
+ <div class="stat-box" style="padding: 15px; font-size: 14px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>Total Kehadiran Bulan Ini :</span>
+        <span id="total-masuk" style="font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>Total OFF Bulan Ini :</span>
+        <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <span>Total PS Bulan Ini :</span>
+        <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+    </div>
 </div>
-
     <div id="status-log">Menghubungkan GPS...</div>
     
     <div class="btn-grid">
