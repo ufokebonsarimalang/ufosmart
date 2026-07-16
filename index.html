@@ -538,7 +538,8 @@ function tampilkanStatistik() {
 
 function tampilkanPesan(pesan, status) {
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p><button onclick="tutupModal()" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; width: 100%;">TUTUP</button>`;
+    // Mengisi pesan saja tanpa membuat tombol baru lagi di dalamnya
+    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
     document.getElementById('modal-notif').style.display = 'flex';
 }
 function tutupModal() {
