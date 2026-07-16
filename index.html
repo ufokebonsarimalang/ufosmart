@@ -580,10 +580,19 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                // Gunakan data dari server ATAU ambil cadangan lokal jika nilainya lebih tinggi (biar tidak ke-reset)
-                totalHadir = parseInt(localStorage.getItem(`totalHadir_${namaLogin}`)) || data.total_masuk || 0;
-                totalOff = parseInt(localStorage.getItem(`totalOff_${namaLogin}`)) || data.total_off || 0;
-                totalPs = parseInt(localStorage.getItem(`totalPs_${namaLogin}`)) || data.total_ps || 0;
+                // PERBAIKAN: Ambil data lokal dulu, jika tidak ada/kosong baru pakai data bawaan server database
+                let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
+                let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
+                let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
+
+                totalHadir = lokalHadir !== null ? parseInt(lokalHadir) : (data.total_masuk || 0);
+                totalOff = lokalOff !== null ? parseInt(lokalOff) : (data.total_off || 0);
+                totalPs = lokalPs !== null ? parseInt(lokalPs) : (data.total_ps || 0);
+
+                // Sinkronkan balik ke penyimpanan lokal agar aman ter-cache
+                localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
+                localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
+                localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
                  
                 tampilkanStatistik();
                 document.getElementById('view-dashboard').style.display = 'block';
@@ -600,7 +609,6 @@ function prosesLogin() {
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
     });
 }
-
 function startGPS() {
     if (navigator.geolocation) {
         gpsWatcher = navigator.geolocation.watchPosition(
