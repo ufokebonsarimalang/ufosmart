@@ -532,11 +532,11 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
 }
 
 function tampilkanPesan(pesan, status) {
-    document.getElementById('modal-pesan').innerText = pesan;
+    // Kembalikan struktur tombol default ke tombol TUTUP tunggal
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
+    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p><button onclick="tutupModal()" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; width: 100%;">TUTUP</button>`;
     document.getElementById('modal-notif').style.display = 'flex';
 }
-
 function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
@@ -720,42 +720,61 @@ function kembaliKeDashboard() {
     cekValidasiHarian();
 }
 
+// Fungsi baru untuk memicu modal konfirmasi custom
 function prosesAbsenOff() {
-    if (confirm("Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?")) {
-        const btn = document.getElementById('btn-off');
-        btn.disabled = true;
-        
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                aksi: "absen", 
-                nama: namaLogin, 
-                status: "OFF", 
-                lat: lat || 0, 
-                lng: lng || 0, 
-                foto: "" 
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.pesan.includes("berhasil")) {
-                const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-                logAbsenHariIni.status.push('OFF');
-                localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+    // Ubah text modal agar dinamis untuk konfirmasi
+    document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
+    document.getElementById('modal-pesan').innerHTML = `
+        <p>Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); margin: 0;">YA, LIBUR</button>
+            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; margin: 0;">BATAL</button>
+        </div>
+    `;
+    // Sembunyikan tombol TUTUP default bawaan modal
+    const btnTutup = document.querySelector('#modal-box button:not([onclick*="eksekusi"])');
+    
+    document.getElementById('modal-notif').style.display = 'flex';
+}
 
-                totalOff++;
-                document.getElementById('total-off').innerText = totalOff + " hari";
-                tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
-            } else {
-                tampilkanPesan(data.pesan, 'info');
-            }
-            cekValidasiHarian();
+// Fungsi eksekusi yang sebenarnya (menggantikan logika fetch yang lama)
+function eksekusiAbsenOff() {
+    tutupModal(); // Tutup dulu modal konfirmasinya
+    
+    const btn = document.getElementById('btn-off');
+    btn.disabled = true;
+    
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            aksi: "absen", 
+            nama: namaLogin, 
+            status: "OFF", 
+            lat: lat || 0, 
+            lng: lng || 0, 
+            foto: "" 
         })
-        .catch(err => {
-            btn.disabled = false;
-            tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
-        });
-    }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.pesan.includes("berhasil")) {
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            logAbsenHariIni.status.push('OFF');
+            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            totalOff++;
+            document.getElementById('total-off').innerText = totalOff + " hari";
+            tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
+        } else {
+            tampilkanPesan(data.pesan, 'info');
+        }
+        cekValidasiHarian();
+    })
+    .catch(err => {
+        btn.disabled = false;
+        tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
+    });
+}
 }
 
 function prosesAbsen() {
