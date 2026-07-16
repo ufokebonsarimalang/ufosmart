@@ -820,6 +820,27 @@ function prosesAbsen() {
         return;
     }
      
+    const jamSekarang = new Date().getHours();
+    const waktuSekarang = new Date().toLocaleTimeString('id-ID');
+    const waktuMilidetikSekarang = Date.now();
+
+    // ================= VALIDASI MINIMAL 8 JAM UNTUK PS =================
+    if (tipeAbsen === 'Check Out' && (jamSekarang === 17 || jamSekarang === 18)) {
+        const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
+        
+        if (waktuCheckInLokal) {
+            const selisihMilidetik = waktuMilidetikSekarang - parseInt(waktuCheckInLokal);
+            const selisihJam = selisihMilidetik / (1000 * 60 * 60); // Konversi ke jam
+
+            if (selisihJam < 8) {
+                const sisaMenit = Math.ceil((8 - selisihJam) * 60);
+                tampilkanPesan(`Anda belum bisa checkout karena belum 8 jam kerja. Kurang ${sisaMenit} menit lagi.`, "info");
+                return; // Membatalkan proses kirim absen ke Google Sheets
+            }
+        }
+    }
+    // ====================================================================
+
     const video = document.getElementById('kamera');
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
@@ -831,9 +852,6 @@ function prosesAbsen() {
      
     btn.disabled = true;
     spinner.style.display = 'inline-block';
-     
-    const jamSekarang = new Date().getHours();
-    const waktuSekarang = new Date().toLocaleTimeString('id-ID');
      
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -851,6 +869,11 @@ function prosesAbsen() {
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
+            // Jika berhasil Check In, catat waktu milidetiknya untuk validasi nanti
+            if (tipeAbsen === 'Check In') {
+                localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
+            }
+
             if (tipeAbsen === 'Check Out') {
                 totalHadir++;
                 localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
@@ -859,6 +882,8 @@ function prosesAbsen() {
                     totalPs++;
                     localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
                 }
+                // Hapus cache check-in setelah sukses pulang
+                localStorage.removeItem(`waktuCheckIn_${namaLogin}`);
             }
              
             tampilkanStatistik();
@@ -873,6 +898,49 @@ function prosesAbsen() {
         btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
     });
+}
+
+function cekValidasiHarian() {
+    tampilkanStatistik(); 
+    const tglSekarang = new Date().toDateString();
+    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
+
+    if (logAbsenHariIni.tanggal !== tglSekarang) {
+        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
+        localStorage.removeItem(`waktuCheckIn_${namaLogin}`); // Bersihkan sisa kemarin jika ada
+        kunciTombolKerja(false);
+        document.getElementById('btn-off').classList.remove('btn-disabled');
+        document.getElementById('btn-off').disabled = false;
+        return;
+    }
+
+    const status = logAbsenHariIni.status;
+
+    if (status.includes('OFF')) {
+        kunciTombolKerja(true);
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+        document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
+    } else if (status.includes('Check Out')) {
+        kunciTombolKerja(true);
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+        document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
+    } else if (status.includes('Check In')) {
+        document.getElementById('btn-checkin').classList.add('btn-disabled');
+        document.getElementById('btn-checkin').disabled = true;
+         
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+         
+        if(isGpsValid) {
+            document.getElementById('btn-checkout').classList.remove('btn-disabled');
+            document.getElementById('btn-checkout').disabled = false;
+        }
+        document.getElementById('status-log').innerText = "Status: Sedang bekerja. Silakan Check Out saat pulang.";
+    } else {
+        if(isGpsValid) kunciTombolKerja(false);
+    }
 }
 
 function muatDataAdmin() {
