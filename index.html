@@ -390,26 +390,23 @@
         <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2>Halo, <span id="nama-user" style="color: var(--primary);"></span>!</h2>
-    <div class="sub-title">SELAMAT DATANG DI SISTEM ABSENSI UFO</div>
+    <div class="sub-title">Selamat datang di sistem absensi toko</div>
 
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
-  <div class="stat-box" style="padding: 15px; font-size: 14px;">
-        <!-- Baris Kehadiran: Tetap Biru -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--primary); font-weight: bold;">
+    <div class="stat-box" style="padding: 15px; font-size: 14px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span>Total Kehadiran Bulan Ini :</span>
-            <span id="total-masuk" style="min-width: 60px; text-align: right;">0 hari</span>
+            <span id="total-masuk" style="font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
         </div>
-        <!-- Baris OFF: Semua Merah -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--danger); font-weight: bold;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span>Total OFF Bulan Ini :</span>
-            <span id="total-off" style="min-width: 60px; text-align: right;">0 hari</span>
+            <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
         </div>
-        <!-- Baris PS: Semua Jingga -->
-        <div style="display: flex; justify-content: space-between; color: var(--warning); font-weight: bold;">
+        <div style="display: flex; justify-content: space-between;">
             <span>Total PS Bulan Ini :</span>
-            <span id="total-ps" style="min-width: 60px; text-align: right;">0 hari</span>
+            <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
         </div>
     </div>
     <div id="status-log">Menghubungkan GPS...</div>
