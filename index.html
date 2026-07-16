@@ -395,12 +395,11 @@
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
-    <!-- TAMPILAN STATISTIK SUSUNAN BARU -->
-    <div class="stat-box" style="text-align: left; padding: 15px; line-height: 2;">
-        Total Kehadiran Bulan Ini: <span id="total-masuk" style="float: right;">0</span> Hari<br>
-        Total OFF Bulan Ini: <span id="total-off" style="float: right; color: var(--danger);">0</span> Hari<br>
-        Total PS Bulan Ini: <span id="total-ps" style="float: right; color: var(--warning);">0</span> Hari
-    </div>
+   <div class="stat-box" style="text-align: left; padding: 15px; line-height: 2;">
+    Total Kehadiran Bulan Ini : <span id="total-masuk" style="float: right; font-weight: bold;">0 hari</span><br>
+    Total OFF Bulan Ini : <span id="total-off" style="float: right; color: var(--danger); font-weight: bold;">0 hari</span><br>
+    Total PS Bulan Ini : <span id="total-ps" style="float: right; color: var(--warning); font-weight: bold;">0 hari</span>
+</div>
 
     <div id="status-log">Menghubungkan GPS...</div>
     
@@ -566,10 +565,9 @@ function prosesLogin() {
                 totalOff = data.total_off || 0;
                 totalPs = data.total_ps || 0;
                 
-                document.getElementById('total-masuk').innerText = totalHadir;
-                document.getElementById('total-off').innerText = totalOff;
-                document.getElementById('total-ps').innerText = totalPs;
-                
+                document.getElementById('total-masuk').innerText = totalHadir + " hari";
+document.getElementById('total-off').innerText = totalOff + " hari";
+document.getElementById('total-ps').innerText = totalPs + " hari";
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 startGPS();
@@ -735,7 +733,8 @@ function prosesAbsenOff() {
                 localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
                 totalOff++;
-                document.getElementById('total-off').innerText = totalOff;
+              totalOff++;
+document.getElementById('total-off').innerText = totalOff + " hari";
                 tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
             } else {
                 tampilkanPesan(data.pesan, 'info');
@@ -792,17 +791,16 @@ function prosesAbsen() {
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
-            // Perhitungan instan di UI khusus saat Check Out
             if (tipeAbsen === 'Check Out') {
-                totalHadir++;
-                document.getElementById('total-masuk').innerText = totalHadir;
-                
-                // Evaluasi Jam Pulang Sore (17:00 - 18:59)
-                if (jamSekarang === 17 || jamSekarang === 18) {
-                    totalPs++;
-                    document.getElementById('total-ps').innerText = totalPs;
-                }
-            }
+    totalHadir++;
+    document.getElementById('total-masuk').innerText = totalHadir + " hari";
+    
+    // Evaluasi Jam Pulang Sore
+    if (jamSekarang === 17 || jamSekarang === 18) {
+        totalPs++;
+        document.getElementById('total-ps').innerText = totalPs + " hari";
+    }
+}
             
             tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!", 'sukses');
         } else {
