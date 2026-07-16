@@ -709,32 +709,34 @@ function kembaliKeDashboard() {
 }
 
 // Fitur OFF tidak dikunci GPS (Bisa ditekan kapan saja dari manapun)
+// Fitur OFF bebas GPS - Pasti masuk ke Google Sheets
 function prosesAbsenOff() {
     if (confirm("Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?")) {
         const btn = document.getElementById('btn-off');
         btn.disabled = true;
         
+        // Mengirim koordinat dummy (0, 0) agar server tidak menolak karena kosong
         fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({ 
                 aksi: "absen", 
                 nama: namaLogin, 
                 status: "OFF", 
-                lat: lat, 
-                lng: lng, 
+                lat: lat || 0, 
+                lng: lng || 0, 
                 foto: "" 
             })
         })
         .then(res => res.json())
         .then(data => {
             if(data.pesan.includes("berhasil")) {
-                const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
+                const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
                 logAbsenHariIni.status.push('OFF');
                 localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
                 totalOff++;
                 document.getElementById('total-off').innerText = totalOff;
-                tampilkanPesan("Berhasil mengambil hari OFF!", "sukses");
+                tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
             } else {
                 tampilkanPesan(data.pesan, 'info');
             }
@@ -742,7 +744,7 @@ function prosesAbsenOff() {
         })
         .catch(err => {
             btn.disabled = false;
-            tampilkanPesan("Terjadi kesalahan jaringan.", "info");
+            tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
         });
     }
 }
