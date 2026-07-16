@@ -538,12 +538,36 @@ function tampilkanStatistik() {
 
 function tampilkanPesan(pesan, status) {
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    // Mengisi pesan saja tanpa membuat tombol baru lagi di dalamnya
     document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
+    
+    // Pastikan tombol bawaan HTML tampil normal
+    const tombolBawaan = document.querySelector('#modal-box > button:last-child');
+    if (tombolBawaan) tombolBawaan.style.display = 'inline-block';
+    
     document.getElementById('modal-notif').style.display = 'flex';
 }
+
 function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
+}
+
+function prosesAbsenOff() {
+    document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
+    
+    // Tampilkan pesan konfirmasi
+    document.getElementById('modal-pesan').innerHTML = `
+        <p>Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">YA, LIBUR</button>
+            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">BATAL</button>
+        </div>
+    `;
+    
+    // Sembunyikan tombol TUTUP bawaan HTML khusus untuk menu konfirmasi ini agar tidak ganda
+    const tombolBawaan = document.querySelector('#modal-box > button:last-child');
+    if (tombolBawaan) tombolBawaan.style.display = 'none';
+    
+    document.getElementById('modal-notif').style.display = 'flex';
 }
 
 function prosesLogin() {
