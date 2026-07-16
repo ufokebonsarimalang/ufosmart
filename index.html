@@ -509,8 +509,17 @@ function updateWaktu() {
     const elJam = document.getElementById('live-jam');
     
     if(elTanggal) elTanggal.innerText = sekarang.toLocaleDateString('id-ID', opsiTanggal);
-    if(elJam) elJam.innerText = Bird || sekarang.toLocaleTimeString('id-ID');
+    
+    // KODE YANG SUDAH DIPERBAIKI (Menghapus kata 'Bird')
+    if(elJam) {
+        // Menggunakan padStart agar format jam selalu rapi 2 digit (contoh: 08:05:09)
+        let jam = sekarang.getHours().toString().padStart(2, '0');
+        let menit =...sekarang.getMinutes().toString().padStart(2, '0');
+        let detik = sekarang.getSeconds().toString().padStart(2, '0');
+        elJam.innerText = `${jam}:${menit}:${detik}`;
+    }
 }
+// Timer tetap berjalan otomatis setiap 1 detik
 setInterval(updateWaktu, 1000);
 
 function hitungJarak(lat1, lon1, lat2, lon2) {
