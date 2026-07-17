@@ -473,30 +473,37 @@
     <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
 </div>
 
-<div id="view-admin" class="box box-admin" style="display:none;">
-    <div class="admin-header">
-        <div>
-            <h2 style="text-align: left;">Rekap Absensi Karyawan</h2>
-            <span style="color: var(--text-muted); font-size: 13px;">Data tersinkronisasi otomatis dengan Google Sheets</span>
+<div id="view-admin" class="box box-admin" style="display:none; max-width: 100%; width: 95%; padding: 25px;">
+    <div class="admin-header" style="display: flex; flex-direction: column; gap: 15px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; text-align: left;">
+        <div style="width: 100%;">
+            <h2 style="text-align: left; margin: 0; font-size: 22px; color: var(--primary);">UFO Kebonsari Malang</h2>
+            <div style="color: var(--text-muted); font-size: 13px; margin-top: 4px; font-weight: 500;">Rekap Absensi Karyawan Terkini</div>
         </div>
-        <button class="btn-logout" onclick="logout()">Keluar</button>
+        <!-- Tombol Aksi Admin -->
+        <div style="display: flex; gap: 10px; width: 100%; justify-content: flex-start;">
+            <button onclick="downloadCSV()" style="margin: 0; width: auto; background: #16a34a; color: white; padding: 10px 16px; font-size: 12px; font-weight: bold; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                📥 Unduh Excel (CSV)
+            </button>
+            <button class="btn-logout" onclick="logout()" style="margin: 0; width: auto; border: 1.5px solid var(--danger); padding: 8px 16px; font-size: 12px; border-radius: 8px;">
+                Keluar
+            </button>
+        </div>
     </div>
      
-    <div class="table-container">
+    <div class="table-container" style="box-shadow: 0 4px 15px rgba(0,0,0,0.02); background: white; border-radius: 12px;">
         <table>
             <thead>
                 <tr>
-                    <th>Waktu</th>
-                    <th>Nama</th>
-                    <th>Status</th>
-                    <th>Lat</th>
-                    <th>Lng</th>
-                    <th>Foto Selfie</th>
+                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Waktu</th>
+                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Nama</th>
+                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Status</th>
+                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Koordinat (GPS)</th>
+                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Foto Selfie</th>
                 </tr>
             </thead>
             <tbody id="isi-tabel">
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Sedang memuat data...</td>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px; font-style: italic;">Sedang memuat data laporan...</td>
                 </tr>
             </tbody>
         </table>
@@ -634,6 +641,88 @@ function prosesLogin() {
             if(data.role === "admin") {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
+                // Global variabel untuk menyimpan data laporan mentah agar bisa diunduh
+let dataLaporanGlobal = [];
+
+function muatDataAdmin() {
+    const tabelBody = document.getElementById('isi-tabel');
+    tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Memuat data laporan...</td></tr>";
+     
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
+    .then(res => res.json())
+    .then(data => {
+        dataLaporanGlobal = data; // Simpan ke variabel global untuk fitur download
+        tabelBody.innerHTML = "";
+        
+        if (data.length <= 1) {
+            tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px; color: var(--text-muted);'>Belum ada data absensi masuk.</td></tr>";
+            return;
+        }
+
+        for(let i = 1; i < data.length; i++) {
+            let row = data[i];
+            let tr = document.createElement('tr');
+            
+            // Atur gaya badge status agar lebih kontras dan indah
+            let statusBadgeClass = 'badge-off';
+            if(row[2] === 'Check In') statusBadgeClass = 'badge-in';
+            if(row[2] === 'Check Out') statusBadgeClass = 'badge-out';
+
+            // Koordinat gabungan
+            let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
+
+            tr.innerHTML = `
+                <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${row[0] || '-'}</td>
+                <td style="padding: 12px; font-weight: bold; font-size: 13px;">${row[1] || '-'}</td>
+                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}" style="padding: 5px 10px; font-size: 11px;">${row[2] || '-'}</span></td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #475569;">${koordinat}</td>
+                <td style="padding: 12px; text-align: center;">
+                    ${row[5] && row[5] !== '-' ? `<a href="${row[5]}" target="_blank" class="btn-lihat" style="padding: 6px 12px; font-size: 11px; border-radius: 6px;">Lihat Foto</a>` : '<span style="color: #cbd5e1; font-size: 12px;">Tanpa Foto</span>'}
+                </td>
+            `;
+            tabelBody.appendChild(tr);
+        }
+    })
+    .catch(err => {
+        tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px; color: var(--danger);'>Gagal memuat data. Periksa koneksi internet Anda.</td></tr>";
+    });
+}
+
+// FUNGSI BARU: Mengunduh data tabel ke file CSV yang kompatibel dengan Microsoft Excel
+function downloadCSV() {
+    if (dataLaporanGlobal.length <= 1) {
+        tampilkanPesan("Tidak ada data yang dapat diunduh.", "info");
+        return;
+    }
+
+    let csvContent = "\uFEFF"; // Menambahkan BOM agar Excel mengenali karakter khusus/bahasa Indonesia dengan benar
+    
+    // Looping baris data dari Google Sheet
+    dataLaporanGlobal.forEach(function(rowArray) {
+        // Membersihkan tanda kutip ganda di dalam data agar format CSV tidak pecah
+        let row = rowArray.map(val => {
+            let cleanVal = String(val).replace(/"/g, '""');
+            return `"${cleanVal}"`;
+        });
+        csvContent += row.join(",") + "\r\n";
+    });
+
+    // Buat file unduhan di browser
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    // Format nama file: Rekap_Absen_YYYYMMDD_HHMMSS.csv
+    const tgl = new Date();
+    const namaFile = `Rekap_Absen_${tgl.getFullYear()}${(tgl.getMonth()+1).toString().padStart(2,'0')}${tgl.getDate().toString().padStart(2,'0')}.csv`;
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", namaFile);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
             } else {
                 // Ambil data lokal dulu, jika tidak ada/kosong baru pakai data bawaan server database
                 let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
