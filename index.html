@@ -968,7 +968,7 @@ function prosesAbsen() {
         spinner.style.display = 'none';
         btn.disabled = false;
          
-        if(data.pesan.includes("berhasil")) {
+      if(data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
@@ -1012,7 +1012,6 @@ function prosesAbsen() {
             tampilkanStatistik();
             // Menampilkan durasi kerja di dalam pop-up notifikasi sukses
             tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
-        }
         } else {
             tampilkanPesan(data.pesan, 'info');
         }
