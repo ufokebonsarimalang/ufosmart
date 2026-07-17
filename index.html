@@ -978,12 +978,26 @@ function prosesAbsen() {
             detailWaktu[tipeAbsen] = waktuSekarang;
             localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
+            // Variabel penampung teks durasi kerja
+            let infoDurasi = "";
+
             // Jika berhasil Check In, catat waktu milidetiknya untuk validasi nanti
             if (tipeAbsen === 'Check In') {
                 localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
             }
 
             if (tipeAbsen === 'Check Out') {
+                // FITUR BARU: Hitung selisih waktu dari check-in
+                const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
+                if (waktuCheckInLokal) {
+                    const selisihMilidetik = waktuMilidetikSekarang - parseInt(waktuCheckInLokal);
+                    const totalMenit = Math.floor(selisihMilidetik / (1000 * 60));
+                    const jam = Math.floor(totalMenit / 60);
+                    const menit = totalMenit % 60;
+                    
+                    infoDurasi = `<br><br>⏱️ <strong>Durasi Kerja Anda Hari Ini:</strong><br>${jam} Jam ${menit} Menit.`;
+                }
+
                 totalHadir++;
                 localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
                  
@@ -996,7 +1010,9 @@ function prosesAbsen() {
             }
              
             tampilkanStatistik();
-            tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!", 'sukses');
+            // Menampilkan durasi kerja di dalam pop-up notifikasi sukses
+            tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
+        }
         } else {
             tampilkanPesan(data.pesan, 'info');
         }
