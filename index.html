@@ -420,7 +420,9 @@
         </div>
     </div>
     <div id="status-log">Menghubungkan GPS...</div>
-     
+<button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
+    🔄 Refresh Lokasi GPS
+</button>
     <!-- MODIFIKASI: Ditambahkan container flex kolom agar teks info waktu bisa diletakkan persis di bawah tombol -->
     <div class="btn-grid">
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
@@ -653,6 +655,27 @@ function prosesLogin() {
                 
                 // JALANKAN SINKRONISASI WAKTU SERVER SAAT DASHBOARD DIBUKA
                 sinkronisasiWaktuServer();
+                function retrackGPS() {
+    const btnGps = document.getElementById('btn-refresh-gps');
+    btnGps.disabled = true;
+    btnGps.innerText = "🔄 Memperbarui GPS...";
+
+    if (gpsWatcher) {
+        navigator.geolocation.clearWatch(gpsWatcher);
+        gpsWatcher = null;
+    }
+
+    document.getElementById('status-log').innerText = "Mendeteksi ulang koordinat...";
+
+    // Jalankan ulang deteksi lokasi
+    startGPS();
+
+    // Beri jeda 2 detik sebelum tombol bisa diklik kembali
+    setTimeout(() => {
+        btnGps.disabled = false;
+        btnGps.innerText = "🔄 Refresh Lokasi GPS";
+    }, 2000);
+}
                 startGPS();
             }
         } else {
@@ -925,8 +948,8 @@ function prosesAbsen() {
     ctx.font = `${Math.round(canvas.height * 0.03)}px Arial`;
     ctx.fillText(gpsString, Math.round(canvas.width * 0.05), canvas.height - Math.round(boxHeight * 0.25));
 
-    // Ekstrak hasil foto canvas yang sudah di-watermark
-    const dataFoto = canvas.toDataURL('image/jpeg');
+   // Ekstrak hasil foto canvas yang sudah di-watermark dengan kompresi kualitas 50%
+    const dataFoto = canvas.toDataURL('image/jpeg', 0.5);
 
     const btn = document.getElementById('btnAbsen');
     const spinner = document.getElementById('absen-spinner');
