@@ -1158,6 +1158,63 @@ function logout() {
     document.getElementById('view-login').style.display = 'block';
     kunciTombolKerja(false);
 }
+  // ==========================================
+// FUNGSI UNTUK UNDUH REKAP EXCEL (CSV)
+// ==========================================
+var dataLaporanGlobal = []; // Gunakan var agar terbaca secara global di seluruh script
+
+function downloadCSV() {
+    // Jika data global masih kosong, coba ambil langsung dari tabel visual di layar
+    if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+        let rows = document.querySelectorAll("#isi-tabel tr");
+        if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("Memuat"))) {
+            alert("Tidak ada data yang dapat diunduh atau data sedang dimuat.");
+            return;
+        }
+        
+        // Cadangan: Membuat data CSV dari elemen tabel HTML langsung jika data global kosong
+        let csvCols = ["Waktu", "Nama Karyawan", "Status", "Koordinat (GPS)"];
+        let tempLaporan = [csvCols];
+        
+        rows.forEach(row => {
+            let cols = row.querySelectorAll("td");
+            if (cols.length >= 4) {
+                tempLaporan.push([
+                    cols[0].innerText.trim(),
+                    cols[1].innerText.trim(),
+                    cols[2].innerText.trim(),
+                    cols[3].innerText.trim()
+                ]);
+            }
+        });
+        dataLaporanGlobal = tempLaporan;
+    }
+
+    let csvContent = "\uFEFF"; // BOM agar Excel mengenali karakter khusus (seperti spasi & simbol) dengan benar
+    
+    dataLaporanGlobal.forEach(function(rowArray) {
+        let row = rowArray.map(val => {
+            let cleanVal = String(val).replace(/"/g, '""');
+            return `"${cleanVal}"`;
+        });
+        csvContent += row.join(",") + "\r\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    const tgl = new Date();
+    const formatTanggal = `${tgl.getFullYear()}${(tgl.getMonth()+1).toString().padStart(2,'0')}${tgl.getDate().toString().padStart(2,'0')}`;
+    const namaFile = `Rekap_Absen_UFO_${formatTanggal}.csv`;
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", namaFile);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}  
 </script>
 </body>
 </html>
