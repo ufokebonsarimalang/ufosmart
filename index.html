@@ -358,6 +358,16 @@
             opacity: 0.5;
             pointer-events: none;
         }
+
+        /* Gaya teks penunjuk waktu absen di bawah tombol */
+        .info-jam-absen {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 6px;
+            display: block;
+            text-align: center;
+            min-height: 15px;
+        }
     </style>
 </head>
 <body>
@@ -411,19 +421,31 @@
     </div>
     <div id="status-log">Menghubungkan GPS...</div>
      
+    <!-- MODIFIKASI: Ditambahkan container flex kolom agar teks info waktu bisa diletakkan persis di bawah tombol -->
     <div class="btn-grid">
-        <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')">
-            <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
-            <span>Check In</span>
-        </button>
-        <button class="btn-off" id="btn-off" onclick="prosesAbsenOff()">
-            <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>OFF</span>
-        </button>
-        <button class="btn-checkout" id="btn-checkout" onclick="pilihAksi('Check Out')">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
-            <span>Check Out</span>
-        </button>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')" style="width: 100%;">
+                <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
+                <span>Check In</span>
+            </button>
+            <span id="time-checkin" class="info-jam-absen" style="color: var(--primary);"></span>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <button class="btn-off" id="btn-off" onclick="prosesAbsenOff()" style="width: 100%;">
+                <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>OFF</span>
+            </button>
+            <span id="time-off" class="info-jam-absen" style="color: var(--danger);"></span>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <button class="btn-checkout" id="btn-checkout" onclick="pilihAksi('Check Out')" style="width: 100%;">
+                <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
+                <span>Check Out</span>
+            </button>
+            <span id="time-checkout" class="info-jam-absen" style="color: var(--warning);"></span>
+        </div>
     </div>
 
     <button class="btn-logout" onclick="logout()">Keluar / Logout</button>
@@ -501,18 +523,43 @@ let isGpsValid = false;
 let modeKamera = "user";
 let gpsWatcher = null;
 
+// VARIABEL BARU: Menyimpan selisih waktu antara HP lokal dan server
+let serverTimeOffset = 0; 
+
+// FUNGSI BARU: Mengambil jam server lalu menghitung selisih milidetik dengan HP
+function sinkronisasiWaktuServer() {
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ aksi: "get_server_time" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.time) {
+            // Ubah format string "yyyy-MM-dd HH:mm:ss" menjadi objek Date GMT+7
+            const serverDate = new Date(data.time.replace(" ", "T") + "+07:00");
+            const localDate = new Date();
+            serverTimeOffset = serverDate.getTime() - localDate.getTime();
+            console.log("Waktu tersinkronisasi. Selisih: " + serverTimeOffset + " ms");
+        }
+    })
+    .catch(err => {
+        console.log("Gagal sinkronisasi waktu server, menggunakan waktu HP lokal:", err);
+    });
+}
+
 function updateWaktu() {
-    const sekarang = new Date();
+    // MODIFIKASI: Waktu jam digital berjalan sekarang ditambah selisih waktu server
+    const sekarang = new Date(Date.now() + serverTimeOffset);
     const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
      
     const elTanggal = document.getElementById('live-tanggal');
     const elJam = document.getElementById('live-jam');
      
-    if(elTanggal) elTanggal.innerText = Clinical = sekarang.toLocaleDateString('id-ID', opsiTanggal);
+    if(elTanggal) elTanggal.innerText = sekarang.toLocaleDateString('id-ID', opsiTanggal);
      
     if(elJam) {
         let jam = sekarang.getHours().toString().padStart(2, '0');
-        let menit = Clinical = sekarang.getMinutes().toString().padStart(2, '0');
+        let menit = sekarang.getMinutes().toString().padStart(2, '0');
         let detik = sekarang.getSeconds().toString().padStart(2, '0');
         elJam.innerText = `${jam}:${menit}:${detik}`;
     }
@@ -551,25 +598,6 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
-function prosesAbsenOff() {
-    document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
-    
-    // Tampilkan pesan konfirmasi
-    document.getElementById('modal-pesan').innerHTML = `
-        <p>Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">YA, LIBUR</button>
-            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">BATAL</button>
-        </div>
-    `;
-    
-    // Sembunyikan tombol TUTUP bawaan HTML khusus untuk menu konfirmasi ini agar tidak ganda
-    const tombolBawaan = document.querySelector('#modal-box > button:last-child');
-    if (tombolBawaan) tombolBawaan.style.display = 'none';
-    
-    document.getElementById('modal-notif').style.display = 'flex';
-}
-
 function prosesLogin() {
     const user = document.getElementById('user').value.trim();
     const pass = document.getElementById('pass').value.trim();
@@ -605,7 +633,7 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                // PERBAIKAN: Ambil data lokal dulu, jika tidak ada/kosong baru pakai data bawaan server database
+                // Ambil data lokal dulu, jika tidak ada/kosong baru pakai data bawaan server database
                 let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
                 let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
                 let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
@@ -622,6 +650,9 @@ function prosesLogin() {
                 tampilkanStatistik();
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
+                
+                // JALANKAN SINKRONISASI WAKTU SERVER SAAT DASHBOARD DIBUKA
+                sinkronisasiWaktuServer();
                 startGPS();
             }
         } else {
@@ -634,6 +665,7 @@ function prosesLogin() {
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
     });
 }
+
 function startGPS() {
     if (navigator.geolocation) {
         gpsWatcher = navigator.geolocation.watchPosition(
@@ -665,19 +697,32 @@ function startGPS() {
 }
 
 function cekValidasiHarian() {
-    tampilkanStatistik(); // Kunci data tampilan layar utama
+    tampilkanStatistik(); 
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
+        localStorage.removeItem(`waktuCheckIn_${namaLogin}`); // Bersihkan sisa kemarin jika ada
+        localStorage.removeItem(`detailWaktu_${namaLogin}`); // Bersihkan detail waktu jam di bawah tombol kemarin
         kunciTombolKerja(false);
         document.getElementById('btn-off').classList.remove('btn-disabled');
         document.getElementById('btn-off').disabled = false;
+        
+        // Kosongkan tampilan jam di bawah tombol
+        document.getElementById('time-checkin').innerText = "";
+        document.getElementById('time-checkout').innerText = "";
+        document.getElementById('time-off').innerText = "";
         return;
     }
 
     const status = logAbsenHariIni.status;
+
+    // AMBIL DATA WAKTU ABSEN UNTUK DITAMPILKAN DI BAWAH TOMBOL
+    const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "Jam: " + detailWaktu['Check In'] : "";
+    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
+    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
     if (status.includes('OFF')) {
         kunciTombolKerja(true);
@@ -793,6 +838,13 @@ function eksekusiAbsenOff() {
             logAbsenHariIni.status.push('OFF');
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
+            // SIMPAN CATATAN JAM LIBUR
+            const serverDate = new Date(Date.now() + serverTimeOffset);
+            const waktuSelesaiFormatted = serverDate.toLocaleTimeString('id-ID');
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu['OFF'] = waktuSelesaiFormatted;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
             totalOff++;
             localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
             tampilkanStatistik();
@@ -820,9 +872,11 @@ function prosesAbsen() {
         return;
     }
      
-    const jamSekarang = new Date().getHours();
-    const waktuSekarang = new Date().toLocaleTimeString('id-ID');
-    const waktuMilidetikSekarang = Date.now();
+    // AMBIL WAKTU SESUAI SERVER
+    const serverDate = new Date(Date.now() + serverTimeOffset);
+    const jamSekarang = serverDate.getHours();
+    const waktuSekarang = serverDate.toLocaleTimeString('id-ID');
+    const waktuMilidetikSekarang = serverDate.getTime();
 
     // ================= VALIDASI MINIMAL 8 JAM UNTUK PS =================
     if (tipeAbsen === 'Check Out' && (jamSekarang === 17 || jamSekarang === 18)) {
@@ -843,8 +897,35 @@ function prosesAbsen() {
 
     const video = document.getElementById('kamera');
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.width = video.videoWidth; 
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    // MODIFIKASI FITUR 2: Menggambar Frame Foto & Cetak Watermark GPS/Waktu Server ke Canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Parameter Teks
+    const latText = lat ? lat.toFixed(6) : "0.000000";
+    const lngText = lng ? lng.toFixed(6) : "0.000000";
+    const formatWaktu = serverDate.toLocaleDateString('id-ID') + ' ' + waktuSekarang + ' WIB';
+    const gpsString = `GPS: ${latText}, ${lngText}`;
+    
+    // Desain Box Watermark
+    const boxHeight = Math.round(canvas.height * 0.12); // Menghitung tinggi kotak proporsional resolusi foto
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; // Background hitam transparan
+    ctx.fillRect(0, canvas.height - boxHeight, canvas.width, boxHeight);
+    
+    // Teks Waktu
+    ctx.fillStyle = "#ffffff"; // Warna teks putih
+    ctx.font = `bold ${Math.round(canvas.height * 0.035)}px Arial`;
+    ctx.fillText(formatWaktu, Math.round(canvas.width * 0.05), canvas.height - Math.round(boxHeight * 0.6));
+    
+    // Teks GPS
+    ctx.fillStyle = "#facc15"; // Warna kuning untuk GPS
+    ctx.font = `${Math.round(canvas.height * 0.03)}px Arial`;
+    ctx.fillText(gpsString, Math.round(canvas.width * 0.05), canvas.height - Math.round(boxHeight * 0.25));
+
+    // Ekstrak hasil foto canvas yang sudah di-watermark
     const dataFoto = canvas.toDataURL('image/jpeg');
 
     const btn = document.getElementById('btnAbsen');
@@ -868,6 +949,11 @@ function prosesAbsen() {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            // SIMPAN DATA JAM TER-ABSEN UNTUK TAMPILAN DI BAWAH TOMBOL
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu[tipeAbsen] = waktuSekarang;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
             // Jika berhasil Check In, catat waktu milidetiknya untuk validasi nanti
             if (tipeAbsen === 'Check In') {
@@ -898,49 +984,6 @@ function prosesAbsen() {
         btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
     });
-}
-
-function cekValidasiHarian() {
-    tampilkanStatistik(); 
-    const tglSekarang = new Date().toDateString();
-    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
-
-    if (logAbsenHariIni.tanggal !== tglSekarang) {
-        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
-        localStorage.removeItem(`waktuCheckIn_${namaLogin}`); // Bersihkan sisa kemarin jika ada
-        kunciTombolKerja(false);
-        document.getElementById('btn-off').classList.remove('btn-disabled');
-        document.getElementById('btn-off').disabled = false;
-        return;
-    }
-
-    const status = logAbsenHariIni.status;
-
-    if (status.includes('OFF')) {
-        kunciTombolKerja(true);
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
-        document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
-    } else if (status.includes('Check Out')) {
-        kunciTombolKerja(true);
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
-        document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
-    } else if (status.includes('Check In')) {
-        document.getElementById('btn-checkin').classList.add('btn-disabled');
-        document.getElementById('btn-checkin').disabled = true;
-         
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
-         
-        if(isGpsValid) {
-            document.getElementById('btn-checkout').classList.remove('btn-disabled');
-            document.getElementById('btn-checkout').disabled = false;
-        }
-        document.getElementById('status-log').innerText = "Status: Sedang bekerja. Silakan Check Out saat pulang.";
-    } else {
-        if(isGpsValid) kunciTombolKerja(false);
-    }
 }
 
 function muatDataAdmin() {
