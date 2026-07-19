@@ -607,8 +607,13 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
+// 1. TARUH VARIABEL GLOBAL DI PALING ATAS (Luar Fungsi)
+let dataLaporanGlobal = [];
+let namaLogin = "";
+
+// 2. FUNGSI PROSES LOGIN (Sudah rapi dan ditutup dengan benar)
 function prosesLogin() {
-    // 1. PICU FULLSCREEN SEGERA setelah user klik (Bypass aturan Browser)
+    // A. Picu Fullscreen segera setelah user klik
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) {
         docEl.requestFullscreen().catch(err => console.log("Izin Fullscreen diabaikan: ", err));
@@ -618,56 +623,70 @@ function prosesLogin() {
         docEl.msRequestFullscreen();
     }
 
-    // 2. UNMUTE AUDIO JIKA ADA (Agar Autoplay diperbolehkan karena sudah di-unmute lewat aksi klik)
-    // Jika Anda menggunakan elemen audio (misal: var audio = new Audio(...)), 
-    // pancing di sini dengan durasi tanpa suara atau disiapkan sebelum diputar nanti:
-    /* audio.play().then(() => audio.pause()).catch(e => console.log(e)); */
-
-    // 3. BARU JALANKAN PROSES LOGIN SEPERTI BIASA (Fetch, Validasi, dll)
+    // B. Ambil data input
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
     
-    // ... Sisa kode login Anda ke bawah (fetch SCRIPT_URL, dsb) ...
-}
-     
+    // Ambil elemen UI (Sesuaikan ID-nya dengan HTML Anda jika berbeda)
+    const btn = document.getElementById('btn-login'); 
+    const spinner = document.getElementById('loading-spinner');
+
+    if(btn) btn.disabled = true;
+    if(spinner) spinner.style.display = 'block';
+         
+    // C. Jalankan Fetch Login (Menggunakan username & password yang benar)
     fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ aksi: "login", username: user, password: pass })
+        body: JSON.stringify({ aksi: "login", username: username, password: password })
     })
     .then(res => res.json())
     .then(data => {
-        btn.disabled = false;
-        spinner.style.display = 'none';
-         
+        if(btn) btn.disabled = false;
+        if(spinner) spinner.style.display = 'none';
+             
         if(data.status === "sukses") {
             namaLogin = data.nama;
-             
+                 
             const docEl = document.documentElement;
-            if (docEl.requestFullscreen) docEl.requestFullscreen();
+            if (docEl.requestFullscreen) docEl.requestFullscreen().catch(e => console.log(e));
 
             document.getElementById('view-login').style.display = 'none';
-             
+                 
             if(data.role === "admin") {
                 document.getElementById('view-admin').style.display = 'block';
-                muatDataAdmin();
-                // Global variabel untuk menyimpan data laporan mentah agar bisa diunduh
-let dataLaporanGlobal = [];
+                muatDataAdmin(); // Memanggil fungsi admin
+            } else {
+                // Tambahkan view untuk user biasa jika ada di sini
+                // document.getElementById('view-user').style.display = 'block';
+            }
+        } else {
+            alert("Login Gagal: " + (data.pesan || "Username atau password salah."));
+        }
+    })
+    .catch(err => {
+        if(btn) btn.disabled = false;
+        if(spinner) spinner.style.display = 'none';
+        alert("Terjadi kesalahan koneksi saat login.");
+        console.error(err);
+    });
+} // <--- Fungsi prosesLogin SELESAI di sini
+
 
 // ========================================================
-// 1. FUNGSI AMBIL DATA LAPORAN UNTUK ADMIN
+// 3. FUNGSI AMBIL DATA LAPORAN ADMIN (Dikeluarkan ke luar agar mandiri)
 // ========================================================
-var dataLaporanGlobal = []; // Variabel penampung global agar bisa diunduh
-
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
+    if(!tabelBody) return;
+    
     tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Memuat data laporan...</td></tr>";
-     
+         
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
     .then(data => {
-        dataLaporanGlobal = data; // Simpan ke variabel global
+        dataLaporanGlobal = data; // Simpan ke variabel global yang ada di paling atas
         tabelBody.innerHTML = "";
-        
+            
         if (data.length <= 1) {
             tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px; color: var(--text-muted);'>Belum ada data absensi masuk.</td></tr>";
             return;
@@ -676,12 +695,12 @@ function muatDataAdmin() {
         for(let i = 1; i < data.length; i++) {
             let row = data[i];
             let tr = document.createElement('tr');
-            
+                
             let statusBadgeClass = 'badge-off';
             if(row[2] === 'Check In') statusBadgeClass = 'badge-in';
             if(row[2] === 'Check Out') statusBadgeClass = 'badge-out';
 
-            // Menggabungkan Latitude dan Longitude agar tabel Admin Rapi dan Ringkas
+            // Menggabungkan Latitude dan Longitude
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
             tr.innerHTML = `
@@ -698,9 +717,9 @@ function muatDataAdmin() {
     })
     .catch(err => {
         tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px; color: var(--danger);'>Gagal memuat data. Periksa koneksi internet Anda.</td></tr>";
+        console.error(err);
     });
 }
-
 // ========================================================
 // 2. FUNGSI UNTUK RE-TRACK / DETEKSI ULANG LOKASI GPS
 // ========================================================
