@@ -779,8 +779,9 @@ function startGPS() {
 function cekValidasiHarian() {
     tampilkanStatistik(); 
     const tglSekarang = new Date().toDateString();
-    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
+    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { tanggal: tglSekarang, status: [] };
 
+    // Jika ganti hari, reset pelacak harian
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
@@ -795,30 +796,38 @@ function cekValidasiHarian() {
         return;
     }
 
-    const status = logAbsenHariIni.status;
+    const status = logAbsenHariIni.status || [];
     const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
-    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "Jam: " + detailWaktu['Check In'] : "";
-    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
-    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
+    if(document.getElementById('time-checkin')) document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "Jam: " + detailWaktu['Check In'] : "";
+    if(document.getElementById('time-checkout')) document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
+    if(document.getElementById('time-off')) document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
+    // LOGIKA PENGUNCIAN TOMBOL
     if (status.includes('OFF')) {
         kunciTombolKerja(true);
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
+        if(document.getElementById('btn-off')) {
+            document.getElementById('btn-off').classList.add('btn-disabled');
+            document.getElementById('btn-off').disabled = true;
+        }
         document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
     } else if (status.includes('Check Out')) {
         kunciTombolKerja(true);
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
+        if(document.getElementById('btn-off')) {
+            document.getElementById('btn-off').classList.add('btn-disabled');
+            document.getElementById('btn-off').disabled = true;
+        }
         document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
     } else if (status.includes('Check In')) {
-        document.getElementById('btn-checkin').classList.add('btn-disabled');
-        document.getElementById('btn-checkin').disabled = true;
+        if(document.getElementById('btn-checkin')) {
+            document.getElementById('btn-checkin').classList.add('btn-disabled');
+            document.getElementById('btn-checkin').disabled = true;
+        }
+        if(document.getElementById('btn-off')) {
+            document.getElementById('btn-off').classList.add('btn-disabled');
+            document.getElementById('btn-off').disabled = true;
+        }
          
-        document.getElementById('btn-off').classList.add('btn-disabled');
-        document.getElementById('btn-off').disabled = true;
-         
-        if(isGpsValid) {
+        if(isGpsValid && document.getElementById('btn-checkout')) {
             document.getElementById('btn-checkout').classList.remove('btn-disabled');
             document.getElementById('btn-checkout').disabled = false;
         }
@@ -1007,12 +1016,15 @@ function prosesAbsen() {
         })
     })
     .then(res => res.json())
-  .then(data => {
+ .then(data => {
         if(spinner) spinner.style.display = 'none';
         if(btn) btn.disabled = false;
          
         if(data.pesan.includes("berhasil")) {
-            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
+            // Memastikan mengambil data array status hari ini dengan aman
+            let logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { tanggal: new Date().toDateString(), status: [] };
+            if(!logAbsenHariIni.status) logAbsenHariIni.status = [];
+            
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
@@ -1025,7 +1037,7 @@ function prosesAbsen() {
             if (tipeAbsen === 'Check In') {
                 localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
                 
-                // BARUSAN DITAMBAH: Deteksi instan keterlambatan saat klik tombol Check In
+                // CEK TERLAMBAT LANGSUNG DI HP
                 if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 0)) {
                     totalTerlambat++;
                     localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
