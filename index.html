@@ -645,20 +645,30 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
-                let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
-                let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
-                let lokalTerlambat = localStorage.getItem(`totalTerlambat_${namaLogin}`); // BARUSAN DITAMBAH
+                // Ambil data murni dari server hasil kalkulasi Google Sheets
+                totalHadir = data.total_masuk || 0;
+                totalOff = data.total_off || 0;
+                totalPs = data.total_ps || 0;
+                totalTerlambat = data.total_terlambat || 0;
 
-                totalHadir = lokalHadir !== null ? parseInt(lokalHadir) : (data.total_masuk || 0);
-                totalOff = lokalOff !== null ? parseInt(lokalOff) : (data.total_off || 0);
-                totalPs = lokalPs !== null ? parseInt(lokalPs) : (data.total_ps || 0);
-                totalTerlambat = lokalTerlambat !== null ? parseInt(lokalTerlambat) : (data.total_terlambat || 0); // BARUSAN DITAMBAH
-
+                // Paksa simpan data terbaru murni dari server ke memori HP
                 localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
                 localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
                 localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
-                localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat); // BARUSAN DITAMBAH
+                localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
+                
+                // PAKSA LOCK TOMBOL BERDASARKAN DATA SERVER NYATA (Anti-Jebol walau hapus cache)
+                const tglSekarang = new Date().toDateString();
+                const objekAbsenHariIni = {
+                    tanggal: tglSekarang,
+                    status: data.status_hari_ini || []
+                };
+                localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(objekAbsenHariIni));
+                
+                // Simpan detail jam absen dari server
+                if (data.detail_waktu_hari_ini) {
+                    localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(data.detail_waktu_hari_ini));
+                }
                  
                 tampilkanStatistik();
                 document.getElementById('view-dashboard').style.display = 'block';
