@@ -577,11 +577,16 @@ function hitungJarak(lat1, lon1, lat2, lon2) {
 }
 
 function tampilkanStatistik() {
-    document.getElementById('total-masuk').innerText = totalHadir + " hari";
-    document.getElementById('total-off').innerText = totalOff + " hari";
-    document.getElementById('total-ps').innerText = totalPs + " hari";
+    // Memastikan elemen teks statistik terisi secara real-time dari memori lokal
+    if(document.getElementById('txtTotalMasuk')) document.getElementById('txtTotalMasuk').innerText = totalHadir;
+    if(document.getElementById('txtTotalOff')) document.getElementById('txtTotalOff').innerText = totalOff;
+    if(document.getElementById('txtTotalPs')) document.getElementById('txtTotalPs').innerText = totalPs;
+    
+    // BARUSAN DITAMBAH: Menampilkan angka terlambat ke elemen teks id="txtTotalTerlambat"
+    if(document.getElementById('txtTotalTerlambat')) {
+        document.getElementById('txtTotalTerlambat').innerText = totalTerlambat;
+    }
 }
-
 function tampilkanPesan(pesan, status) {
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
     document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
@@ -635,14 +640,17 @@ function prosesLogin() {
                 let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
                 let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
                 let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
+                let lokalTerlambat = localStorage.getItem(`totalTerlambat_${namaLogin}`); // BARUSAN DITAMBAH
 
                 totalHadir = lokalHadir !== null ? parseInt(lokalHadir) : (data.total_masuk || 0);
                 totalOff = lokalOff !== null ? parseInt(lokalOff) : (data.total_off || 0);
                 totalPs = lokalPs !== null ? parseInt(lokalPs) : (data.total_ps || 0);
+                totalTerlambat = lokalTerlambat !== null ? parseInt(lokalTerlambat) : (data.total_terlambat || 0); // BARUSAN DITAMBAH
 
                 localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
                 localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
                 localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
+                localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat); // BARUSAN DITAMBAH
                  
                 tampilkanStatistik();
                 document.getElementById('view-dashboard').style.display = 'block';
@@ -662,7 +670,6 @@ function prosesLogin() {
         console.error(err);
     });
 }
-
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     if(!tabelBody) return;
@@ -992,7 +999,7 @@ function prosesAbsen() {
         })
     })
     .then(res => res.json())
-    .then(data => {
+  .then(data => {
         if(spinner) spinner.style.display = 'none';
         if(btn) btn.disabled = false;
          
@@ -1009,6 +1016,13 @@ function prosesAbsen() {
 
             if (tipeAbsen === 'Check In') {
                 localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
+                
+                // BARUSAN DITAMBAH: Deteksi instan keterlambatan saat klik tombol Check In
+                if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 0)) {
+                    totalTerlambat++;
+                    localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
+                    infoDurasi = "<br><br>⚠️ <strong>Catatan:</strong> Anda tercatat terlambat hari ini.";
+                }
             }
 
             if (tipeAbsen === 'Check Out') {
