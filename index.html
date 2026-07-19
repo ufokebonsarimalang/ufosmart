@@ -103,7 +103,6 @@
             font-weight: 500;
         }
 
-        /* BTN GRID DENGAN IKON BARU */
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -178,7 +177,6 @@
             background: var(--primary-hover);
         }
 
-        /* Check in - Biru */
         .btn-checkin {
             background: var(--success);
             color: white;
@@ -190,7 +188,6 @@
         }
         .btn-checkin:hover { background: var(--success-hover); }
 
-        /* Off - Merah */
         .btn-off {
             background: var(--danger);
             color: white;
@@ -202,7 +199,6 @@
         }
         .btn-off:hover { background: var(--danger-hover); }
 
-        /* Check Out - Jingga */
         .btn-checkout {
             background: var(--warning);
             color: white;
@@ -359,7 +355,6 @@
             pointer-events: none;
         }
 
-        /* Gaya teks penunjuk waktu absen di bawah tombol */
         .info-jam-absen {
             font-size: 10px;
             font-weight: bold;
@@ -389,7 +384,7 @@
         <input type="password" id="pass" placeholder="">
     </div>
      
-    <button class="btn-primary" onclick="prosesLogin()">
+    <button class="btn-primary" id="btn-login" onclick="prosesLogin()">
         <span>Masuk</span>
         <div class="spinner" id="login-spinner"></div>
     </button>
@@ -420,10 +415,10 @@
         </div>
     </div>
     <div id="status-log">Menghubungkan GPS...</div>
-<button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
-    🔄 Refresh Lokasi GPS
-</button>
-    <!-- MODIFIKASI: Ditambahkan container flex kolom agar teks info waktu bisa diletakkan persis di bawah tombol -->
+    <button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
+        🔄 Refresh Lokasi GPS
+    </button>
+    
     <div class="btn-grid">
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')" style="width: 100%;">
@@ -479,7 +474,6 @@
             <h2 style="text-align: left; margin: 0; font-size: 22px; color: var(--primary);">UFO Kebonsari Malang</h2>
             <div style="color: var(--text-muted); font-size: 13px; margin-top: 4px; font-weight: 500;">Rekap Absensi Karyawan Terkini</div>
         </div>
-        <!-- Tombol Aksi Admin -->
         <div style="display: flex; gap: 10px; width: 100%; justify-content: flex-start;">
             <button onclick="downloadCSV()" style="margin: 0; width: auto; background: #16a34a; color: white; padding: 10px 16px; font-size: 12px; font-weight: bold; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
                 📥 Unduh Excel (CSV)
@@ -531,11 +525,9 @@ let totalHadir = 0, totalOff = 0, totalPs = 0;
 let isGpsValid = false;
 let modeKamera = "user";
 let gpsWatcher = null;
-
-// VARIABEL BARU: Menyimpan selisih waktu antara HP lokal dan server
 let serverTimeOffset = 0; 
+let dataLaporanGlobal = [];
 
-// FUNGSI BARU: Mengambil jam server lalu menghitung selisih milidetik dengan HP
 function sinkronisasiWaktuServer() {
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -544,7 +536,6 @@ function sinkronisasiWaktuServer() {
     .then(res => res.json())
     .then(data => {
         if (data.time) {
-            // Ubah format string "yyyy-MM-dd HH:mm:ss" menjadi objek Date GMT+7
             const serverDate = new Date(data.time.replace(" ", "T") + "+07:00");
             const localDate = new Date();
             serverTimeOffset = serverDate.getTime() - localDate.getTime();
@@ -557,7 +548,6 @@ function sinkronisasiWaktuServer() {
 }
 
 function updateWaktu() {
-    // MODIFIKASI: Waktu jam digital berjalan sekarang ditambah selisih waktu server
     const sekarang = new Date(Date.now() + serverTimeOffset);
     const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
      
@@ -569,7 +559,7 @@ function updateWaktu() {
     if(elJam) {
         let jam = sekarang.getHours().toString().padStart(2, '0');
         let menit = sekarang.getMinutes().toString().padStart(2, '0');
-        let detik = sekarang.getSeconds().toString().padStart(2, '0');
+        let detik = geometry = sekarang.getSeconds().toString().padStart(2, '0');
         elJam.innerText = `${jam}:${menit}:${detik}`;
     }
 }
@@ -596,7 +586,6 @@ function tampilkanPesan(pesan, status) {
     document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
     document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
     
-    // Pastikan tombol bawaan HTML tampil normal
     const tombolBawaan = document.querySelector('#modal-box > button:last-child');
     if (tombolBawaan) tombolBawaan.style.display = 'inline-block';
     
@@ -607,34 +596,25 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
-// 1. TARUH VARIABEL GLOBAL DI PALING ATAS (Luar Fungsi)
-let dataLaporanGlobal = [];
-let namaLogin = "";
-
-// 2. FUNGSI PROSES LOGIN (Sudah rapi dan ditutup dengan benar)
 function prosesLogin() {
-    // A. Picu Fullscreen segera setelah user klik
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) {
         docEl.requestFullscreen().catch(err => console.log("Izin Fullscreen diabaikan: ", err));
-    } else if (docEl.webkitRequestFullscreen) { /* Safari */
+    } else if (docEl.webkitRequestFullscreen) {
         docEl.webkitRequestFullscreen();
-    } else if (docEl.msRequestFullscreen) { /* IE11 */
+    } else if (docEl.msRequestFullscreen) {
         docEl.msRequestFullscreen();
     }
 
-    // B. Ambil data input
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
+    const username = document.getElementById('user').value.trim();
+    const password = document.getElementById('pass').value.trim();
     
-    // Ambil elemen UI (Sesuaikan ID-nya dengan HTML Anda jika berbeda)
     const btn = document.getElementById('btn-login'); 
-    const spinner = document.getElementById('loading-spinner');
+    const spinner = document.getElementById('login-spinner');
 
     if(btn) btn.disabled = true;
-    if(spinner) spinner.style.display = 'block';
+    if(spinner) spinner.style.display = 'inline-block';
          
-    // C. Jalankan Fetch Login (Menggunakan username & password yang benar)
     fetch(SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({ aksi: "login", username: username, password: password })
@@ -646,35 +626,43 @@ function prosesLogin() {
              
         if(data.status === "sukses") {
             namaLogin = data.nama;
-                 
-            const docEl = document.documentElement;
-            if (docEl.requestFullscreen) docEl.requestFullscreen().catch(e => console.log(e));
-
             document.getElementById('view-login').style.display = 'none';
                  
             if(data.role === "admin") {
                 document.getElementById('view-admin').style.display = 'block';
-                muatDataAdmin(); // Memanggil fungsi admin
+                muatDataAdmin();
             } else {
-                // Tambahkan view untuk user biasa jika ada di sini
-                // document.getElementById('view-user').style.display = 'block';
+                let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
+                let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
+                let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
+
+                totalHadir = lokalHadir !== null ? parseInt(lokalHadir) : (data.total_masuk || 0);
+                totalOff = lokalOff !== null ? parseInt(lokalOff) : (data.total_off || 0);
+                totalPs = lokalPs !== null ? parseInt(lokalPs) : (data.total_ps || 0);
+
+                localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
+                localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
+                localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
+                 
+                tampilkanStatistik();
+                document.getElementById('view-dashboard').style.display = 'block';
+                document.getElementById('nama-user').innerText = namaLogin;
+                
+                sinkronisasiWaktuServer();
+                startGPS();
             }
         } else {
-            alert("Login Gagal: " + (data.pesan || "Username atau password salah."));
+            tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
         }
     })
     .catch(err => {
         if(btn) btn.disabled = false;
         if(spinner) spinner.style.display = 'none';
-        alert("Terjadi kesalahan koneksi saat login.");
+        tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
-} // <--- Fungsi prosesLogin SELESAI di sini
+}
 
-
-// ========================================================
-// 3. FUNGSI AMBIL DATA LAPORAN ADMIN (Dikeluarkan ke luar agar mandiri)
-// ========================================================
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     if(!tabelBody) return;
@@ -684,7 +672,7 @@ function muatDataAdmin() {
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
     .then(data => {
-        dataLaporanGlobal = data; // Simpan ke variabel global yang ada di paling atas
+        dataLaporanGlobal = data; 
         tabelBody.innerHTML = "";
             
         if (data.length <= 1) {
@@ -700,7 +688,6 @@ function muatDataAdmin() {
             if(row[2] === 'Check In') statusBadgeClass = 'badge-in';
             if(row[2] === 'Check Out') statusBadgeClass = 'badge-out';
 
-            // Menggabungkan Latitude dan Longitude
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
             tr.innerHTML = `
@@ -720,9 +707,7 @@ function muatDataAdmin() {
         console.error(err);
     });
 }
-// ========================================================
-// 2. FUNGSI UNTUK RE-TRACK / DETEKSI ULANG LOKASI GPS
-// ========================================================
+
 function retrackGPS() {
     const btnGps = document.getElementById('btn-refresh-gps');
     if(btnGps) {
@@ -736,7 +721,6 @@ function retrackGPS() {
     }
 
     document.getElementById('status-log').innerText = "Mendeteksi ulang koordinat...";
-
     startGPS();
 
     setTimeout(() => {
@@ -747,9 +731,321 @@ function retrackGPS() {
     }, 2000);
 }
 
-// ========================================================
-// 3. FUNGSI LOGOUT APLIKASI
-// ========================================================
+function startGPS() {
+    if (navigator.geolocation) {
+        gpsWatcher = navigator.geolocation.watchPosition(
+            (position) => {
+                lat = position.coords.latitude;
+                lng = position.coords.longitude;
+                 
+                var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
+                if (jarak <= RADIUS_MAKSIMAL) {
+                    isGpsValid = true;
+                    document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Berada di area UFO Kebonsari";
+                    cekValidasiHarian();
+                } else {
+                    isGpsValid = false;
+                    document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${Math.round(jarak)}m dari toko). Absen Kerja Terkunci!`;
+                    kunciTombolKerja(true);
+                }
+            },
+            (error) => {
+                isGpsValid = false;
+                document.getElementById('status-log').innerText = "⚠️ Gagal membaca lokasi GPS. Aktifkan Izin Lokasi di HP!";
+                kunciTombolKerja(true);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        tampilkanPesan("Browser kamu tidak mendukung GPS.", "info");
+    }
+}
+
+function cekValidasiHarian() {
+    tampilkanStatistik(); 
+    const tglSekarang = new Date().toDateString();
+    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
+
+    if (logAbsenHariIni.tanggal !== tglSekarang) {
+        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
+        localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
+        localStorage.removeItem(`detailWaktu_${namaLogin}`); 
+        kunciTombolKerja(false);
+        document.getElementById('btn-off').classList.remove('btn-disabled');
+        document.getElementById('btn-off').disabled = false;
+        
+        document.getElementById('time-checkin').innerText = "";
+        document.getElementById('time-checkout').innerText = "";
+        document.getElementById('time-off').innerText = "";
+        return;
+    }
+
+    const status = logAbsenHariIni.status;
+    const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "Jam: " + detailWaktu['Check In'] : "";
+    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
+    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
+
+    if (status.includes('OFF')) {
+        kunciTombolKerja(true);
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+        document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
+    } else if (status.includes('Check Out')) {
+        kunciTombolKerja(true);
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+        document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
+    } else if (status.includes('Check In')) {
+        document.getElementById('btn-checkin').classList.add('btn-disabled');
+        document.getElementById('btn-checkin').disabled = true;
+         
+        document.getElementById('btn-off').classList.add('btn-disabled');
+        document.getElementById('btn-off').disabled = true;
+         
+        if(isGpsValid) {
+            document.getElementById('btn-checkout').classList.remove('btn-disabled');
+            document.getElementById('btn-checkout').disabled = false;
+        }
+        document.getElementById('status-log').innerText = "Status: Sedang bekerja. Silakan Check Out saat pulang.";
+    } else {
+        if(isGpsValid) kunciTombolKerja(false);
+    }
+}
+
+function kunciTombolKerja(statusKunci) {
+    const btnIn = document.getElementById('btn-checkin');
+    const btnOut = document.getElementById('btn-checkout');
+
+    if(statusKunci) {
+        btnIn.classList.add('btn-disabled'); btnIn.disabled = true;
+        btnOut.classList.add('btn-disabled'); btnOut.disabled = true;
+    } else {
+        btnIn.classList.remove('btn-disabled'); btnIn.disabled = false;
+        btnOut.classList.remove('btn-disabled'); btnOut.disabled = false;
+    }
+}
+
+function pilihAksi(tipe) {
+    tipeAbsen = tipe;
+    document.getElementById('view-dashboard').style.display = 'none';
+    document.getElementById('view-kamera').style.display = 'block';
+    document.getElementById('judul-kamera').innerText = "Kamera " + tipe;
+    jalankanKamera();
+}
+
+function jalankanKamera() {
+    if(streamKamera) {
+        streamKamera.getTracks().forEach(track => track.stop());
+    }
+    const elKamera = document.getElementById('kamera');
+    elKamera.style.transform = (modeKamera === "user") ? "scaleX(-1)" : "scaleX(1)";
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: modeKamera } })
+    .then(stream => {
+        streamKamera = stream;
+        elKamera.srcObject = stream;
+    })
+    .catch(err => {
+        tampilkanPesan("Gagal membuka kamera.", "info");
+        kembaliKeDashboard();
+    });
+}
+
+function gantiKamera() {
+    modeKamera = (modeKamera === "user") ? "environment" : "user";
+    jalankanKamera();
+}
+
+function kembaliKeDashboard() {
+    if(streamKamera) streamKamera.getTracks().forEach(track => track.stop());
+    document.getElementById('view-kamera').style.display = 'none';
+    document.getElementById('view-dashboard').style.display = 'block';
+    cekValidasiHarian();
+}
+
+function prosesAbsenOff() {
+    document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
+    document.getElementById('modal-pesan').innerHTML = `
+        <p>Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer;">YA, LIBUR</button>
+            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer;">BATAL</button>
+        </div>
+    `;
+    document.getElementById('modal-notif').style.display = 'flex';
+}
+
+function eksekusiAbsenOff() {
+    tutupModal(); 
+    const btn = document.getElementById('btn-off');
+    if(btn) btn.disabled = true;
+     
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            aksi: "absen", 
+            nama: namaLogin, 
+            status: "OFF", 
+            lat: lat || 0, 
+            lng: lng || 0, 
+            foto: "" 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.pesan.includes("berhasil")) {
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            logAbsenHariIni.status.push('OFF');
+            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            const serverDate = new Date(Date.now() + serverTimeOffset);
+            const waktuSelesaiFormatted = serverDate.toLocaleTimeString('id-ID');
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu['OFF'] = waktuSelesaiFormatted;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
+            totalOff++;
+            localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
+            tampilkanStatistik();
+            tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
+        } else {
+            tampilkanPesan(data.pesan, 'info');
+        }
+        cekValidasiHarian();
+    })
+    .catch(err => {
+        if(btn) btn.disabled = false;
+        tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
+    });
+}
+
+function prosesAbsen() {
+    if(lat === 0 && lng === 0) { 
+        tampilkanPesan("Lokasi GPS belum terbaca...", "info"); 
+        return;
+    }
+
+    var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
+    if (jarak > RADIUS_MAKSIMAL) {
+        tampilkanPesan("Anda berada di luar radius toko.", "info");
+        return;
+    }
+     
+    const serverDate = new Date(Date.now() + serverTimeOffset);
+    const jamSekarang = serverDate.getHours();
+    const waktuSekarang = serverDate.toLocaleTimeString('id-ID');
+    const waktuMilidetikSekarang = serverDate.getTime();
+
+    if (tipeAbsen === 'Check Out' && (jamSekarang === 17 || jamSekarang === 18)) {
+        const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
+        
+        if (waktuCheckInLokal) {
+            const selisihMilidetik = waktuMilidetikSekarang - parseInt(waktuCheckInLokal);
+            const selisihJam = selisihMilidetik / (1000 * 60 * 60);
+
+            if (selisihJam < 8) {
+                const sisaMenit = Math.ceil((8 - selisihJam) * 60);
+                tampilkanPesan(`Anda belum bisa checkout karena belum 8 jam kerja. Kurang ${sisaMenit} menit lagi.`, "info");
+                return;
+            }
+        }
+    }
+
+    const video = document.getElementById('kamera');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth; 
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const latText = lat ? lat.toFixed(6) : "0.000000";
+    const lngText = lng ? lng.toFixed(6) : "0.000000";
+    const formatWaktu = serverDate.toLocaleDateString('id-ID') + ' ' + waktuSekarang + ' WIB';
+    const gpsString = `GPS: ${latText}, ${lngText}`;
+    
+    const boxHeight = Math.round(canvas.height * 0.12);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; 
+    ctx.fillRect(0, canvas.height - boxHeight, canvas.width, boxHeight);
+    
+    ctx.fillStyle = "#ffffff"; 
+    ctx.font = `bold ${Math.round(canvas.height * 0.035)}px Arial`;
+    ctx.fillText(formatWaktu, Math.round(canvas.width * 0.05), canvas.height - Math.round(boxHeight * 0.6));
+    
+    ctx.fillStyle = "#facc15"; 
+    ctx.font = `${Math.round(canvas.height * 0.03)}px Arial`;
+    ctx.fillText(gpsString, Math.round(canvas.width * 0.05), canvas.height - Math.round(boxHeight * 0.25));
+
+    const dataFoto = canvas.toDataURL('image/jpeg', 0.5);
+
+    const btn = document.getElementById('btnAbsen');
+    const spinner = document.getElementById('absen-spinner');
+     
+    if(btn) btn.disabled = true;
+    if(spinner) spinner.style.display = 'inline-block';
+     
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            aksi: "absen", nama: namaLogin, status: tipeAbsen, lat: lat, lng: lng, foto: dataFoto 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(spinner) spinner.style.display = 'none';
+        if(btn) btn.disabled = false;
+         
+        if(data.pesan.includes("berhasil")) {
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
+            logAbsenHariIni.status.push(tipeAbsen);
+            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu[tipeAbsen] = waktuSekarang;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
+            let infoDurasi = "";
+
+            if (tipeAbsen === 'Check In') {
+                localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
+            }
+
+            if (tipeAbsen === 'Check Out') {
+                const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
+                if (waktuCheckInLokal) {
+                    const selisihMilidetik = waktuMilidetikSekarang - parseInt(waktuCheckInLokal);
+                    const totalMenit = Math.floor(selisihMilidetik / (1000 * 60));
+                    const jam = Math.floor(totalMenit / 60);
+                    const menit = totalMenit % 60;
+                    
+                    infoDurasi = `<br><br>⏱️ <strong>Durasi Kerja Anda Hari Ini:</strong><br>${jam} Jam ${menit} Menit.`;
+                }
+
+                totalHadir++;
+                localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
+                 
+                if (jamSekarang === 17 || jamSekarang === 18) {
+                    totalPs++;
+                    localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
+                }
+                localStorage.removeItem(`waktuCheckIn_${namaLogin}`);
+            }
+             
+            tampilkanStatistik();
+            tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
+        } else {
+            tampilkanPesan(data.pesan, 'info');
+        }
+        kembaliKeDashboard();
+    })
+    .catch(err => {
+        if(spinner) spinner.style.display = 'none';
+        if(btn) btn.disabled = false;
+        tampilkanPesan("Terjadi kesalahan jaringan.", "info");
+    });
+}
+
 function logout() {
     if (document.fullscreenElement) document.exitFullscreen();
     if (gpsWatcher) {
@@ -765,9 +1061,6 @@ function logout() {
     kunciTombolKerja(false);
 }
 
-// ========================================================
-// 4. FUNGSI DOWNLOAD EXCEL / CSV (Ditempel Kuat ke Window)
-// ========================================================
 window.downloadCSV = function() {
     let barisTabel = document.querySelectorAll("#isi-tabel tr");
     if (barisTabel.length === 0 || (barisTabel.length === 1 && barisTabel[0].innerText.includes("Memuat"))) {
@@ -775,13 +1068,12 @@ window.downloadCSV = function() {
         return;
     }
 
-    let csvContent = "\uFEFF"; // BOM agar Excel mengenali huruf khusus Indonesia/Spasi dengan benar
+    let csvContent = "\uFEFF"; 
     let barisData = [];
 
     if (dataLaporanGlobal && dataLaporanGlobal.length > 1) {
         barisData = dataLaporanGlobal;
     } else {
-        // Cadangan jika array global kosong, baca visual data di layar
         barisData.push(["Waktu", "Nama Karyawan", "Status", "Koordinat (GPS)"]);
         barisTabel.forEach(tr => {
             let td = tr.querySelectorAll("td");
