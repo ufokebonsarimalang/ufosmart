@@ -608,18 +608,27 @@ function tutupModal() {
 }
 
 function prosesLogin() {
-    const user = document.getElementById('user').value.trim();
-    const pass = document.getElementById('pass').value.trim();
-    const btn = document.querySelector('#view-login button');
-    const spinner = document.getElementById('login-spinner');
-     
-    if(!user || !pass) {
-        tampilkanPesan("Username dan Password harus diisi!", "info");
-        return;
+    // 1. PICU FULLSCREEN SEGERA setelah user klik (Bypass aturan Browser)
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(err => console.log("Izin Fullscreen diabaikan: ", err));
+    } else if (docEl.webkitRequestFullscreen) { /* Safari */
+        docEl.webkitRequestFullscreen();
+    } else if (docEl.msRequestFullscreen) { /* IE11 */
+        docEl.msRequestFullscreen();
     }
-     
-    btn.disabled = true;
-    spinner.style.display = 'inline-block';
+
+    // 2. UNMUTE AUDIO JIKA ADA (Agar Autoplay diperbolehkan karena sudah di-unmute lewat aksi klik)
+    // Jika Anda menggunakan elemen audio (misal: var audio = new Audio(...)), 
+    // pancing di sini dengan durasi tanpa suara atau disiapkan sebelum diputar nanti:
+    /* audio.play().then(() => audio.pause()).catch(e => console.log(e)); */
+
+    // 3. BARU JALANKAN PROSES LOGIN SEPERTI BIASA (Fetch, Validasi, dll)
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    
+    // ... Sisa kode login Anda ke bawah (fetch SCRIPT_URL, dsb) ...
+}
      
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1215,6 +1224,62 @@ function downloadCSV() {
     link.click();
     document.body.removeChild(link);
 }  
+<script>
+// Menempelkan fungsi langsung ke window agar tidak hilang akibat error javascript di bagian lain
+window.downloadCSV = function() {
+    let barisTabel = document.querySelectorAll("#isi-tabel tr");
+    if (barisTabel.length === 0 || (barisTabel.length === 1 && barisTabel[0].innerText.includes("Memuat"))) {
+        alert("Data absen belum dimuat sempurna dari server. Silakan tunggu beberapa detik.");
+        return;
+    }
+
+    let csvContent = "\uFEFF"; // Menambahkan BOM agar file terbaca rapi di Excel komputer / HP
+    let barisData = [];
+
+    // Jika variabel data global kosong, kita ambil dari data visual tabel di layar
+    if (typeof dataLaporanGlobal !== 'undefined' && dataLaporanGlobal && dataLaporanGlobal.length > 1) {
+        barisData = dataLaporanGlobal;
+    } else {
+        // Ambil data langsung dari tabel HTML di layar sebagai cadangan
+        barisData.push(["Waktu", "Nama Karyawan", "Status", "Koordinat (GPS)"]);
+        barisTabel.forEach(tr => {
+            let td = tr.querySelectorAll("td");
+            if (td.length >= 4) {
+                barisData.push([
+                    td[0].innerText.trim(),
+                    td[1].innerText.trim(),
+                    td[2].innerText.trim(),
+                    td[3].innerText.trim()
+                ]);
+            }
+        });
+    }
+
+    // Format menjadi CSV
+    barisData.forEach(function(rowArray) {
+        let row = rowArray.map(val => {
+            let cleanVal = String(val).replace(/"/g, '""');
+            return `"${cleanVal}"`;
+        });
+        csvContent += row.join(",") + "\r\n";
+    });
+
+    // Buat proses download di browser
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const tgl = new Date();
+    const formatTanggal = `${tgl.getFullYear()}${(tgl.getMonth()+1).toString().padStart(2,'0')}${tgl.getDate().toString().padStart(2,'0')}`;
+    const namaFile = `Rekap_Absen_UFO_${formatTanggal}.csv`;
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", namaFile);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 </script>
 </body>
 </html>
