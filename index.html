@@ -517,17 +517,21 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddH
 
 const TOKO_LAT = -8.020496288923635;
 const TOKO_LNG = 112.61885029434528;
-const RADIUS_MAKSIMAL = 100;
+const RADIUS_MAKSIMAL = 50;
 
 let streamKamera = null;
 let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "";
 let totalHadir = 0, totalOff = 0, totalPs = 0;
+
+// ==========================================
+// TAMBAHKAN BARIS INI (DEKLARASI VARIABEL)
+// ==========================================
+let totalTerlambat = 0; 
 let isGpsValid = false;
 let modeKamera = "user";
 let gpsWatcher = null;
 let serverTimeOffset = 0; 
 let dataLaporanGlobal = [];
-
 function sinkronisasiWaktuServer() {
     fetch(SCRIPT_URL, {
         method: 'POST',
