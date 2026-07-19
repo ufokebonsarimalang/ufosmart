@@ -401,24 +401,28 @@
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
     <div class="stat-box" style="padding: 15px; font-size: 14px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span>Total Kehadiran Bulan Ini :</span>
-            <span id="total-masuk" style="font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span>Total OFF Bulan Ini :</span>
-            <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-            <span>Total PS Bulan Ini :</span>
-            <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
-        </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>Total Kehadiran Bulan Ini :</span>
+        <span id="total-masuk" style="font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
     </div>
-    <div id="status-log">Menghubungkan GPS...</div>
-    <button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
-        🔄 Refresh Lokasi GPS
-    </button>
-    
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>Total OFF Bulan Ini :</span>
+        <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span>Total PS Bulan Ini :</span>
+        <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+    </div>
+    <!-- BARIS KETERLAMBATAN BARU SESUAI FORMAT ID ANDA -->
+    <div style="display: flex; justify-content: space-between;">
+        <span>Total Terlambat Bulan Ini :</span>
+        <span id="total-terlambat" style="color: #dc2626; font-weight: bold; min-width: 60px; text-align: right;">0 kali</span>
+    </div>
+</div>
+<div id="status-log">Menghubungkan GPS...</div>
+<button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
+    🔄 Refresh Lokasi GPS
+</button>
     <div class="btn-grid">
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')" style="width: 100%;">
