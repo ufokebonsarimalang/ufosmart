@@ -493,7 +493,7 @@
             </button>
         </div>
     </div>
-    <!-- FILTER PER KARYAWAN -->
+   <!-- FILTER PER KARYAWAN & STATISTIK ADMIN -->
 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; text-align: left;">
     <label style="font-weight: bold; display: block; margin-bottom: 6px; font-size: 13px; color: #334155;">
         🔍 Pilih Nama Karyawan:
@@ -502,26 +502,12 @@
         <option value="SEMUA">-- Tampilkan Semua Karyawan --</option>
     </select>
     
-    <!-- 📅 TAMBAHKAN LABEL PERIODE DI SINI -->
-    <div id="periode-admin-text" style="display: none; margin-top: 12px; font-size: 13px; color: #475569; font-weight: 600; background: #e2e8f0; padding: 4px 10px; border-radius: 4px; display: inline-block;">
+    <!-- 📅 LABEL PERIODE OTOMATIS ADMIN -->
+    <div id="periode-admin-text" style="display: none; margin-top: 12px; font-size: 13px; color: #1e293b; font-weight: 800; background: #e2e8f0; padding: 6px 12px; border-radius: 6px; border-left: 4px solid #2563eb; display: inline-block;">
         Periode: -
     </div>
     
     <!-- STATISTIK RINGKASAN KARYAWAN -->
-    <div id="stat-karyawan-admin" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px;">
-        <!-- ... isi kotak statistik tetap sama seperti sebelumnya ... -->
-    </div>
-</div>
-     <!-- FILTER PER KARYAWAN -->
-<div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; text-align: left;">
-    <label style="font-weight: bold; display: block; margin-bottom: 6px; font-size: 13px; color: #334155;">
-        🔍 Pilih Nama Karyawan:
-    </label>
-    <select id="filter-nama-admin" onchange="filterLaporanAdmin()" style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: white;">
-        <option value="SEMUA">-- Tampilkan Semua Karyawan --</option>
-    </select>
-    
-   <!-- STATISTIK RINGKASAN KARYAWAN (Font Sudah Ditebalkan & Diperbesar) -->
     <div id="stat-karyawan-admin" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px;">
         <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
             <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">Hadir</div>
@@ -541,26 +527,27 @@
         </div>
     </div>
 </div>
-    <div class="table-container" style="box-shadow: 0 4px 15px rgba(0,0,0,0.02); background: white; border-radius: 12px;">
-        <table>
-            <thead>
-                <tr>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Waktu</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Nama</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Status</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Koordinat (GPS)</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Foto Selfie</th>
-                </tr>
-            </thead>
-            <tbody id="isi-tabel">
-                <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px; font-style: italic;">Sedang memuat data laporan...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
 
+<!-- WADAH TABEL UTAMA LAPORAN -->
+<div class="table-container" style="box-shadow: 0 4px 15px rgba(0,0,0,0.02); background: white; border-radius: 12px; overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Waktu</th>
+                <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Nama</th>
+                <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Status</th>
+                <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Koordinat (GPS)</th>
+                <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Foto Selfie</th>
+            </tr>
+        </thead>
+        <tbody id="isi-tabel">
+            <tr>
+                <!-- Diubah ke colspan="5" agar pas memenuhi lebar 5 kolom di atas -->
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px; font-style: italic;">Sedang memuat data laporan...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 <div id="modal-notif" class="modal-overlay" style="display:none;">
     <div class="modal-box" id="modal-box">
         <h3 id="modal-title">Info</h3>
