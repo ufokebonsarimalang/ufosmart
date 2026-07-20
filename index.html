@@ -674,9 +674,7 @@ function tutupModal() {
 
 function prosesLogin() {
     const docEl = document.documentElement;
-    if (docEl.requestFullscreen) {
-        docEl.requestFullscreen().catch(err => console.log("Fullscreen diabaikan: ", err));
-    }
+  
 
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
