@@ -973,17 +973,29 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
+    // 1. Jika belum ada riwayat absen hari ini (Kondisi Awal Masuk)
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
         localStorage.removeItem(`detailWaktu_${namaLogin}`); 
-        kunciTombolKerja(false);
+        
+        // Tombol Check In & OFF aktif, Check Out WAJIB DIKUNCI
+        document.getElementById('btn-checkin').classList.remove('btn-disabled');
+        document.getElementById('btn-checkin').disabled = false;
         document.getElementById('btn-off').classList.remove('btn-disabled');
         document.getElementById('btn-off').disabled = false;
         
+        const btnOut = document.getElementById('btn-checkout');
+        btnOut.classList.add('btn-disabled');
+        btnOut.disabled = true;
+
         document.getElementById('time-checkin').innerText = "";
         document.getElementById('time-checkout').innerText = "";
         document.getElementById('time-off').innerText = "";
+        
+        if (isGpsValid) {
+            document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan lakukan Check In atau OFF";
+        }
         return;
     }
 
@@ -993,30 +1005,52 @@ function cekValidasiHarian() {
     document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
     document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
+    // 2. Jika sudah mengambil OFF
     if (status.includes('OFF')) {
         kunciTombolKerja(true);
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
         document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
-    } else if (status.includes('Check Out')) {
+    } 
+    // 3. Jika sudah Check Out (Selesai bekerja)
+    else if (status.includes('Check Out')) {
         kunciTombolKerja(true);
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
         document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
-    } else if (status.includes('Check In')) {
+    } 
+    // 4. Jika BARU SAJA Check In (Sedang bekerja -> Tombol Check Out Baru Aktif di sini)
+    else if (status.includes('Check In')) {
         document.getElementById('btn-checkin').classList.add('btn-disabled');
         document.getElementById('btn-checkin').disabled = true;
          
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
          
+        // Tombol Check Out diaktifkan khusus karena sudah Check In
+        const btnOut = document.getElementById('btn-checkout');
         if(isGpsValid) {
-            document.getElementById('btn-checkout').classList.remove('btn-disabled');
-            document.getElementById('btn-checkout').disabled = false;
+            btnOut.classList.remove('btn-disabled');
+            btnOut.disabled = false;
+        } else {
+            btnOut.classList.add('btn-disabled');
+            btnOut.disabled = true;
         }
         document.getElementById('status-log').innerText = "Status: Sedang bekerja. Silakan Check Out saat pulang.";
-    } else {
-        if(isGpsValid) kunciTombolKerja(false);
+    } 
+    // 5. Belum Check In sama sekali hari ini
+    else {
+        document.getElementById('btn-off').classList.remove('btn-disabled');
+        document.getElementById('btn-off').disabled = false;
+        
+        const btnOut = document.getElementById('btn-checkout');
+        btnOut.classList.add('btn-disabled');
+        btnOut.disabled = true;
+
+        if(isGpsValid) {
+            document.getElementById('btn-checkin').classList.remove('btn-disabled');
+            document.getElementById('btn-checkin').disabled = false;
+        }
     }
 }
 
