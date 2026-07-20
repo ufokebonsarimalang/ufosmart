@@ -553,10 +553,9 @@
     <div class="modal-box" id="modal-box">
         <h3 id="modal-title">Info</h3>
         <div id="modal-pesan">Pesan di sini</div>
-        <button onclick="tutupModal()">TUTUP</button>
+        <button id="btn-modal-ok" onclick="tutupModal()">TUTUP</button>
     </div>
-</div> 
-
+</div>
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
@@ -631,23 +630,16 @@ function tampilkanStatistik() {
 }
 
 function tampilkanPesan(pesan, status) {
-    const elTitle = document.getElementById('modal-title');
-    const elPesan = document.getElementById('modal-pesan');
-    const elModal = document.getElementById('modal-notif');
+    document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
+    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
     
-    if (elTitle) elTitle.innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    if (elPesan) elPesan.innerHTML = `<p>${pesan}</p>`;
-    
-    // PELINDUNG: Cek dulu tombolnya ada atau tidak sebelum diatur gayanya
-    const tombolBawaan = document.querySelector('#modal-box > button:last-child');
+    // Cari tombol langsung pakai ID, anti-gagal dan tidak peduli urutan HTML
+    const tombolBawaan = document.getElementById('btn-modal-ok');
     if (tombolBawaan) {
         tombolBawaan.style.display = 'inline-block';
     }
     
-    // Menampilkan modal kustom sesuai tema Anda
-    if (elModal) {
-        elModal.style.display = 'flex';
-    }
+    document.getElementById('modal-notif').style.display = 'flex';
 }
 
 function tutupModal() {
