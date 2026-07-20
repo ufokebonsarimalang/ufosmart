@@ -399,9 +399,10 @@
 
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
-<!-- Elemen Periode Karyawan -->
-<div id="periode-karyawan-text" style="display: none; margin-bottom: 12px; font-size: 13px; color: #475569; font-weight: 600; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; border-left: 4px solid #2563eb; text-align: left;">
-    Periode: -
+
+<!-- Elemen Periode Karyawan (Dibuat bertingkat ke bawah agar pas di layar) -->
+<div id="periode-karyawan-text" style="display: none; margin-bottom: 12px; font-size: 13px; color: #1e293b; font-weight: 600; background: #f1f5f9; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #2563eb; text-align: left; line-height: 1.5;">
+    <!-- Teks akan diisi otomatis lewat JavaScript -->
 </div>
    <div class="stat-box" style="padding: 15px; font-size: 14px;">
     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -713,26 +714,27 @@ function prosesLogin() {
         console.error(err);
     });
 }
-// Selipkan kode ini di dalam fungsi sukses muat data statistik karyawan Anda
+// --- JALANKAN LOGIKA PERIODE OTOMATIS KARYAWAN (TAMPILAN DIBAWAH/BERTINGKAT) ---
 const labelPeriodeKaryawan = document.getElementById('periode-karyawan-text');
 if (labelPeriodeKaryawan) {
-    labelPeriodeKaryawan.style.display = 'block'; // Munculkan element
+    labelPeriodeKaryawan.style.display = 'block'; // Tampilkan elemen
     
     let sekarang = new Date();
-    const namaBulan = ["Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]; // Sesuaikan array bulan lengkap Anda
     const namaBulanFull = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     
     let blnMulai, thnMulai, blnSelesai, thnSelesai;
     
     if (sekarang.getDate() >= 26) {
+        // Jika tanggal 26 ke atas: 26 Bulan Ini s/d 25 Bulan Depan
         blnMulai = namaBulanFull[sekarang.getMonth()];
         thnMulai = sekarang.getFullYear();
         
-        let targetBulanDepan = new Date(sekarang.getFullYear(), Bird = sekarang.getMonth() + 1, 1);
+        let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
         blnSelesai = namaBulanFull[targetBulanDepan.getMonth()];
         thnSelesai = targetBulanDepan.getFullYear();
     } else {
-        let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
+        // Jika tanggal 1-25: 26 Bulan Lalu s/d 25 Bulan Ini
+        let targetBulanLalu = new Date(sekarang.getFullYear(), carriage = sekarang.getMonth() - 1, 1);
         blnMulai = namaBulanFull[targetBulanLalu.getMonth()];
         thnMulai = targetBulanLalu.getFullYear();
         
@@ -740,8 +742,11 @@ if (labelPeriodeKaryawan) {
         thnSelesai = sekarang.getFullYear();
     }
     
-    // Tampilkan teks ke dashboard karyawan
-    labelPeriodeKaryawan.innerHTML = `📅 Periode Absensi: <span style="color: #2563eb;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</span>`;
+    // Cetak ke HTML dengan susunan ke bawah (<br>) agar rapi di layar HP
+    labelPeriodeKaryawan.innerHTML = `
+        <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
+        <strong style="color: #2563eb; font-size: 14px; font-weight: 800; display: block;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
+    `;
 }
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
