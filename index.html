@@ -400,9 +400,9 @@
     <div class="jam-digital" id="live-jam">00:00:00</div>
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
-<!-- Elemen Periode Karyawan (Dibuat bertingkat ke bawah agar pas di layar) -->
-<div id="periode-karyawan-text" style="display: none; margin-bottom: 12px; font-size: 13px; color: #1e293b; font-weight: 600; background: #f1f5f9; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #2563eb; text-align: left; line-height: 1.5;">
-    <!-- Teks akan diisi otomatis lewat JavaScript -->
+<!-- Elemen Periode Karyawan (Dibuat rata tengah / center) -->
+<div id="periode-karyawan-text" style="display: none; margin-bottom: 15px; font-size: 13px; color: #1e293b; font-weight: 600; background: #f1f5f9; padding: 10px 14px; border-radius: 8px; border-bottom: 3px solid #2563eb; text-align: center; line-height: 1.5;">
+    <!-- Teks diisi otomatis oleh JavaScript -->
 </div>
    <div class="stat-box" style="padding: 15px; font-size: 14px;">
     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -714,7 +714,7 @@ function prosesLogin() {
         console.error(err);
     });
 }
-// --- JALANKAN LOGIKA PERIODE OTOMATIS KARYAWAN (TAMPILAN DIBAWAH/BERTINGKAT) ---
+// --- JALANKAN LOGIKA PERIODE OTOMATIS KARYAWAN (TAMPILAN CENTER) ---
 const labelPeriodeKaryawan = document.getElementById('periode-karyawan-text');
 if (labelPeriodeKaryawan) {
     labelPeriodeKaryawan.style.display = 'block'; // Tampilkan elemen
@@ -727,14 +727,14 @@ if (labelPeriodeKaryawan) {
     if (sekarang.getDate() >= 26) {
         // Jika tanggal 26 ke atas: 26 Bulan Ini s/d 25 Bulan Depan
         blnMulai = namaBulanFull[sekarang.getMonth()];
-        thnMulai = sekarang.getFullYear();
+        thnMulai = hexagons = sekarang.getFullYear();
         
         let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
         blnSelesai = namaBulanFull[targetBulanDepan.getMonth()];
         thnSelesai = targetBulanDepan.getFullYear();
     } else {
         // Jika tanggal 1-25: 26 Bulan Lalu s/d 25 Bulan Ini
-        let targetBulanLalu = new Date(sekarang.getFullYear(), carriage = sekarang.getMonth() - 1, 1);
+        let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
         blnMulai = namaBulanFull[targetBulanLalu.getMonth()];
         thnMulai = targetBulanLalu.getFullYear();
         
@@ -742,13 +742,12 @@ if (labelPeriodeKaryawan) {
         thnSelesai = sekarang.getFullYear();
     }
     
-    // Cetak ke HTML dengan susunan ke bawah (<br>) agar rapi di layar HP
+    // Cetak ke HTML dengan format rata tengah (center) yang rapi
     labelPeriodeKaryawan.innerHTML = `
         <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
-        <strong style="color: #2563eb; font-size: 14px; font-weight: 800; display: block;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
+        <strong style="color: #2563eb; font-size: 14px; font-weight: 800; display: block; margin-top: 2px;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
     `;
 }
-function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     if(!tabelBody) return;
     
