@@ -490,7 +490,35 @@
             </button>
         </div>
     </div>
-     
+     <!-- FILTER PER KARYAWAN -->
+<div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; text-align: left;">
+    <label style="font-weight: bold; display: block; margin-bottom: 6px; font-size: 13px; color: #334155;">
+        🔍 Pilih Nama Karyawan:
+    </label>
+    <select id="filter-nama-admin" onchange="filterLaporanAdmin()" style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: white;">
+        <option value="SEMUA">-- Tampilkan Semua Karyawan --</option>
+    </select>
+    
+    <!-- STATISTIK RINGKASAN KARYAWAN (Akan muncul jika nama dipilih) -->
+    <div id="stat-karyawan-admin" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px;">
+        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 11px; color: #64748b;">Hadir</div>
+            <strong id="admin-stat-masuk" style="font-size: 16px; color: #059669;">0</strong>
+        </div>
+        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 11px; color: #64748b;">Terlambat</div>
+            <strong id="admin-stat-terlambat" style="font-size: 16px; color: #ef4444;">0</strong>
+        </div>
+        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 11px; color: #64748b;">OFF</div>
+            <strong id="admin-stat-off" style="font-size: 16px; color: #dc2626;">0</strong>
+        </div>
+        <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+            <div style="font-size: 11px; color: #64748b;">PS</div>
+            <strong id="admin-stat-ps" style="font-size: 16px; color: #d97706;">0</strong>
+        </div>
+    </div>
+</div>
     <div class="table-container" style="box-shadow: 0 4px 15px rgba(0,0,0,0.02); background: white; border-radius: 12px;">
         <table>
             <thead>
@@ -1130,6 +1158,167 @@ window.downloadCSV = function() {
     link.click();
     document.body.removeChild(link);
 };
+  // 1. FUNGSI UNTUK MEMUAT DATA AWAL & MENGISI DROPDOWN
+function muatDataAdmin() {
+    const tabelBody = document.getElementById('isi-tabel');
+    if(!tabelBody) return;
+    
+    tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Memuat data laporan...</td></tr>";
+         
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
+    .then(res => res.json())
+    .then(data => {
+        dataLaporanGlobal = data; 
+        
+        // Buat pilihan dropdown nama secara otomatis dari data sheet
+        const dropdown = document.getElementById('filter-nama-admin');
+        dropdown.innerHTML = '<option value="SEMUA">-- Tampilkan Semua Karyawan --</option>';
+        
+        let daftarNama = [];
+        for(let i = 1; i < data.length; i++) {
+            let nama = data[i][1];
+            if(nama && !daftarNama.includes(nama)) {
+                daftarNama.push(nama);
+            }
+        }
+        daftarNama.sort().forEach(nama => {
+            dropdown.innerHTML += `<option value="${nama}">${nama}</option>`;
+        });
+
+        // Tampilkan semua data saat pertama kali dimuat
+        renderTabelAdmin("SEMUA");
+    })
+    .catch(err => {
+        tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px; color: red;'>Gagal memuat data. Periksa koneksi internet Anda.</td></tr>";
+        console.error(err);
+    });
+}
+
+// 2. FUNGSI UNTUK MEMICU FILTER SAAT DROPDOWN DIUBAH
+function filterLaporanAdmin() {
+    const namaDipilih = document.getElementById('filter-nama-admin').value;
+    renderTabelAdmin(namaDipilih);
+}
+
+// 3. FUNGSI UTAMA UNTUK RENDERING TABEL & HITUNG STATISTIK CUT-OFF
+function renderTabelAdmin(namaTarget) {
+    const tabelBody = document.getElementById('isi-tabel');
+    tabelBody.innerHTML = "";
+    
+    if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+        tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Belum ada data absensi.</td></tr>";
+        return;
+    }
+
+    // Perhitungan Logika Cut-off (26 Bulan Ini s/d 25 Bulan Depan)
+    let sekarang = new Date();
+    let targetBulan = sekarang.getMonth();
+    let targetTahun = sekarang.getFullYear();
+    
+    if (sekarang.getDate() >= 26) {
+        targetBulan += 1;
+        if (targetBulan > 11) { 
+            targetBulan = 0; 
+            targetTahun += 1; 
+        }
+    }
+
+    let totalMasuk = 0, totalOff = 0, totalPs = 0, totalTerlambat = 0;
+    let logPerTanggal = {};
+
+    // Mulai membaca baris data (Skip baris header ke-0)
+    for(let i = 1; i < dataLaporanGlobal.length; i++) {
+        let row = dataLaporanGlobal[i];
+        let kolomWaktu = row[0];
+        let kolomNama = row[1];
+        let kolomStatus = row[2];
+
+        // Jalankan filter tabel data
+        if (namaTarget === "SEMUA" || kolomNama === namaTarget) {
+            let tr = document.createElement('tr');
+            let statusBadgeClass = 'badge-off';
+            if(kolomStatus === 'Check In') statusBadgeClass = 'badge-in';
+            if(kolomStatus === 'Check Out') statusBadgeClass = 'badge-out';
+            
+            // Format tampilan koordinat GPS
+            let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
+
+            tr.innerHTML = `
+                <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${row[0] || '-'}</td>
+                <td style="padding: 12px; font-weight: bold; font-size: 13px;">${row[1] || '-'}</td>
+                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}" style="padding: 5px 10px; font-size: 11px;">${row[2] || '-'}</span></td>
+                <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #475569;">${koordinat}</td>
+                <td style="padding: 12px; text-align: center;">
+                    ${row[5] && row[5] !== '-' ? `<a href="${row[5]}" target="_blank" style="padding: 6px 12px; font-size: 11px; border-radius: 6px; background: #2563eb; color: white; text-decoration: none; display: inline-block;">Lihat Foto</a>` : '<span style="color: #cbd5e1; font-size: 12px;">Tanpa Foto</span>'}
+                </td>
+            `;
+            tabelBody.appendChild(tr);
+        }
+
+        // Hitung statistik cut-off jika nama karyawan dipilih spesifik
+        if (namaTarget !== "SEMUA" && kolomNama === namaTarget) {
+            try {
+                let parts = kolomWaktu.split(" ");
+                let dateParts = parts[0].split("-");
+                let timeParts = parts[1].split(":");
+                let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+                
+                let pBulan = tglAbsen.getMonth();
+                let pTahun = tglAbsen.getFullYear();
+                
+                if (tglAbsen.getDate() >= 26) {
+                    pBulan += 1;
+                    if (pBulan > 11) { pBulan = 0; pTahun += 1; }
+                }
+
+                if (pBulan === targetBulan && pTahun === targetTahun) {
+                    let stringTanggal = tglAbsen.toDateString();
+                    if (!logPerTanggal[stringTanggal]) {
+                        logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                    }
+                    logPerTanggal[stringTanggal].status.push(kolomStatus);
+                    if (kolomStatus === "Check In") {
+                        logPerTanggal[stringTanggal].jamCheckIn.push(tglAbsen.getHours());
+                        logPerTanggal[stringTanggal].menitCheckIn.push(tglAbsen.getMinutes());
+                    }
+                    if (kolomStatus === "Check Out") {
+                        logPerTanggal[stringTanggal].jamCheckOut.push(tglAbsen.getHours());
+                    }
+                }
+            } catch(e) {
+                console.error("Format tanggal salah pada baris ke-" + i);
+            }
+        }
+    }
+
+    // Manajemen Tampilan Kotak Ringkasan Statistik
+    const boxStat = document.getElementById('stat-karyawan-admin');
+    if (namaTarget === "SEMUA") {
+        boxStat.style.display = 'none';
+    } else {
+        boxStat.style.display = 'grid';
+        
+        // Hitung akumulasi dari log per tanggal objek
+        for (let tgl in logPerTanggal) {
+            let hariIni = logPerTanggal[tgl];
+            if (hariIni.status.includes("OFF")) totalOff++;
+            if (hariIni.status.includes("Check In")) {
+                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 0)) totalTerlambat++;
+            }
+            if (hariIni.status.includes("Check In") && hariIni.status.includes("Check Out")) {
+                totalMasuk++;
+                let lastOut = hariIni.jamCheckOut[hariIni.jamCheckOut.length - 1];
+                if (lastOut === 17 || lastOut === 18) totalPs++;
+            }
+        }
+        
+        // Tembakkan angka hasil perhitungan ke HTML dasbor admin
+        document.getElementById('admin-stat-masuk').innerText = totalMasuk;
+        document.getElementById('admin-stat-terlambat').innerText = totalTerlambat;
+        document.getElementById('admin-stat-off').innerText = totalOff;
+        document.getElementById('admin-stat-ps').innerText = totalPs;
+    }
+}  
 </script>
 </body>
 </html>
