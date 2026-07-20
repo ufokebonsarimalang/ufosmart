@@ -1008,8 +1008,8 @@ function cekValidasiHarian() {
 
     const status = logAbsenHariIni.status;
     const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
-    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? ": " + detailWaktu['Check In'] : "";
-    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? ": " + detailWaktu['Check Out'] : "";
+    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN : " + detailWaktu['Check In'] : "";
+    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT : " + detailWaktu['Check Out'] : "";
     document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
     if (status.includes('OFF')) {
