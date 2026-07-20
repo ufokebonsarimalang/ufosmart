@@ -631,13 +631,23 @@ function tampilkanStatistik() {
 }
 
 function tampilkanPesan(pesan, status) {
-    document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
+    const elTitle = document.getElementById('modal-title');
+    const elPesan = document.getElementById('modal-pesan');
+    const elModal = document.getElementById('modal-notif');
     
+    if (elTitle) elTitle.innerText = status === 'sukses' ? 'Berhasil' : 'Info';
+    if (elPesan) elPesan.innerHTML = `<p>${pesan}</p>`;
+    
+    // PELINDUNG: Cek dulu tombolnya ada atau tidak sebelum diatur gayanya
     const tombolBawaan = document.querySelector('#modal-box > button:last-child');
-    if (tombolBawaan) tombolBawaan.style.display = 'inline-block';
+    if (tombolBawaan) {
+        tombolBawaan.style.display = 'inline-block';
+    }
     
-    document.getElementById('modal-notif').style.display = 'flex';
+    // Menampilkan modal kustom sesuai tema Anda
+    if (elModal) {
+        elModal.style.display = 'flex';
+    }
 }
 
 function tutupModal() {
