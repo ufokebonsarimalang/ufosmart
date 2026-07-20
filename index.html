@@ -1242,9 +1242,13 @@ function filterLaporanAdmin() {
     renderTabelAdmin(namaDipilih);
 }
 
-// 3. FUNGSI UTAMA UNTUK RENDERING TABEL & HITUNG STATISTIK CUT-OFF
+// ==========================================
+// 3. FUNGSI UTAMA RENDERING TABEL ADMIN
+// ==========================================
 function renderTabelAdmin(namaTarget) {
     const tabelBody = document.getElementById('isi-tabel');
+    if (!tabelBody) return; // Proteksi jika elemen tidak ada
+    
     tabelBody.innerHTML = "";
     
     if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
@@ -1269,20 +1273,21 @@ function renderTabelAdmin(namaTarget) {
     let logPerTanggal = {};
 
     // Mulai membaca baris data (Skip baris header ke-0)
-    for(let i = 1; i < dataLaporanGlobal.length; i++) {
+    for (let i = 1; i < dataLaporanGlobal.length; i++) {
         let row = dataLaporanGlobal[i];
+        if (!row || row.length < 3) continue; // Skip jika baris kosong
+
         let kolomWaktu = row[0];
         let kolomNama = row[1];
         let kolomStatus = row[2];
 
-        // Jalankan filter tabel data
+        // 1. Jalankan filter rendering tabel data ke layar
         if (namaTarget === "SEMUA" || kolomNama === namaTarget) {
             let tr = document.createElement('tr');
             let statusBadgeClass = 'badge-off';
-            if(kolomStatus === 'Check In') statusBadgeClass = 'badge-in';
-            if(kolomStatus === 'Check Out') statusBadgeClass = 'badge-out';
+            if (kolomStatus === 'Check In') statusBadgeClass = 'badge-in';
+            if (kolomStatus === 'Check Out') statusBadgeClass = 'badge-out';
             
-            // Format tampilan koordinat GPS
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
             tr.innerHTML = `
@@ -1297,43 +1302,45 @@ function renderTabelAdmin(namaTarget) {
             tabelBody.appendChild(tr);
         }
 
-        // Hitung statistik cut-off jika nama karyawan dipilih spesifik
+        // 2. Hitung akumulasi statistik cut-off jika nama karyawan dipilih spesifik
         if (namaTarget !== "SEMUA" && kolomNama === namaTarget) {
             try {
-                let parts = kolomWaktu.split(" ");
-                let dateParts = parts[0].split("-");
-                let timeParts = parts[1].split(":");
-                let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
-                
-                let pBulan = tglAbsen.getMonth();
-                let pTahun = tglAbsen.getFullYear();
-                
-                if (tglAbsen.getDate() >= 26) {
-                    pBulan += 1;
-                    if (pBulan > 11) { pBulan = 0; pTahun += 1; }
-                }
+                if (kolomWaktu && kolomWaktu.includes(" ")) {
+                    let parts = kolomWaktu.split(" ");
+                    let dateParts = parts[0].split("-");
+                    let timeParts = parts[1].split(":");
+                    let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+                    
+                    let pBulan = tglAbsen.getMonth();
+                    let pTahun = tglAbsen.getFullYear();
+                    
+                    if (tglAbsen.getDate() >= 26) {
+                        pBulan += 1;
+                        if (pBulan > 11) { pBulan = 0; pTahun += 1; }
+                    }
 
-                if (pBulan === targetBulan && pTahun === targetTahun) {
-                    let stringTanggal = tglAbsen.toDateString();
-                    if (!logPerTanggal[stringTanggal]) {
-                        logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
-                    }
-                    logPerTanggal[stringTanggal].status.push(kolomStatus);
-                    if (kolomStatus === "Check In") {
-                        logPerTanggal[stringTanggal].jamCheckIn.push(tglAbsen.getHours());
-                        logPerTanggal[stringTanggal].menitCheckIn.push(tglAbsen.getMinutes());
-                    }
-                    if (kolomStatus === "Check Out") {
-                        logPerTanggal[stringTanggal].jamCheckOut.push(tglAbsen.getHours());
+                    if (pBulan === targetBulan && pTahun === targetTahun) {
+                        let stringTanggal = tglAbsen.toDateString();
+                        if (!logPerTanggal[stringTanggal]) {
+                            logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                        }
+                        logPerTanggal[stringTanggal].status.push(kolomStatus);
+                        if (kolomStatus === "Check In") {
+                            logPerTanggal[stringTanggal].jamCheckIn.push(tglAbsen.getHours());
+                            logPerTanggal[stringTanggal].menitCheckIn.push(tglAbsen.getMinutes());
+                        }
+                        if (kolomStatus === "Check Out") {
+                            logPerTanggal[stringTanggal].jamCheckOut.push(tglAbsen.getHours());
+                        }
                     }
                 }
-            } catch(e) {
-                console.error("Format tanggal salah pada baris ke-" + i);
+            } catch (e) {
+                console.error("Format tanggal bermasalah pada baris ke-" + i);
             }
         }
-    } // Akhir dari loop FOR
+    } // Akhir loop FOR
 
-    // Ambil elemen DOM untuk statistik & periode
+    // 3. Ambil elemen DOM untuk manajemen tampilan statistik & periode
     const boxStat = document.getElementById('stat-karyawan-admin');
     const labelPeriode = document.getElementById('periode-admin-text');
 
@@ -1342,37 +1349,30 @@ function renderTabelAdmin(namaTarget) {
         if (labelPeriode) labelPeriode.style.display = 'none';
     } else {
         if (boxStat) boxStat.style.display = 'grid';
-        if (labelPeriode) labelPeriode.style.display = 'block'; // Diubah ke block agar bisa take space & center
         
-        // --- 📅 LOGIKA TEKS PERIODE OTOMATIS (TAMPILAN DIBAWAH / CENTER) ---
-        const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        let blnMulai, thnMulai, blnSelesai, thnSelesai;
-        
-        if (sekarang.getDate() >= 26) {
-            blnMulai = namaBulan[sekarang.getMonth()];
-            thnMulai = sekarang.getFullYear();
-            
-            let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
-            blnSelesai = namaBulan[targetBulanDepan.getMonth()];
-            thnSelesai = targetBulanDepan.getFullYear();
-        } else {
-            let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
-            blnMulai = namaBulan[targetBulanLalu.getMonth()];
-            thnMulai = targetBulanLalu.getFullYear();
-            
-            blnSelesai = namaBulan[sekarang.getMonth()];
-            thnSelesai = sekarang.getFullYear();
-        }
-        
-        // Cetak teks ke HTML admin dengan penataan turun ke bawah (<br>) dan rata tengah
         if (labelPeriode) {
-            labelPeriode.style.textAlign = "center";
-            labelPeriode.style.background = "#f1f5f9";
-            labelPeriode.style.borderBottom = "3px solid #2563eb";
-            labelPeriode.style.padding = "10px 14px";
-            labelPeriode.style.borderRadius = "8px";
-            labelPeriode.style.width = "100%";
-            labelPeriode.style.boxSizing = "border-box";
+            labelPeriode.style.display = 'block';
+            labelPeriode.style.textAlign = 'center';
+            labelPeriode.style.width = '100%';
+            
+            const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            let blnMulai, thnMulai, blnSelesai, thnSelesai;
+            
+            if (sekarang.getDate() >= 26) {
+                blnMulai = namaBulan[sekarang.getMonth()];
+                thnMulai = sekarang.getFullYear();
+                
+                let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
+                blnSelesai = namaBulan[targetBulanDepan.getMonth()];
+                thnSelesai = targetBulanDepan.getFullYear();
+            } else {
+                let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
+                blnMulai = namaBulan[targetBulanLalu.getMonth()];
+                thnMulai = targetBulanLalu.getFullYear();
+                
+                blnSelesai = namaBulan[sekarang.getMonth()];
+                thnSelesai = sekarang.getFullYear();
+            }
             
             labelPeriode.innerHTML = `
                 <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
@@ -1380,12 +1380,14 @@ function renderTabelAdmin(namaTarget) {
             `;
         }
 
-        // Hitung akumulasi harian dari log objek
+        // Hitung nilai statistik akhir berdasarkan log objek harian
         for (let tgl in logPerTanggal) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
             if (hariIni.status.includes("Check In")) {
-                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 0)) totalTerlambat++;
+                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 0)) {
+                    totalTerlambat++;
+                }
             }
             if (hariIni.status.includes("Check In") && hariIni.status.includes("Check Out")) {
                 totalMasuk++;
@@ -1394,7 +1396,7 @@ function renderTabelAdmin(namaTarget) {
             }
         }
         
-        // Tembakkan angka hasil perhitungan ke HTML dasbor admin
+        // Tembakkan data angka ke card statistik admin
         if (document.getElementById('admin-stat-masuk')) document.getElementById('admin-stat-masuk').innerText = totalMasuk;
         if (document.getElementById('admin-stat-terlambat')) document.getElementById('admin-stat-terlambat').innerText = totalTerlambat;
         if (document.getElementById('admin-stat-off')) document.getElementById('admin-stat-off').innerText = totalOff;
