@@ -636,21 +636,16 @@ function tampilkanStatistik() {
     if (elTerlambat) elTerlambat.innerText = totalTerlambat + " hari";
 }
 
-function tampilkanPesan(pesan, tipe) {
-    const modal = document.getElementById('modal-notif');
-    const txtPesan = document.getElementById('modal-pesan');
-    const title = document.getElementById('modal-title');
+function tampilkanPesan(pesan, status) {
+    const elTitle = document.getElementById('modal-title');
+    const elPesan = document.getElementById('modal-pesan');
+    const elModal = document.getElementById('modal-notif');
+
+    if (elTitle) elTitle.innerText = status === 'sukses' ? 'Berhasil' : 'Info';
+    if (elPesan) elPesan.innerHTML = `<p>${pesan}</p>`;
     
-    if (modal && txtPesan) {
-        txtPesan.innerText = pesan;
-        if (title) {
-            title.innerText = (tipe === "info") ? "Pemberitahuan" : "Info";
-        }
-        // Munculkan modal dengan flexbox agar rata tengah layar
-        modal.style.display = 'flex'; 
-    } else {
-        // Fallback cadangan jika HTML modal belum termuat sempurna
-        alert(pesan); 
+    if (elModal) {
+        elModal.style.display = 'flex'; // Memaksa modal muncul ke layar
     }
 }
 
@@ -660,9 +655,7 @@ function tutupModal() {
         modal.style.display = 'none';
     }
 }
-function tutupModal() {
-    document.getElementById('modal-notif').style.display = 'none';
-}
+
 
 function prosesLogin() {
     const docEl = document.documentElement;
