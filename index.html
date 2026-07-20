@@ -1340,28 +1340,24 @@ function renderTabelAdmin(namaTarget) {
                 console.error("Format tanggal salah pada baris ke-" + i);
             }
         }
-    }
+    } // Akhir dari loop FOR
 
-  // Cari bagian ini di paling bawah fungsi renderTabelAdmin(namaTarget)
+    // Ambil elemen DOM untuk statistik & periode
     const boxStat = document.getElementById('stat-karyawan-admin');
-    const labelPeriode = document.getElementById('periode-admin-text'); // Ambil elemen periode
+    const labelPeriode = document.getElementById('periode-admin-text');
 
     if (namaTarget === "SEMUA") {
-        boxStat.style.display = 'none';
-        labelPeriode.style.display = 'none'; // Sembunyikan periode jika tampil semua
+        if (boxStat) boxStat.style.display = 'none';
+        if (labelPeriode) labelPeriode.style.display = 'none';
     } else {
-        boxStat.style.display = 'grid';
-        labelPeriode.style.display = 'inline-block'; // Tampilkan periode
+        if (boxStat) boxStat.style.display = 'grid';
+        if (labelPeriode) labelPeriode.style.display = 'inline-block';
         
         // --- 📅 LOGIKA TEKS PERIODE OTOMATIS ---
         const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        let tglMulai = 26;
-        let tglSelesai = 25;
-        
         let blnMulai, thnMulai, blnSelesai, thnSelesai;
         
         if (sekarang.getDate() >= 26) {
-            // Jika tanggal 26 ke atas, berarti periode: 26 Bulan Ini s/d 25 Bulan Depan
             blnMulai = namaBulan[sekarang.getMonth()];
             thnMulai = sekarang.getFullYear();
             
@@ -1369,7 +1365,6 @@ function renderTabelAdmin(namaTarget) {
             blnSelesai = namaBulan[targetBulanDepan.getMonth()];
             thnSelesai = targetBulanDepan.getFullYear();
         } else {
-            // Jika tanggal 1-25, berarti periode: 26 Bulan Lalu s/d 25 Bulan Ini
             let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
             blnMulai = namaBulan[targetBulanLalu.getMonth()];
             thnMulai = targetBulanLalu.getFullYear();
@@ -1379,10 +1374,11 @@ function renderTabelAdmin(namaTarget) {
         }
         
         // Cetak teks ke HTML admin
-        labelPeriode.innerHTML = `📅 Periode Aktif: <strong>26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>`;
-        // ---------------------------------------
+        if (labelPeriode) {
+            labelPeriode.innerHTML = `📅 Periode Aktif: <strong>26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>`;
+        }
 
-        // Hitung akumulasi harian (lanjutan kode kalkulasi statistikmu yang kemarin)
+        // Hitung akumulasi harian dari log objek
         for (let tgl in logPerTanggal) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
@@ -1396,20 +1392,13 @@ function renderTabelAdmin(namaTarget) {
             }
         }
         
-        document.getElementById('admin-stat-masuk').innerText = totalMasuk;
-        document.getElementById('admin-stat-terlambat').innerText = totalTerlambat;
-        document.getElementById('admin-stat-off').innerText = totalOff;
-        document.getElementById('admin-stat-ps').innerText = totalPs;
-    }
-        }
-        
         // Tembakkan angka hasil perhitungan ke HTML dasbor admin
-        document.getElementById('admin-stat-masuk').innerText = totalMasuk;
-        document.getElementById('admin-stat-terlambat').innerText = totalTerlambat;
-        document.getElementById('admin-stat-off').innerText = totalOff;
-        document.getElementById('admin-stat-ps').innerText = totalPs;
+        if (document.getElementById('admin-stat-masuk')) document.getElementById('admin-stat-masuk').innerText = totalMasuk;
+        if (document.getElementById('admin-stat-terlambat')) document.getElementById('admin-stat-terlambat').innerText = totalTerlambat;
+        if (document.getElementById('admin-stat-off')) document.getElementById('admin-stat-off').innerText = totalOff;
+        if (document.getElementById('admin-stat-ps')) document.getElementById('admin-stat-ps').innerText = totalPs;
     }
-}  
+}
 </script>
 </body>
 </html>
