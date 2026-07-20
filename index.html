@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Absensi Karyawan - UFO Kebonsari</title>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1565c0">
+    <meta name="theme-color" content="#1565c0">
     <style>
         :root {
             --primary: #1967d2; /* Biru UFO */
             --primary-hover: #1557b0;
-            --success: #1967d2; /* Check In sekarang Biru */
+            --success: #1967d2; /* Check In Biru */
             --success-hover: #1557b0;
             --warning: #f59e0b; /* Check Out Jingga */
             --warning-hover: #d97706;
-            --danger: #ef4444; /* Tombol OFF sekarang Merah */
+            --danger: #ef4444; /* Tombol OFF Merah */
             --danger-hover: #dc2626;
-            --background: #f8fafc;
+            --background: #f4f6f9;
             --card-bg: #ffffff;
-            --text-main: #000000;
-            --text-muted: #757575;
-            --border: #e0e0e0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
         }
 
         body { 
@@ -36,31 +36,44 @@
             box-sizing: border-box;
         }
 
-        .box { 
+    .box { 
             width: 100%;
-            max-width: 360px; 
+            max-width: 380px; 
             background: var(--card-bg); 
-            padding: 35px 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 30px 24px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
             box-sizing: border-box;
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 2px solid rgba(0, 0, 0, 0.25);
             text-align: center;
+            transition: transform 0.2s ease;
         }
 
+        /* Kotak-kotak di dalam dashboard (Periode, Statistik, Status Log) */
+        #periode-karyawan-text, 
+        .stat-box, 
+        #status-log {
+            border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Kotak Filter dan Tabel di Admin */
+        .box-admin div[style*="background: #f8fafc"], 
+        .table-container {
+            border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+        }
         .box-admin { 
-            max-width: 900px; 
+            max-width: 1000px; 
         }
 
         .logo-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px auto;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 16px auto;
             border-radius: 50%;
-            border: 3px solid #eef2f6;
-            padding: 3px;
+            border: 3px solid #f1f5f9;
+            padding: 2px;
             background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 12px rgba(25, 103, 210, 0.08);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -74,47 +87,46 @@
         }
 
         h2 {
-            margin: 0 0 5px 0;
-            font-size: 20px;
+            margin: 0 0 4px 0;
+            font-size: 19px;
             font-weight: 700;
             color: var(--text-main);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .sub-title {
             color: var(--text-muted);
             font-size: 13px;
-            margin: 0 0 25px 0;
+            margin: 0 0 20px 0;
             font-weight: 500;
         }
 
         .jam-digital {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 800;
             color: var(--primary);
-            margin: 15px 0;
+            margin: 10px 0 4px 0;
             font-variant-numeric: tabular-nums;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .tanggal-digital {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 500;
         }
 
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
         .btn-grid button svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
@@ -124,24 +136,26 @@
 
         .input-group {
             text-align: left;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
         .input-group label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: #333333;
+            margin-bottom: 6px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input { 
             width: 100%; 
-            padding: 12px 16px; 
+            padding: 12px 14px; 
             border-radius: 10px; 
             border: 1px solid var(--border);
             background: #ffffff;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.2s ease;
             box-sizing: border-box;
         }
@@ -155,9 +169,9 @@
         button { 
             width: 100%; 
             padding: 12px; 
-            margin-top: 10px;
-            border-radius: 8px; 
-            font-size: 14px; 
+            margin-top: 8px;
+            border-radius: 10px; 
+            font-size: 13px; 
             font-weight: 700; 
             cursor: pointer; 
             border: none;
@@ -170,53 +184,45 @@
             letter-spacing: 0.5px;
         }
 
+        button:active {
+            transform: scale(0.98);
+        }
+
         .btn-primary {
             background: var(--primary);
             color: white;
+            box-shadow: 0 4px 12px rgba(25, 103, 210, 0.2);
         }
 
         .btn-primary:hover {
             background: var(--primary-hover);
         }
 
-        .btn-checkin {
-            background: var(--success);
+        .btn-checkin, .btn-off, .btn-checkout {
             color: white;
-            padding: 18px 5px;
+            padding: 14px 4px;
             border-radius: 12px;
             flex-direction: column;
-            gap: 8px;
-            font-size: 11px;
+            gap: 6px;
+            font-size: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
+
+        .btn-checkin { background: var(--success); }
         .btn-checkin:hover { background: var(--success-hover); }
 
-        .btn-off {
-            background: var(--danger);
-            color: white;
-            padding: 18px 5px;
-            border-radius: 12px;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 11px;
-        }
+        .btn-off { background: var(--danger); }
         .btn-off:hover { background: var(--danger-hover); }
 
-        .btn-checkout {
-            background: var(--warning);
-            color: white;
-            padding: 18px 5px;
-            border-radius: 12px;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 11px;
-        }
+        .btn-checkout { background: var(--warning); }
         .btn-checkout:hover { background: var(--warning-hover); }
 
         .btn-absen-kirim { 
             background: var(--primary); 
             color: white;
-            font-size: 14px;
-            margin-top: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(25, 103, 210, 0.2);
         }
         .btn-absen-kirim:hover { background: var(--primary-hover); }
 
@@ -225,8 +231,8 @@
             color: var(--danger); 
             border: 1.5px solid var(--danger);
             font-size: 12px; 
-            padding: 8px; 
-            margin-top: 15px;
+            padding: 10px; 
+            margin-top: 12px;
         }
         .btn-logout:hover { background: rgba(239, 68, 68, 0.05); }
 
@@ -235,9 +241,10 @@
             color: var(--text-muted);
             border: 1px solid var(--border);
             font-size: 12px;
-            padding: 8px;
-            margin-top: 10px;
+            padding: 10px;
+            margin-top: 8px;
         }
+        .btn-kembali:hover { background: #f8fafc; }
 
         #kamera { 
             width: 100%; 
@@ -246,33 +253,30 @@
             border-radius: 12px; 
             background: #1e293b; 
             border: 1px solid var(--border);
-            max-height: 480px;
+            max-height: 420px;
         }
 
         .stat-box {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
             font-size: 13px;
             font-weight: 600;
         }
-        .stat-box span {
-            color: var(--primary);
-            font-size: 16px;
-            font-weight: 800;
-        }
-
-        #status-log {
-            font-size: 12px;
-            color: var(--text-muted);
+        
+      #status-log {
+            font-size: 13px;
+            color: var(--text-main);
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 10px;
+            border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+            padding: 12px;
             border-radius: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-weight: 500;
+            text-align: center; /* Membuat tulisan jadi rata tengah */
+            line-height: 1.5;   /* Memberikan jarak antar baris agar rapi */
         }
 
         .table-container {
@@ -280,11 +284,12 @@
             overflow-x: auto;
             border-radius: 12px;
             border: 1px solid var(--border);
-            margin-top: 20px;
+            margin-top: 15px;
+            background: white;
         }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 14px 18px; font-size: 14px; }
+        th, td { padding: 12px 16px; font-size: 13px; }
         th { background: #f8fafc; color: var(--text-main); font-weight: 600; border-bottom: 2px solid var(--border); }
         td { border-bottom: 1px solid var(--border); vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
@@ -294,7 +299,7 @@
             display: inline-block;
             padding: 4px 8px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
         .badge-in { background: #d1fae5; color: #065f46; }
@@ -307,7 +312,7 @@
             color: #0369a1;
             padding: 4px 8px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-decoration: none;
         }
@@ -316,12 +321,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-bottom: 1px solid var(--border);
             padding-bottom: 15px;
         }
-
-        .admin-header button { margin: 0; width: auto; padding: 8px 16px; }
 
         .spinner {
             border: 2px solid rgba(255,255,255,0.3);
@@ -344,26 +347,29 @@
             align-items: center; z-index: 1000;
         }
         .modal-box {
-            background: white; padding: 30px; border-radius: 20px;
-            width: 80%; max-width: 300px; text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: white; padding: 25px; border-radius: 16px;
+            width: 80%; max-width: 280px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
-        .modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; }
+        .modal-box button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; width: 100%; }
 
         .btn-disabled {
-            background-color: #d1d5db !important;
+            background-color: #e2e8f0 !important;
+            color: #94a3b8 !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: none !important;
             cursor: not-allowed !important;
-            opacity: 0.5;
+            opacity: 0.7;
             pointer-events: none;
         }
 
         .info-jam-absen {
             font-size: 10px;
             font-weight: bold;
-            margin-top: 6px;
+            margin-top: 4px;
             display: block;
             text-align: center;
-            min-height: 15px;
+            min-height: 14px;
         }
     </style>
 </head>
@@ -371,7 +377,7 @@
 
 <div id="view-login" class="box">
     <div class="logo-container">
-      <img src="logo.png" class="logo-toko" alt="Logo Lama">
+        <img src="logo.png" class="logo-toko" alt="Logo UFO">
     </div>
     <h2>UFO Kebonsari Malang</h2>
     <div class="sub-title">Sistem Absensi Karyawan</div>
@@ -403,30 +409,30 @@
     <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
 
     <!-- Elemen Periode Karyawan -->
-    <div id="periode-karyawan-text" style="display: none; margin-bottom: 15px; font-size: 13px; color: #1e293b; font-weight: 600; background: #f1f5f9; padding: 10px 14px; border-radius: 8px; border-bottom: 3px solid #2563eb; text-align: center; line-height: 1.5;"></div>
+    <div id="periode-karyawan-text" style="display: none; margin-bottom: 12px; font-size: 12px; color: #1e293b; font-weight: 600; background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid var(--border); border-bottom: 3px solid var(--primary); text-align: center; line-height: 1.4;"></div>
 
-   <div class="stat-box" style="padding: 15px; font-size: 14px;">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+   <div class="stat-box" style="padding: 12px; font-size: 13px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
         <span>Total Kehadiran Bulan Ini :</span>
-        <span id="total-masuk" style="font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+        <span id="total-masuk" style="font-weight: bold; min-width: 50px; text-align: right;">0 hari</span>
     </div>
-    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
         <span>Total OFF Bulan Ini :</span>
-        <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+        <span id="total-off" style="color: var(--danger); font-weight: bold; min-width: 50px; text-align: right;">0 hari</span>
     </div>
-    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
         <span>Total PS Bulan Ini :</span>
-        <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+        <span id="total-ps" style="color: var(--warning); font-weight: bold; min-width: 50px; text-align: right;">0 hari</span>
     </div>
     <div style="display: flex; justify-content: space-between;">
         <span>Total Terlambat Bulan Ini :</span>
-        <span id="total-terlambat" style="color: #ef4444; font-weight: bold; min-width: 60px; text-align: right;">0 hari</span>
+        <span id="total-terlambat" style="color: #ef4444; font-weight: bold; min-width: 50px; text-align: right;">0 hari</span>
     </div>
 </div>
 
 <div id="status-log">Menghubungkan GPS...</div>
 
-<button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 5px; margin-bottom: 15px; padding: 6px 12px; font-size: 11px; background: #e2e8f0; color: #334155; width: auto; display: inline-flex; border-radius: 6px;">
+<button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-top: 2px; margin-bottom: 12px; padding: 6px 12px; font-size: 11px; background: #f1f5f9; color: #475569; width: auto; display: inline-flex; border-radius: 6px; border: 1px solid var(--border);">
     🔄 Refresh Lokasi GPS
 </button>
  
@@ -468,7 +474,7 @@
      
     <video id="kamera" autoplay playsinline></video>
      
-    <button class="btn-kembali" id="btnGantiKamera" onclick="gantiKamera()" style="margin-top: 10px; margin-bottom: 10px; background: #e2e8f0; color: #334155; border: none;">
+    <button class="btn-kembali" id="btnGantiKamera" onclick="gantiKamera()" style="margin-top: 8px; margin-bottom: 6px; background: #f1f5f9; color: #475569; border: 1px solid var(--border);">
         🔄 Ganti Kamera (Depan/Belakang)
     </button>
      
@@ -482,11 +488,11 @@
 <div id="view-admin" class="box box-admin" style="display:none; max-width: 100%; width: 95%; padding: 25px;">
     <div class="admin-header" style="display: flex; flex-direction: column; gap: 15px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; text-align: left;">
         <div style="width: 100%;">
-            <h2 style="text-align: left; margin: 0; font-size: 22px; color: var(--primary);">UFO Kebonsari Malang</h2>
+            <h2 style="text-align: left; margin: 0; font-size: 20px; color: var(--primary);">UFO Kebonsari Malang</h2>
             <div style="color: var(--text-muted); font-size: 13px; margin-top: 4px; font-weight: 500;">Rekap Absensi Karyawan Terkini</div>
         </div>
         <div style="display: flex; gap: 10px; width: 100%; justify-content: flex-start;">
-            <button onclick="downloadCSV()" style="margin: 0; width: auto; background: #16a34a; color: white; padding: 10px 16px; font-size: 12px; font-weight: bold; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="downloadCSV()" style="margin: 0; width: auto; background: #16a34a; color: white; padding: 10px 16px; font-size: 12px; font-weight: bold; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer;">
                 📥 Unduh Excel (CSV)
             </button>
             <button class="btn-logout" onclick="logout()" style="margin: 0; width: auto; border: 1.5px solid var(--danger); padding: 8px 16px; font-size: 12px; border-radius: 8px;">
@@ -496,47 +502,47 @@
     </div>
 
     <!-- FILTER PER KARYAWAN & STATISTIK ADMIN -->
-    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; text-align: left;">
-        <label style="font-weight: bold; display: block; margin-bottom: 6px; font-size: 13px; color: #334155;">
+    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); text-align: left;">
+        <label style="font-weight: bold; display: block; margin-bottom: 6px; font-size: 12px; color: #475569; text-transform: uppercase;">
             🔍 Pilih Nama Karyawan:
         </label>
-        <select id="filter-nama-admin" onchange="filterLaporanAdmin()" style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: white;">
+        <select id="filter-nama-admin" onchange="filterLaporanAdmin()" style="width: 100%; max-width: 300px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white;">
             <option value="SEMUA">-- Tampilkan Semua Karyawan --</option>
         </select>
         
-        <div id="periode-admin-text" style="display: none; margin-top: 12px; font-size: 13px; color: #1e293b; font-weight: 800; background: #e2e8f0; padding: 6px 12px; border-radius: 6px; border-left: 4px solid #2563eb; display: inline-block;">
+        <div id="periode-admin-text" style="display: none; margin-top: 12px; font-size: 13px; color: #1e293b; font-weight: 800; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; border-left: 4px solid var(--primary); display: inline-block;">
             Periode: -
         </div>
         
         <div id="stat-karyawan-admin" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px;">
-            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">Hadir</div>
-                <strong id="admin-stat-masuk" style="font-size: 24px; font-weight: 800; color: #059669; display: block;">0</strong>
+            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Hadir</div>
+                <strong id="admin-stat-masuk" style="font-size: 22px; font-weight: 800; color: #059669; display: block;">0</strong>
             </div>
-            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">Terlambat</div>
-                <strong id="admin-stat-terlambat" style="font-size: 24px; font-weight: 800; color: #ef4444; display: block;">0</strong>
+            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Terlambat</div>
+                <strong id="admin-stat-terlambat" style="font-size: 22px; font-weight: 800; color: #ef4444; display: block;">0</strong>
             </div>
-            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">OFF</div>
-                <strong id="admin-stat-off" style="font-size: 24px; font-weight: 800; color: #dc2626; display: block;">0</strong>
+            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">OFF</div>
+                <strong id="admin-stat-off" style="font-size: 22px; font-weight: 800; color: #dc2626; display: block;">0</strong>
             </div>
-            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px;">PS</div>
-                <strong id="admin-stat-ps" style="font-size: 24px; font-weight: 800; color: #d97706; display: block;">0</strong>
+            <div style="background: white; padding: 12px 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <div style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">PS</div>
+                <strong id="admin-stat-ps" style="font-size: 22px; font-weight: 800; color: #d97706; display: block;">0</strong>
             </div>
         </div>
     </div>
      
-    <div class="table-container" style="box-shadow: 0 4px 15px rgba(0,0,0,0.02); background: white; border-radius: 12px;">
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Waktu</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Nama</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Status</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px;">Koordinat (GPS)</th>
-                    <th style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 12px; text-align: center;">Foto Selfie</th>
+                    <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Waktu</th>
+                    <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Nama</th>
+                    <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Status</th>
+                    <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Koordinat (GPS)</th>
+                    <th style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Foto Selfie</th>
                 </tr>
             </thead>
             <tbody id="isi-tabel">
@@ -550,8 +556,8 @@
 
 <div id="modal-notif" class="modal-overlay" style="display:none;">
     <div class="modal-box" id="modal-box">
-        <h3 id="modal-title">Info</h3>
-        <div id="modal-pesan">Pesan di sini</div>
+        <h3 id="modal-title" style="margin-top:0; font-size: 18px; color: var(--primary);">Info</h3>
+        <div id="modal-pesan" style="font-size: 14px; color: var(--text-main); margin-bottom: 10px;">Pesan di sini</div>
         <button onclick="tutupModal()">TUTUP</button>
     </div>
 </div> 
@@ -572,7 +578,6 @@ let gpsWatcher = null;
 let serverTimeOffset = 0; 
 let dataLaporanGlobal = [];
 
-// Inisialisasi Teks Periode Karyawan
 function initPeriodeKaryawan() {
     const labelPeriodeKaryawan = document.getElementById('periode-karyawan-text');
     if (labelPeriodeKaryawan) {
@@ -596,8 +601,8 @@ function initPeriodeKaryawan() {
         }
         
         labelPeriodeKaryawan.innerHTML = `
-            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
-            <strong style="color: #2563eb; font-size: 14px; font-weight: 800; display: block; margin-top: 2px;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
+            <span style="color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
+            <strong style="color: var(--primary); font-size: 13px; font-weight: 800; display: block; margin-top: 2px;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
         `;
     }
 }
@@ -663,7 +668,7 @@ function tampilkanPesan(pesan, status) {
     document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
     
     const tombolBawaan = document.querySelector('#modal-box > button:last-child');
-    if (tombolBawaan) tombolBawaan.style.display = 'inline-block';
+    if (tombolBawaan) tombolBawaan.style.display = 'block';
     
     document.getElementById('modal-notif').style.display = 'flex';
 }
@@ -673,9 +678,6 @@ function tutupModal() {
 }
 
 function prosesLogin() {
-    const docEl = document.documentElement;
-  
-
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
     
@@ -818,7 +820,7 @@ function renderTabelAdmin(namaTarget) {
             tr.innerHTML = `
                 <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${row[0] || '-'}</td>
                 <td style="padding: 12px; font-weight: bold; font-size: 13px;">${row[1] || '-'}</td>
-                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}" style="padding: 5px 10px; font-size: 11px;">${row[2] || '-'}</span></td>
+                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}" style="padding: 4px 8px; font-size: 11px;">${row[2] || '-'}</span></td>
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: #475569;">${koordinat}</td>
                 <td style="padding: 12px; text-align: center;">
                     ${row[5] && row[5] !== '-' ? `<a href="${row[5]}" target="_blank" class="btn-lihat" style="padding: 6px 12px; font-size: 11px; border-radius: 6px;">Lihat Foto</a>` : '<span style="color: #cbd5e1; font-size: 12px;">Tanpa Foto</span>'}
@@ -952,7 +954,7 @@ function startGPS() {
                     cekValidasiHarian();
                 } else {
                     isGpsValid = false;
-                    document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${Math.round(jarak)}m dari toko). Absen Kerja Terkunci!`;
+                    document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${Math.round(jarak)}m dari toko). Absen Terkunci!`;
                     kunciTombolKerja(true);
                 }
             },
@@ -973,13 +975,11 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    // 1. Jika belum ada riwayat absen hari ini (Kondisi Awal Masuk)
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
         localStorage.removeItem(`detailWaktu_${namaLogin}`); 
         
-        // Tombol Check In & OFF aktif, Check Out WAJIB DIKUNCI
         document.getElementById('btn-checkin').classList.remove('btn-disabled');
         document.getElementById('btn-checkin').disabled = false;
         document.getElementById('btn-off').classList.remove('btn-disabled');
@@ -994,7 +994,7 @@ function cekValidasiHarian() {
         document.getElementById('time-off').innerText = "";
         
         if (isGpsValid) {
-            document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan lakukan Check In atau OFF";
+            document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         }
         return;
     }
@@ -1005,21 +1005,18 @@ function cekValidasiHarian() {
     document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "Jam: " + detailWaktu['Check Out'] : "";
     document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
-    // 2. Jika sudah mengambil OFF
     if (status.includes('OFF')) {
         kunciTombolKerja(true);
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
         document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
     } 
-    // 3. Jika sudah Check Out (Selesai bekerja)
     else if (status.includes('Check Out')) {
         kunciTombolKerja(true);
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
-        document.getElementById('status-log').innerText = "Terima Kasih kerja keras anda hari ini.";
+        document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
     } 
-    // 4. Jika BARU SAJA Check In (Sedang bekerja -> Tombol Check Out Baru Aktif di sini)
     else if (status.includes('Check In')) {
         document.getElementById('btn-checkin').classList.add('btn-disabled');
         document.getElementById('btn-checkin').disabled = true;
@@ -1027,7 +1024,6 @@ function cekValidasiHarian() {
         document.getElementById('btn-off').classList.add('btn-disabled');
         document.getElementById('btn-off').disabled = true;
          
-        // Tombol Check Out diaktifkan khusus karena sudah Check In
         const btnOut = document.getElementById('btn-checkout');
         if(isGpsValid) {
             btnOut.classList.remove('btn-disabled');
@@ -1036,10 +1032,8 @@ function cekValidasiHarian() {
             btnOut.classList.add('btn-disabled');
             btnOut.disabled = true;
         }
-        document.getElementById('status-log').innerText = "Status: Sedang bekerja. Silakan Check Out saat pulang.";
-    } 
-    // 5. Belum Check In sama sekali hari ini
-    else {
+       document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
+    }else {
         document.getElementById('btn-off').classList.remove('btn-disabled');
         document.getElementById('btn-off').disabled = false;
         
@@ -1109,9 +1103,9 @@ function prosesAbsenOff() {
     document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
     document.getElementById('modal-pesan').innerHTML = `
         <p>Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer;">YA, LIBUR</button>
-            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer;">BATAL</button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; margin-top:0;">YA, LIBUR</button>
+            <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; cursor: pointer; margin-top:0;">BATAL</button>
         </div>
     `;
     document.getElementById('modal-notif').style.display = 'flex';
@@ -1290,7 +1284,6 @@ function prosesAbsen() {
 }
 
 function logout() {
-    if (document.fullscreenElement) document.exitFullscreen();
     if (gpsWatcher) {
         navigator.geolocation.clearWatch(gpsWatcher);
         gpsWatcher = null;
