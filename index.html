@@ -234,7 +234,23 @@
             padding: 10px; 
             margin-top: 12px;
         }
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.05); }
+       /* Styling tombol Logout agar berwarna merah solid */
+        .btn-logout {
+            background-color: #ef4444 !important; /* Warna merah latar belakang */
+            color: #ffffff !important;           /* Warna teks putih */
+            border: 1.5px solid rgba(0, 0, 0, 0.15); /* Border agar tetap senada */
+        }
+        
+        /* Efek saat disentuh (hover): warna merah sedikit lebih gelap agar terasa interaktif */
+        .btn-logout:hover {
+            background-color: #dc2626 !important; 
+            color: #ffffff !important;
+        }
+        
+        /* Pastikan ikon di dalam tombol logout berwarna putih */
+        .btn-logout svg {
+            stroke: #ffffff !important;
+        }
 
         .btn-kembali {
             background: transparent;
