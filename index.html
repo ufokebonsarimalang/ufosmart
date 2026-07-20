@@ -1342,9 +1342,9 @@ function renderTabelAdmin(namaTarget) {
         if (labelPeriode) labelPeriode.style.display = 'none';
     } else {
         if (boxStat) boxStat.style.display = 'grid';
-        if (labelPeriode) labelPeriode.style.display = 'inline-block';
+        if (labelPeriode) labelPeriode.style.display = 'block'; // Diubah ke block agar bisa take space & center
         
-        // --- 📅 LOGIKA TEKS PERIODE OTOMATIS ---
+        // --- 📅 LOGIKA TEKS PERIODE OTOMATIS (TAMPILAN DIBAWAH / CENTER) ---
         const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         let blnMulai, thnMulai, blnSelesai, thnSelesai;
         
@@ -1364,9 +1364,20 @@ function renderTabelAdmin(namaTarget) {
             thnSelesai = sekarang.getFullYear();
         }
         
-        // Cetak teks ke HTML admin
+        // Cetak teks ke HTML admin dengan penataan turun ke bawah (<br>) dan rata tengah
         if (labelPeriode) {
-            labelPeriode.innerHTML = `📅 Periode Absensi : <strong>26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>`;
+            labelPeriode.style.textAlign = "center";
+            labelPeriode.style.background = "#f1f5f9";
+            labelPeriode.style.borderBottom = "3px solid #2563eb";
+            labelPeriode.style.padding = "10px 14px";
+            labelPeriode.style.borderRadius = "8px";
+            labelPeriode.style.width = "100%";
+            labelPeriode.style.boxSizing = "border-box";
+            
+            labelPeriode.innerHTML = `
+                <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">📅 Periode Absensi Aktif</span>
+                <strong style="color: #2563eb; font-size: 14px; font-weight: 800; display: block; margin-top: 2px;">26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}</strong>
+            `;
         }
 
         // Hitung akumulasi harian dari log objek
