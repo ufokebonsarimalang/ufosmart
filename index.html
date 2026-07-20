@@ -636,19 +636,30 @@ function tampilkanStatistik() {
     if (elTerlambat) elTerlambat.innerText = totalTerlambat + " hari";
 }
 
-function tampilkanPesan(pesan, status) {
-    document.getElementById('modal-title').innerText = status === 'sukses' ? 'Berhasil' : 'Info';
-    document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
+function tampilkanPesan(pesan, tipe) {
+    const modal = document.getElementById('modal-notif');
+    const txtPesan = document.getElementById('modal-pesan');
+    const title = document.getElementById('modal-title');
     
-    // Cari tombol langsung pakai ID, anti-gagal dan tidak peduli urutan HTML
-    const tombolBawaan = document.getElementById('btn-modal-ok');
-    if (tombolBawaan) {
-        tombolBawaan.style.display = 'inline-block';
+    if (modal && txtPesan) {
+        txtPesan.innerText = pesan;
+        if (title) {
+            title.innerText = (tipe === "info") ? "Pemberitahuan" : "Info";
+        }
+        // Munculkan modal dengan flexbox agar rata tengah layar
+        modal.style.display = 'flex'; 
+    } else {
+        // Fallback cadangan jika HTML modal belum termuat sempurna
+        alert(pesan); 
     }
-    
-    document.getElementById('modal-notif').style.display = 'flex';
 }
 
+function tutupModal() {
+    const modal = document.getElementById('modal-notif');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
 function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
