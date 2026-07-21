@@ -656,7 +656,18 @@ function initPeriodeKaryawan() {
         `;
     }
 }
+function kunciTombolKerja(statusKunci) {
+    const btnIn = document.getElementById('btn-checkin');
+    const btnOut = document.getElementById('btn-checkout');
 
+    if(statusKunci) {
+        btnIn.classList.add('btn-disabled'); btnIn.disabled = true;
+        btnOut.classList.add('btn-disabled'); btnOut.disabled = true;
+    } else {
+        btnIn.classList.remove('btn-disabled'); btnIn.disabled = false;
+        btnOut.classList.remove('btn-disabled'); btnOut.disabled = false;
+    }
+}
 function sinkronisasiWaktuServer() {
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1103,18 +1114,7 @@ function cekValidasiHarian() {
     }
 }
 
-function kunciTombolKerja(statusKunci) {
-    const btnIn = document.getElementById('btn-checkin');
-    const btnOut = document.getElementById('btn-checkout');
 
-    if(statusKunci) {
-        btnIn.classList.add('btn-disabled'); btnIn.disabled = true;
-        btnOut.classList.add('btn-disabled'); btnOut.disabled = true;
-    } else {
-        btnIn.classList.remove('btn-disabled'); btnIn.disabled = false;
-        btnOut.classList.remove('btn-disabled'); btnOut.disabled = false;
-    }
-}
 
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
