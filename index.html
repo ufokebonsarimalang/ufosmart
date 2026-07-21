@@ -970,6 +970,11 @@ function retrackGPS() {
 }
 
 function startGPS() {
+    // Kunci tombol terlebih dahulu sejak awal GPS mulai mencari sinyal
+    isGpsValid = false;
+    kunciTombolKerja(true); 
+    document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & mendeteksi lokasi GPS...";
+
     if (navigator.geolocation) {
         gpsWatcher = navigator.geolocation.watchPosition(
             (position) => {
@@ -979,20 +984,20 @@ function startGPS() {
                 var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
                 if (jarak <= RADIUS_MAKSIMAL) {
                     isGpsValid = true;
-                    document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Berada di area UFO Kebonsari";
-                    cekValidasiHarian();
+                    document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Berada di area toko";
+                    cekValidasiHarian(); // Hanya buka kunci jika di dalam area
                 } else {
                     isGpsValid = false;
                     document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${Math.round(jarak)}m dari toko). Absen Terkunci!`;
-                    kunciTombolKerja(true);
+                    kunciTombolKerja(true); // Pastikan tombol dikunci total
                 }
             },
             (error) => {
                 isGpsValid = false;
                 document.getElementById('status-log').innerText = "⚠️ Gagal membaca lokasi GPS. Aktifkan Izin Lokasi di HP!";
-                kunciTombolKerja(true);
+                kunciTombolKerja(true); // Pastikan tombol dikunci total
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     } else {
         tampilkanPesan("Browser kamu tidak mendukung GPS.", "info");
@@ -1325,7 +1330,15 @@ function logout() {
     document.getElementById('view-login').style.display = 'block';
     kunciTombolKerja(false);
 }
+function kunciTombolKerja(status) {
+    const btnOff = document.getElementById('btn-off');
+    const btnCheckin = document.getElementById('btn-checkin');
+    const btnCheckout = document.getElementById('btn-checkout');
 
+    if(btnOff) btnOff.disabled = status;
+    if(btnCheckin) btnCheckin.disabled = status;
+    if(btnCheckout) btnCheckout.disabled = status;
+}
 window.downloadCSV = function() {
     let barisTabel = document.querySelectorAll("#isi-tabel tr");
     if (barisTabel.length === 0 || (barisTabel.length === 1 && barisTabel[0].innerText.includes("Memuat"))) {
