@@ -395,13 +395,28 @@
         #btn-checkout {
             border: 1.5px solid rgba(0, 0, 0, 0.25) !important;
         }
-      /* Mengubah latar belakang semua box/kartu menjadi putih bersih */
-    .card, .box, .panel, .dashboard-box, .stat-card {
+      /* 1. Paksa SEMUA box, kartu, statistik, status log, dan filter menjadi PUTIH BERSIH */
+    .card, .box, .panel, .dashboard-box, .stat-card, 
+    .stat-box, 
+    #status-log, 
+    #periode-karyawan-text, 
+    .box-admin div[style*="background: #f8fafc"], 
+    .table-container {
         background-color: #ffffff !important;
         background: #ffffff !important;
-        border: 1px solid #e5e7eb !important; /* Memberikan garis tepi tipis agar kotak tetap tegas di layar */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; /* Efek bayangan tipis agar terlihat modern */
-    } 
+        border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* 2. Sesuaikan warna latar header tabel dan baris agar tetap kontras di atas putih */
+    th, tr:hover td {
+        background: #fdfdfd !important;
+    }
+
+    /* 3. Pastikan font Inter aktif secara universal */
+    *, body, button, input, select, textarea {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
   *, body, button, input, select, textarea {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     }
