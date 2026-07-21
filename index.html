@@ -758,7 +758,7 @@ function prosesLogin() {
         if(btn) btn.disabled = false;
         if(spinner) spinner.style.display = 'none';
              
-      if(data.status === "sukses") {
+        if(data.status === "sukses") {
             namaLogin = data.nama;
             document.getElementById('view-login').style.display = 'none';
                  
@@ -786,15 +786,13 @@ function prosesLogin() {
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
-                // === TAMBAHKAN INI AGAR LANGSUNG NONAKTIF SAAT LOGIN ===
+                // Kunci tombol langsung saat login berhasil sebelum GPS mendeteksi
                 kunciTombolKerja(true);
                 document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
-                // ========================================================
 
                 sinkronisasiWaktuServer();
                 startGPS();
             }
-        }
         } else {
             tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
         }
