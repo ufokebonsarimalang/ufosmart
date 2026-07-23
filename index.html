@@ -1007,9 +1007,7 @@ function retrackGPS() {
 }
 
 function startGPS() {
-    // Kunci tombol terlebih dahulu sejak awal GPS mulai mencari sinyal
     isGpsValid = false;
-    kunciTombolKerja(true); 
     document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & mendeteksi lokasi GPS...";
 
     if (navigator.geolocation) {
@@ -1021,18 +1019,17 @@ function startGPS() {
                 var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
                 if (jarak <= RADIUS_MAKSIMAL) {
                     isGpsValid = true;
-                    document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Berada di area toko";
-                    cekValidasiHarian(); // Hanya buka kunci jika di dalam area
                 } else {
                     isGpsValid = false;
-                    document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${Math.round(jarak)}m dari toko). Absen Terkunci!`;
-                    kunciTombolKerja(true); // Pastikan tombol dikunci total
                 }
+                
+                // Evaluasi status tombol berdasarkan posisi GPS terbaru
+                cekValidasiHarian();
             },
             (error) => {
                 isGpsValid = false;
                 document.getElementById('status-log').innerText = "⚠️ Gagal membaca lokasi GPS. Aktifkan Izin Lokasi di HP!";
-                kunciTombolKerja(true); // Pastikan tombol dikunci total
+                cekValidasiHarian();
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
@@ -1040,13 +1037,11 @@ function startGPS() {
         tampilkanPesan("Browser kamu tidak mendukung GPS.", "info");
     }
 }
-
 function cekValidasiHarian() {
     tampilkanStatistik(); 
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    // 1. Reset data jika hari baru
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
@@ -1065,51 +1060,56 @@ function cekValidasiHarian() {
     const btnCheckOut = document.getElementById('btn-checkout');
     const btnOff = document.getElementById('btn-off');
 
-    // Matikan Check In dan Check Out secara default
-    btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-    btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+    const sudahCheckIn = status.includes('Check In');
+    const sudahCheckOut = status.includes('Check Out');
+    const sudahOff = status.includes('OFF');
 
-    // 2. KONDISI SUDAH OFF
-    if (status.includes('OFF')) {
+    // 1. KONDISI SUDAH OFF ATAU SUDAH CHECK OUT
+    if (sudahOff || sudahCheckOut) {
+        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+        btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
-        document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
+
+        if (sudahOff) {
+            document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
+        } else {
+            document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
+        }
         return;
-    } 
+    }
 
-    // 3. KONDISI SUDAH CHECK OUT
-    if (status.includes('Check Out')) {
+    // 2. KONDISI SUDAH CHECK IN
+    if (sudahCheckIn) {
+        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
-        document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
-        return;
-    } 
 
-    // 4. KONDISI SUDAH CHECK IN
-    if (status.includes('Check In')) {
-        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
         if (isGpsValid) {
-            btnCheckOut.disabled = false; 
-            btnCheckOut.classList.remove('btn-disabled');
+            btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled');
             document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
         } else {
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Masuk area toko untuk Checkout!`;
         }
         return;
     }
 
-    // 5. KONDISI BELUM ABSEN SAMA SEKALI HARI INI
-    if (!status.includes('Check In') && !status.includes('OFF')) {
-        // Tombol OFF Wajib Menyala
+    // 3. KONDISI BELUM ABSEN SAMA SEKALI
+    if (!sudahCheckIn && !sudahOff) {
+        // TOMBOL OFF SELALU AKTIF
         btnOff.disabled = false; 
         btnOff.classList.remove('btn-disabled');
 
         if (isGpsValid) {
-            // Jika Di Dalam Radius -> Tombol Check In Juga Menyala
-            btnCheckIn.disabled = false; 
-            btnCheckIn.classList.remove('btn-disabled');
+            // Dalam Radius -> Check In Aktif
+            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            // Jika Di Luar Radius / GPS Masih Mencari -> Check In Tetap Mati
+            // Luar Radius -> Check In Mati, Check Out Mati
+            btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             if (lat === 0 && lng === 0) {
                 document.getElementById('status-log').innerHTML = "⏳ Menghubungkan GPS...<br>Gunakan tombol OFF jika hari ini libur.";
