@@ -781,7 +781,7 @@ function prosesLogin() {
                 localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
                 localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
 
-                // --- PERBAIKAN UTAMA: SIMPAN RIWAYAT SERVER KE LOCALSTORAGE ---
+                // --- SINKRONISASI AKSI HARI INI DARI SERVER ---
                 const tglSekarang = new Date().toDateString();
                 if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
                     localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
@@ -798,6 +798,9 @@ function prosesLogin() {
                 document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
 
                 sinkronisasiWaktuServer();
+                
+                // Ambil juga jam absen dari laporan server agar teks jam di bawah tombol muncul
+                muatJamAbsenServer();
                 startGPS();
             }
         } else {
@@ -811,7 +814,46 @@ function prosesLogin() {
         console.error(err);
     });
 }
+function muatJamAbsenServer() {
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
+    .then(res => res.json())
+    .then(data => {
+        if (!data || data.length <= 1) return;
+        
+        let tglSekarangFormatted = Utilities_formatTanggalHariIni(); // Tanggal hari ini dd-MM-yyyy
+        let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
 
+        for (let i = 1; i < data.length; i++) {
+            let row = data[i];
+            let waktu = row[0]; // contoh: "24-07-2026 08:15:30"
+            let nama = row[1];
+            let status = row[2];
+
+            if (nama === namaLogin && waktu && waktu.includes(tglSekarangFormatted)) {
+                let jamSaja = waktu.split(" ")[1]; // Mengambil bagian "08:15:30"
+                if (jamSaja) {
+                    detailWaktu[status] = jamSaja;
+                }
+            }
+        }
+
+        // Simpan ke localStorage agar teks jam muncul di bawah tombol
+        localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+        
+        // Panggil penataan ulang tampilan jam
+        cekValidasiHarian();
+    })
+    .catch(err => console.error("Gagal muat jam absen server:", err));
+}
+
+// Fungsi pembantu pemformat tanggal dd-MM-yyyy
+function Utilities_formatTanggalHariIni() {
+    let d = new Date();
+    let tgl = d.getDate().toString().padStart(2, '0');
+    let bln = (d.getMonth() + 1).toString().padStart(2, '0');
+    let thn = d.getFullYear();
+    return `${tgl}-${bln}-${thn}`;
+}
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     if(!tabelBody) return;
