@@ -1046,7 +1046,7 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    // Reset data jika hari baru
+    // 1. Reset data jika hari baru
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
@@ -1065,25 +1065,27 @@ function cekValidasiHarian() {
     const btnCheckOut = document.getElementById('btn-checkout');
     const btnOff = document.getElementById('btn-off');
 
-    // MULA-MULA KUNCI SEMUA TOMBOL (Default Safe)
+    // Matikan Check In dan Check Out secara default
     btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
     btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
-    btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
-    // 1. JIKA SUDAH OFF
+    // 2. KONDISI SUDAH OFF
     if (status.includes('OFF')) {
+        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
         document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
         return;
     } 
 
-    // 2. JIKA SUDAH CHECK OUT
+    // 3. KONDISI SUDAH CHECK OUT
     if (status.includes('Check Out')) {
+        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
         document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
         return;
     } 
 
-    // 3. JIKA SUDAH CHECK IN
+    // 4. KONDISI SUDAH CHECK IN
     if (status.includes('Check In')) {
+        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
         if (isGpsValid) {
             btnCheckOut.disabled = false; 
             btnCheckOut.classList.remove('btn-disabled');
@@ -1095,23 +1097,28 @@ function cekValidasiHarian() {
         return;
     }
 
-    // 4. JIKA BELUM ABSEN SAMA SEKALI
+    // 5. KONDISI BELUM ABSEN SAMA SEKALI HARI INI
     if (!status.includes('Check In') && !status.includes('OFF')) {
+        // Tombol OFF Wajib Menyala
+        btnOff.disabled = false; 
+        btnOff.classList.remove('btn-disabled');
+
         if (isGpsValid) {
-            // Dalam Radius -> Check In & OFF Menyala
-            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
-            btnOff.disabled = false; btnOff.classList.remove('btn-disabled');
+            // Jika Di Dalam Radius -> Tombol Check In Juga Menyala
+            btnCheckIn.disabled = false; 
+            btnCheckIn.classList.remove('btn-disabled');
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            // Luar Radius -> HANYA OFF yang Menyala (Check In & Check Out Mati)
-            btnOff.disabled = false; btnOff.classList.remove('btn-disabled');
-            
+            // Jika Di Luar Radius / GPS Masih Mencari -> Check In Tetap Mati
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
-            document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Hanya tombol OFF yang aktif.`;
+            if (lat === 0 && lng === 0) {
+                document.getElementById('status-log').innerHTML = "⏳ Menghubungkan GPS...<br>Gunakan tombol OFF jika hari ini libur.";
+            } else {
+                document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Hanya tombol OFF yang aktif.`;
+            }
         }
     }
 }
-
 
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
