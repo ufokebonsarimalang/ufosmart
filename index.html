@@ -780,14 +780,21 @@ function prosesLogin() {
                 localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
                 localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
                 localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
+
+                // --- PERBAIKAN UTAMA: SIMPAN RIWAYAT SERVER KE LOCALSTORAGE ---
+                const tglSekarang = new Date().toDateString();
+                if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
+                    localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
+                        tanggal: tglSekarang, 
+                        status: data.status_hari_ini 
+                    }));
+                }
                  
                 tampilkanStatistik();
                 initPeriodeKaryawan();
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
-                // Kunci tombol langsung saat login berhasil sebelum GPS mendeteksi
-                kunciTombolKerja(true);
                 document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
 
                 sinkronisasiWaktuServer();
