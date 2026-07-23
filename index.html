@@ -1046,6 +1046,7 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
+    // Reset data jika hari baru
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
@@ -1064,65 +1065,47 @@ function cekValidasiHarian() {
     const btnCheckOut = document.getElementById('btn-checkout');
     const btnOff = document.getElementById('btn-off');
 
-    // 1. Jika sudah OFF
+    // MULA-MULA KUNCI SEMUA TOMBOL (Default Safe)
+    btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+    btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+    btnOff.disabled = true; btnOff.classList.add('btn-disabled');
+
+    // 1. JIKA SUDAH OFF
     if (status.includes('OFF')) {
-        kunciTombolKerja(true);
-        btnOff.classList.add('btn-disabled');
-        btnOff.disabled = true;
         document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
         return;
     } 
 
-    // 2. Jika sudah Check Out
+    // 2. JIKA SUDAH CHECK OUT
     if (status.includes('Check Out')) {
-        kunciTombolKerja(true);
-        btnOff.classList.add('btn-disabled');
-        btnOff.disabled = true;
         document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
         return;
     } 
 
-    // 3. Jika sudah Check In
+    // 3. JIKA SUDAH CHECK IN
     if (status.includes('Check In')) {
-        btnCheckIn.classList.add('btn-disabled');
-        btnCheckIn.disabled = true;
-        btnOff.classList.add('btn-disabled');
-        btnOff.disabled = true;
-         
         if (isGpsValid) {
+            btnCheckOut.disabled = false; 
             btnCheckOut.classList.remove('btn-disabled');
-            btnCheckOut.disabled = false;
             document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
         } else {
-            btnCheckOut.classList.add('btn-disabled');
-            btnCheckOut.disabled = true;
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Masuk area toko untuk Checkout!`;
         }
         return;
     }
 
-    // 4. Belum absen sama sekali hari ini
+    // 4. JIKA BELUM ABSEN SAMA SEKALI
     if (!status.includes('Check In') && !status.includes('OFF')) {
         if (isGpsValid) {
-            // Dalam Radius: Check In dan OFF Buka, Check Out Kunci
-            btnCheckIn.classList.remove('btn-disabled');
-            btnCheckIn.disabled = false;
-            btnOff.classList.remove('btn-disabled');
-            btnOff.disabled = false;
-            btnCheckOut.classList.add('btn-disabled');
-            btnCheckOut.disabled = true;
+            // Dalam Radius -> Check In & OFF Menyala
+            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
+            btnOff.disabled = false; btnOff.classList.remove('btn-disabled');
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            // PERBAIKAN: Luar Radius: Hanya OFF yang Buka, Check In & Check Out Kunci
-            btnCheckIn.classList.add('btn-disabled');
-            btnCheckIn.disabled = true;
-            btnCheckOut.classList.add('btn-disabled');
-            btnCheckOut.disabled = true;
+            // Luar Radius -> HANYA OFF yang Menyala (Check In & Check Out Mati)
+            btnOff.disabled = false; btnOff.classList.remove('btn-disabled');
             
-            btnOff.classList.remove('btn-disabled');
-            btnOff.disabled = false;
-
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Hanya tombol OFF yang aktif.`;
         }
@@ -1370,9 +1353,17 @@ function kunciTombolKerja(status) {
     const btnCheckin = document.getElementById('btn-checkin');
     const btnCheckout = document.getElementById('btn-checkout');
 
-    if(btnOff) btnOff.disabled = status;
-    if(btnCheckin) btnCheckin.disabled = status;
-    if(btnCheckout) btnCheckout.disabled = status;
+    if (status === true) {
+        // Kunci Semua
+        if(btnOff) { btnOff.disabled = true; btnOff.classList.add('btn-disabled'); }
+        if(btnCheckin) { btnCheckin.disabled = true; btnCheckin.classList.add('btn-disabled'); }
+        if(btnCheckout) { btnCheckout.disabled = true; btnCheckout.classList.add('btn-disabled'); }
+    } else {
+        // Buka Semua
+        if(btnOff) { btnOff.disabled = false; btnOff.classList.remove('btn-disabled'); }
+        if(btnCheckin) { btnCheckin.disabled = false; btnCheckin.classList.remove('btn-disabled'); }
+        if(btnCheckout) { btnCheckout.disabled = false; btnCheckout.classList.remove('btn-disabled'); }
+    }
 }
 window.downloadCSV = function() {
     let barisTabel = document.querySelectorAll("#isi-tabel tr");
