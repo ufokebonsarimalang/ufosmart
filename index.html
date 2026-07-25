@@ -216,14 +216,91 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
-        /* Grid Actions & Buttons */
+        /* DESAIN BARU KARTU CHECKIN / CHECKOUT / OFF */
         .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
+        .absen-card-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .absen-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .absen-card:active {
+            transform: scale(0.97);
+        }
+
+        .absen-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .absen-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.2;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .card-in .absen-icon { background: #eff6ff; color: #2563eb; }
+        .card-out .absen-icon { background: #fffbeb; color: #d97706; }
+        .card-off .absen-icon { background: #fef2f2; color: #dc2626; }
+
+        .absen-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .info-jam-absen {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-height: 14px;
+            display: block;
+            text-align: center;
+        }
+
+        .card-off-wrapper {
+            width: 100%;
+        }
+
+        .card-off {
+            flex-direction: row;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        /* General Buttons */
         button { 
             width: 100%; 
             padding: 14px; 
@@ -252,31 +329,6 @@
 
         .btn-primary:hover {
             background: var(--primary-hover);
-        }
-
-        .btn-checkin, .btn-off, .btn-checkout {
-            color: white;
-            padding: 14px 6px;
-            border-radius: var(--radius-md);
-            flex-direction: column;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            border: none !important;
-        }
-
-        .btn-checkin { background: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
-        .btn-off { background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25); }
-        .btn-checkout { background: #f59e0b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); }
-
-        .btn-checkin svg, .btn-off svg, .btn-checkout svg {
-            width: 22px;
-            height: 22px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2.2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
         }
 
         .btn-absen-kirim { 
@@ -400,14 +452,10 @@
             opacity: 0.6;
             pointer-events: none;
         }
-
-        .info-jam-absen {
-            font-size: 10px;
-            font-weight: 700;
-            margin-top: 6px;
-            display: block;
-            text-align: center;
-            min-height: 14px;
+        
+        .btn-disabled .absen-icon {
+            background-color: #e2e8f0 !important;
+            color: #94a3b8 !important;
         }
     </style>
 </head>
@@ -478,29 +526,37 @@
         🔄 Refresh Lokasi GPS
     </button>
  
+    <!-- KARTU ABSENSI MODERN (DESAIN BARU) -->
     <div class="btn-grid">
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <button class="btn-checkin" id="btn-checkin" onclick="pilihAksi('Check In')">
-                <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
-                <span>Check In</span>
+        <div class="absen-card-group">
+            <!-- CHECK IN -->
+            <button class="absen-card card-in" id="btn-checkin" onclick="pilihAksi('Check In')">
+                <div class="absen-icon">
+                    <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
+                </div>
+                <span class="absen-title">Check In</span>
+                <span id="time-checkin" class="info-jam-absen" style="color: var(--primary);">--:--</span>
             </button>
-            <span id="time-checkin" class="info-jam-absen" style="color: var(--primary);"></span>
+
+            <!-- CHECK OUT -->
+            <button class="absen-card card-out" id="btn-checkout" onclick="pilihAksi('Check Out')">
+                <div class="absen-icon">
+                    <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
+                </div>
+                <span class="absen-title">Check Out</span>
+                <span id="time-checkout" class="info-jam-absen" style="color: var(--warning);">--:--</span>
+            </button>
         </div>
-        
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <button class="btn-off" id="btn-off" onclick="prosesAbsenOff()">
-                <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>OFF</span>
+
+        <!-- TOMBOL OFF/LIBUR -->
+        <div class="card-off-wrapper">
+            <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
+                <div class="absen-icon" style="width: 28px; height: 28px;">
+                    <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <span class="absen-title" style="color: var(--danger);">Ambil Hari OFF</span>
+                <span id="time-off" class="info-jam-absen" style="color: var(--danger);"></span>
             </button>
-            <span id="time-off" class="info-jam-absen" style="color: var(--danger);"></span>
-        </div>
-        
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <button class="btn-checkout" id="btn-checkout" onclick="pilihAksi('Check Out')">
-                <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
-                <span>Check Out</span>
-            </button>
-            <span id="time-checkout" class="info-jam-absen" style="color: var(--warning);"></span>
         </div>
     </div>
 
@@ -1092,8 +1148,8 @@ function cekValidasiHarian() {
     const status = currentLog.status || [];
     
     const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
-    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN : " + detailWaktu['Check In'] : "";
-    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT : " + detailWaktu['Check Out'] : "";
+    document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
+    document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
     document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
     const btnCheckIn = document.getElementById('btn-checkin');
