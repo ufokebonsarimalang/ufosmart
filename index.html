@@ -267,20 +267,20 @@
             stroke-linejoin: round;
         }
 
-        /* DENGAN PEWARNAAN WARNA BOX & ELEMEN LENGKAP */
+        /* UBAH WARNA TOMBOL DISINI */
         .card-in {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
+            background: #2563eb !important; /* Biru cerah */
+            border: 1px solid #1d4ed8 !important;
         }
-        .card-in .absen-icon { background: #dbeafe; color: #2563eb; }
-        .card-in .absen-title { color: #1e40af; }
+        .card-in .absen-icon { background: rgba(255,255,255,0.2); color: #ffffff; }
+        .card-in .absen-title { color: #ffffff !important; }
 
         .card-out {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
+            background: #facc15 !important; /* Kuning cerah */
+            border: 1px solid #eab308 !important;
         }
-        .card-out .absen-icon { background: #fef3c7; color: #d97706; }
-        .card-out .absen-title { color: #92400e; }
+        .card-out .absen-icon { background: rgba(0,0,0,0.1); color: #854d0e; }
+        .card-out .absen-title { color: #854d0e !important; }
 
         .card-off-wrapper {
             width: 100%;
@@ -291,11 +291,11 @@
             justify-content: center;
             gap: 10px;
             padding: 12px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
+            background: #ef4444 !important; /* Merah cerah */
+            border: 1px solid #dc2626 !important;
         }
-        .card-off .absen-icon { background: #fee2e2; color: #dc2626; }
-        .card-off .absen-title { color: #991b1b; }
+        .card-off .absen-icon { background: rgba(255,255,255,0.2); color: #ffffff; }
+        .card-off .absen-title { color: #ffffff !important; }
 
         .absen-title {
             font-size: 13px;
@@ -350,10 +350,11 @@
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
+        /* UBAH WARNA TOMBOL KELUAR DISINI (Merah Cerah) */
         .btn-logout { 
-            background: #fff1f2 !important; 
-            color: #e11d48 !important; 
-            border: 1px solid #ffe4e6 !important;
+            background: #ef4444 !important; 
+            color: #ffffff !important; 
+            border: 1px solid #dc2626 !important;
             font-size: 12px; 
             padding: 10px; 
             margin-top: 10px;
@@ -361,7 +362,7 @@
         }
 
         .btn-logout:hover {
-            background: #ffe4e6 !important;
+            background: #dc2626 !important;
         }
 
         .btn-kembali {
@@ -540,41 +541,42 @@
         🔄 Refresh Lokasi GPS
     </button>
  
-    <!-- KARTU ABSENSI DENGAN WARNA WARNI BOX (CHECK IN, CHECK OUT, OFF) -->
+    <!-- KARTU ABSENSI -->
     <div class="btn-grid">
         <div class="absen-card-group">
-            <!-- CHECK IN -->
+            <!-- CHECK IN (BIRU CERAH) -->
             <button class="absen-card card-in" id="btn-checkin" onclick="pilihAksi('Check In')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
                 </div>
                 <span class="absen-title">Check In</span>
-                <span id="time-checkin" class="info-jam-absen" style="color: #2563eb;">--:--</span>
+                <span id="time-checkin" class="info-jam-absen" style="color: #ffffff;">--:--</span>
             </button>
 
-            <!-- CHECK OUT -->
+            <!-- CHECK OUT (KUNING CERAH) -->
             <button class="absen-card card-out" id="btn-checkout" onclick="pilihAksi('Check Out')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
                 </div>
                 <span class="absen-title">Check Out</span>
-                <span id="time-checkout" class="info-jam-absen" style="color: #d97706;">--:--</span>
+                <span id="time-checkout" class="info-jam-absen" style="color: #854d0e;">--:--</span>
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR -->
+        <!-- TOMBOL OFF/LIBUR (MERAH CERAH) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon" style="width: 28px; height: 28px;">
                     <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <span class="absen-title">Ambil Hari OFF</span>
-                <span id="time-off" class="info-jam-absen" style="color: #dc2626;"></span>
+                <span id="time-off" class="info-jam-absen" style="color: #ffffff;"></span>
             </button>
         </div>
     </div>
 
-    <button class="btn-logout" onclick="logout()">KELUAR DARI AKUN</button>
+    <!-- TEKS TOMBOL DIUBAH MENJADI: KELUAR DARI SISTEM -->
+    <button class="btn-logout" onclick="logout()">KELUAR DARI SISTEM</button>
 </div>
 
 <!-- VIEW KAMERA -->
@@ -610,7 +612,7 @@
                 📥 Unduh Laporan (CSV)
             </button>
             <button class="btn-logout" onclick="logout()" style="margin: 0; width: auto; padding: 10px 16px;">
-                Keluar
+                KELUAR DARI SISTEM
             </button>
         </div>
     </div>
