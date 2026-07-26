@@ -267,7 +267,7 @@
             stroke-linejoin: round;
         }
 
-        /* WARNA TOMBOL ABSEN */
+        /* WARNA TOMBOL ABSEN AKTIF */
         .card-in {
             background: #2563eb !important; /* Biru cerah */
             border: 1px solid #1d4ed8 !important;
@@ -309,6 +309,41 @@
             min-height: 14px;
             display: block;
             text-align: center;
+        }
+
+        /* TAMPILAN KONTRAS & JELAS SAAT TOMBOL ABSEN DISABLED */
+        .btn-disabled {
+            background-color: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        
+        .btn-disabled .absen-icon {
+            background-color: #cbd5e1 !important;
+            color: #64748b !important;
+        }
+        .btn-disabled .absen-title {
+            color: #64748b !important;
+        }
+
+        /* WARNA DARI TEKS WAKTU DIPAKSA SANGAT JELAS SAAT DISABLED */
+        .card-in.btn-disabled .info-jam-absen {
+            color: #1d4ed8 !important; /* Biru Tua Jelas */
+            font-weight: 800 !important;
+        }
+
+        .card-out.btn-disabled .info-jam-absen {
+            color: #854d0e !important; /* Cokelat/Kuning Tua Jelas */
+            font-weight: 800 !important;
+        }
+
+        .card-off.btn-disabled .info-jam-absen {
+            color: #dc2626 !important; /* Merah Jelas */
+            font-weight: 800 !important;
         }
 
         /* General Buttons */
@@ -453,24 +488,6 @@
             background: white; padding: 24px; border-radius: var(--radius-lg);
             width: 100%; max-width: 320px; text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-disabled {
-            background-color: #f1f5f9 !important;
-            color: #94a3b8 !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: none !important;
-            cursor: not-allowed !important;
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        
-        .btn-disabled .absen-icon {
-            background-color: #e2e8f0 !important;
-            color: #94a3b8 !important;
-        }
-        .btn-disabled .absen-title {
-            color: #94a3b8 !important;
         }
     </style>
 </head>
@@ -835,17 +852,15 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                // SELALU MENGAMBIL DATA MURNI DARI SERVER (GOOGLE SHEETS)
+                // MURNI STATISTIK SERVER
                 totalHadir = data.total_masuk || 0;
                 totalOff = data.total_off || 0;
                 totalPs = data.total_ps || 0;
                 totalTerlambat = data.total_terlambat || 0;
 
-                // TAMPILKAN JAM ABSEN HARI INI DARI SERVER
+                // UPDATE DETAIL WAKTU DIPAKSA LANGSUNG DITAMPILKAN
                 let detailWaktu = data.detail_waktu || {};
-                document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
-                document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
-                document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
+                localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
                 const tglSekarang = new Date().toDateString();
                 if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
@@ -889,12 +904,12 @@ function muatStatistikTerbaruServer() {
             totalOff = data.total_off || 0;
             totalPs = data.total_ps || 0;
             totalTerlambat = data.total_terlambat || 0;
-            tampilkanStatistik();
 
             let detailWaktu = data.detail_waktu || {};
-            document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
-            document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
-            document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
+            tampilkanStatistik();
+            cekValidasiHarian();
         }
     })
     .catch(err => console.error("Gagal muat data server:", err));
@@ -1141,7 +1156,18 @@ function cekValidasiHarian() {
     if (logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
+        localStorage.removeItem(`detailWaktu_${namaLogin}`);
     }
+
+    // TAMPILKAN JAM ABSEN DI BAWAH KARTU TERLEBIH DAHULU
+    let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+    const elIn = document.getElementById('time-checkin');
+    const elOut = document.getElementById('time-checkout');
+    const elOff = document.getElementById('time-off');
+
+    if (elIn) elIn.innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
+    if (elOut) elOut.innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
+    if (elOff) elOff.innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
     const currentLog = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
     const status = currentLog.status || [];
@@ -1277,6 +1303,12 @@ function eksekusiAbsenOff() {
             logAbsenHariIni.status.push('OFF');
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
+            const serverDate = new Date(Date.now() + serverTimeOffset);
+            const waktuSelesaiFormatted = serverDate.toLocaleTimeString('id-ID');
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu['OFF'] = waktuSelesaiFormatted;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
             muatStatistikTerbaruServer();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
@@ -1370,6 +1402,11 @@ function prosesAbsen() {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            // CATAT JAM ABSEN SECARA LOKAL SEMENTARA AGAR LANGSUNG MUNCUL
+            let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
+            detailWaktu[tipeAbsen] = waktuSekarang;
+            localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
             let infoDurasi = "";
 
