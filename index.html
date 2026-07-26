@@ -687,7 +687,7 @@ const TOKO_LNG = 112.61885029434528;
 const RADIUS_MAKSIMAL = 100;
 
 let streamKamera = null;
-let lat = 0, lng = 0, namaLogin = "", tipeAbsen = "";
+let lat = 0, lng = 0, namaLogin = "", userPassKey = "", tipeAbsen = "";
 let totalHadir = 0, totalOff = 0, totalPs = 0, totalTerlambat = 0;
 let isGpsValid = false;
 let modeKamera = "user";
@@ -790,7 +790,7 @@ function tampilkanStatistik() {
     document.getElementById('total-ps').innerText = totalPs + " hari";
     
     const elTerlambat = document.getElementById('total-terlambat');
-    if (elTerlambat) elTerlambat.innerText = totalTerlambat + " hari";
+    if (elTerlambat) elTerlambat.innerText = totalTerlambat + " Kali";
 }
 
 function tampilkanPesan(pesan, status) {
@@ -826,40 +826,40 @@ function prosesLogin() {
         if(btn) btn.disabled = false;
         if(spinner) spinner.style.display = 'none';
              
-       if(data.status === "sukses") {
-    namaLogin = data.nama;
-    document.getElementById('view-login').style.display = 'none';
-        
-    if(data.role === "admin") {
-        document.getElementById('view-admin').style.display = 'block';
-        muatDataAdmin();
-    } else {
-        // SELALU MENGAMBIL DATA MURNI DARI GOOGLE SHEETS (SERVER)
-        totalHadir = data.total_masuk || 0;
-        totalOff = data.total_off || 0;
-        totalPs = data.total_ps || 0;
-        totalTerlambat = data.total_terlambat || 0;
+        if(data.status === "sukses") {
+            namaLogin = data.nama;
+            userPassKey = password;
+            document.getElementById('view-login').style.display = 'none';
+                
+            if(data.role === "admin") {
+                document.getElementById('view-admin').style.display = 'block';
+                muatDataAdmin();
+            } else {
+                // SELALU MENGAMBIL DATA MURNI DARI SERVER (GOOGLE SHEETS)
+                totalHadir = data.total_masuk || 0;
+                totalOff = data.total_off || 0;
+                totalPs = data.total_ps || 0;
+                totalTerlambat = data.total_terlambat || 0;
 
-        const tglSekarang = new Date().toDateString();
-        if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
-            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
-                tanggal: tglSekarang, 
-                status: data.status_hari_ini 
-            }));
-        }
-            
-        tampilkanStatistik();
-        initPeriodeKaryawan();
-        document.getElementById('view-dashboard').style.display = 'block';
-        document.getElementById('nama-user').innerText = namaLogin;
-        
-        document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
+                const tglSekarang = new Date().toDateString();
+                if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
+                    localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
+                        tanggal: tglSekarang, 
+                        status: data.status_hari_ini 
+                    }));
+                }
+                 
+                tampilkanStatistik();
+                initPeriodeKaryawan();
+                document.getElementById('view-dashboard').style.display = 'block';
+                document.getElementById('nama-user').innerText = namaLogin;
+                
+                document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
 
-        sinkronisasiWaktuServer();
-        muatJamAbsenServer();
-        startGPS();
-    }
-}
+                sinkronisasiWaktuServer();
+                muatJamAbsenServer();
+                startGPS();
+            }
         } else {
             tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
         }
@@ -870,6 +870,24 @@ function prosesLogin() {
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
+}
+
+function muatStatistikTerbaruServer() {
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ aksi: "login", username: namaLogin, password: userPassKey })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "sukses") {
+            totalHadir = data.total_masuk || 0;
+            totalOff = data.total_off || 0;
+            totalPs = data.total_ps || 0;
+            totalTerlambat = data.total_terlambat || 0;
+            tampilkanStatistik();
+        }
+    })
+    .catch(err => console.error("Gagal muat data server:", err));
 }
 
 function muatJamAbsenServer() {
@@ -1068,12 +1086,12 @@ function renderTabelAdmin(namaTarget) {
         for (let tgl in logPerTanggal) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
-           if (hariIni.status.includes("Check In")) {
-    // Toleransi 10 menit: Dianggap terlambat jika jam masuk > 8 atau menit > 10 pada jam 8
-    if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 10)) {
-        totalTerlambatAdmin++;
-    }
-}
+            if (hariIni.status.includes("Check In")) {
+                // Toleransi 10 menit: Dianggap terlambat jika jam masuk > 8 atau menit > 10 pada jam 8
+                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 10)) {
+                    totalTerlambatAdmin++;
+                }
+            }
             if (hariIni.status.includes("Check In") && hariIni.status.includes("Check Out")) {
                 totalMasuk++;
                 let lastOut = hariIni.jamCheckOut[hariIni.jamCheckOut.length - 1];
@@ -1298,9 +1316,7 @@ function eksekusiAbsenOff() {
             detailWaktu['OFF'] = waktuSelesaiFormatted;
             localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
-            totalOff++;
-            localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
-            tampilkanStatistik();
+            muatStatistikTerbaruServer();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
             tampilkanPesan(data.pesan, 'info');
@@ -1390,7 +1406,7 @@ function prosesAbsen() {
         if(btn) btn.disabled = false;
          
         if(data.pesan.includes("berhasil")) {
-            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
             logAbsenHariIni.status.push(tipeAbsen);
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
@@ -1400,14 +1416,9 @@ function prosesAbsen() {
 
             let infoDurasi = "";
 
-           if (tipeAbsen === 'Check In') {
-    localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
-    // Toleransi 10 menit: Dianggap terlambat jika Check In setelah pukul 08:10 WIB
-    if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 10)) {
-        totalTerlambat++;
-        localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
-    }
-}
+            if (tipeAbsen === 'Check In') {
+                localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
+            }
             if (tipeAbsen === 'Check Out') {
                 const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
                 if (waktuCheckInLokal) {
@@ -1417,18 +1428,10 @@ function prosesAbsen() {
                     const menit = totalMenit % 60;
                     infoDurasi = `<br><br>⏱️ <strong>Durasi Kerja Anda Hari Ini:</strong><br>${jam} Jam ${menit} Menit.`;
                 }
-
-                totalHadir++;
-                localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
-                 
-                if (jamSekarang === 17 || jamSekarang === 18) {
-                    totalPs++;
-                    localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
-                }
                 localStorage.removeItem(`waktuCheckIn_${namaLogin}`);
             }
              
-            tampilkanStatistik();
+            muatStatistikTerbaruServer();
             tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
         } else {
             tampilkanPesan(data.pesan, 'info');
@@ -1448,6 +1451,7 @@ function logout() {
         gpsWatcher = null;
     }
     namaLogin = "";
+    userPassKey = "";
     document.getElementById('user').value = "";
     document.getElementById('pass').value = "";
     document.getElementById('view-dashboard').style.display = 'none';
