@@ -57,7 +57,7 @@
             justify-content: center;
         }
         
-        /* TAMPILAN JAM DI DALAM TOMBOL SAAT DISABLED */
+        /* ATURAN TAMPILAN TEKS JAM SAAT TOMBOL DISABLED */
         .btn-absent:disabled {
             opacity: 0.85 !important;
             cursor: not-allowed;
@@ -277,7 +277,7 @@
 
 <script>
     // URL Web App Google Apps Script
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc8u7zly725v4L75J73q978oH_XoV1QJ-E8R2qR3-J_Y4w-e5q6T7Y8U9V0W/exec"; // Sesuaikan jika ada URL terbaru Anda
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc8u7zly725v4L75J73q978oH_XoV1QJ-E8R2qR3-J_Y4w-e5q6T7Y8U9V0W/exec";
 
     let userLat = null;
     let userLng = null;
@@ -300,7 +300,7 @@
             .catch(() => { wibOffset = 0; });
     }
     syncServerTime();
-    setInterval(syncServerTime, 600000); // Sync tiap 10 menit
+    setInterval(syncServerTime, 600000);
 
     function getWIBDate() {
         return new Date(Date.now() + wibOffset);
@@ -327,7 +327,7 @@
                     namaLogin = data.nama;
                     userPassKey = p;
 
-                    // SIMPAN SESI LOGIN (AGAR TIDAK KELUAR SAAT REFRESH)
+                    // Menyimpan Sesi Login
                     localStorage.setItem('sesi_username', u);
                     localStorage.setItem('sesi_password', p);
 
@@ -355,7 +355,7 @@
     }
 
     function logout() {
-        // HAPUS SESI LOGIN SAAT TEKAN KELUAR
+        // Menghapus Sesi Login saat Logout
         localStorage.removeItem('sesi_username');
         localStorage.removeItem('sesi_password');
 
@@ -390,11 +390,9 @@
                 userLat = pos.coords.latitude;
                 userLng = pos.coords.longitude;
 
-                // Verifikasi radius radius dari toko (Server memvalidasi radius 100m)
                 document.getElementById('status-gps').className = "badge bg-success status-badge";
                 document.getElementById('status-gps').innerText = "GPS Terhubung & Aktif";
                 
-                // Aktifkan tombol jika belum terkunci status absen
                 cekAturanTombolKerja();
             },
             err => {
@@ -489,7 +487,6 @@
         canvas.height = video.videoHeight || 240;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Watermark Teks di Foto
         const wibStr = getWIBDate().toLocaleString('id-ID');
         context.font = "12px Arial";
         context.fillStyle = "yellow";
