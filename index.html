@@ -1076,11 +1076,12 @@ function renderTabelAdmin(namaTarget) {
         for (let tgl in logPerTanggal) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
-            if (hariIni.status.includes("Check In")) {
-                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 0)) {
-                    totalTerlambatAdmin++;
-                }
-            }
+           if (hariIni.status.includes("Check In")) {
+    // Toleransi 10 menit: Dianggap terlambat jika jam masuk > 8 atau menit > 10 pada jam 8
+    if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 10)) {
+        totalTerlambatAdmin++;
+    }
+}
             if (hariIni.status.includes("Check In") && hariIni.status.includes("Check Out")) {
                 totalMasuk++;
                 let lastOut = hariIni.jamCheckOut[hariIni.jamCheckOut.length - 1];
