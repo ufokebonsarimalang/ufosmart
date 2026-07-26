@@ -1407,13 +1407,14 @@ function prosesAbsen() {
 
             let infoDurasi = "";
 
-            if (tipeAbsen === 'Check In') {
-                localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
-                if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 0)) {
-                    totalTerlambat++;
-                    localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
-                }
-            }
+           if (tipeAbsen === 'Check In') {
+    localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
+    // Toleransi 10 menit: Dianggap terlambat jika Check In setelah pukul 08:10 WIB
+    if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 10)) {
+        totalTerlambat++;
+        localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
+    }
+}
             if (tipeAbsen === 'Check Out') {
                 const waktuCheckInLokal = localStorage.getItem(`waktuCheckIn_${namaLogin}`);
                 if (waktuCheckInLokal) {
