@@ -882,7 +882,6 @@ function sinkronisasiFullServer() {
         let targetBulan = sekarang.getMonth();
         let targetTahun = sekarang.getFullYear();
 
-        // Siklus Periode Absensi (Tanggal 26 s.d. 25)
         if (sekarang.getDate() >= 26) {
             targetBulan += 1;
             if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
@@ -903,18 +902,18 @@ function sinkronisasiFullServer() {
 
             if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
                 let parts = kolomWaktu.split(" ");
-                let dateParts = parts[0].split("-");
+                let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
                 let timeParts = parts[1].split(":");
 
-                // Rekap khusus Hari Ini
                 if (parts[0] === tglSekarangFormatted) {
                     if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
                     if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
                 }
 
-                // Hitung Statistik Bulanan (Periode 26 - 25)
                 try {
-                    let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+                    // PERBAIKAN URUTAN PARSING DARI TANGGAL INDONESIA (dd-MM-yyyy)
+                    let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+                    
                     let pBulan = tglAbsen.getMonth();
                     let pTahun = tglAbsen.getFullYear();
 
@@ -924,7 +923,7 @@ function sinkronisasiFullServer() {
                     }
 
                     if (pBulan === targetBulan && pTahun === targetTahun) {
-                        let strTgl = tglAbsen.toDateString();
+                        let strTgl = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
                         if (!logPerTanggal[strTgl]) {
                             logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
                         }
@@ -941,7 +940,6 @@ function sinkronisasiFullServer() {
             }
         }
 
-        // Kalkulasi rekap per tanggal untuk periode aktif
         for (let tgl in logPerTanggal) {
             let item = logPerTanggal[tgl];
             if (item.status.includes("OFF")) hitungOff++;
@@ -957,19 +955,16 @@ function sinkronisasiFullServer() {
             }
         }
 
-        // Update Variabel & Layar Utama
         totalHadir = hitungHadir;
         totalOff = hitungOff;
         totalPs = hitungPs;
         totalTerlambat = hitungTerlambat;
         tampilkanStatistik();
 
-        // Simpan status & jam absen hari ini ke Storage lokal sebagai pendamping
         const tglSekarang = new Date().toDateString();
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: statusHariIni }));
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktuHariIni));
 
-        // Evaluasi dan Kunci Tombol berdasarkan data aktual
         cekValidasiHarian();
     })
     .catch(err => console.error("Gagal sinkronisasi data dari server:", err));
@@ -1122,9 +1117,9 @@ function renderTabelAdmin(namaTarget) {
         let row = dataLaporanGlobal[i];
         if (!row || row.length < 3) continue;
 
-        let kolomWaktu = row[0];
-        let kolomNama = row[1];
-        let kolomStatus = row[2];
+        let kolomWaktu = String(row[0] || "").trim();
+        let kolomNama = String(row[1] || "").trim();
+        let kolomStatus = String(row[2] || "").trim();
 
         if (namaTarget === "SEMUA" || kolomNama === namaTarget) {
             let tr = document.createElement('tr');
@@ -1134,10 +1129,11 @@ function renderTabelAdmin(namaTarget) {
             
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
+            // LANGSUNG TAMPILKAN TEKS dari Code.gs (Tanpa re-parsing new Date)
             tr.innerHTML = `
-                <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${row[0] || '-'}</td>
-                <td style="padding: 12px; font-weight: bold; font-size: 13px;">${row[1] || '-'}</td>
-                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}">${row[2] || '-'}</span></td>
+                <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${kolomWaktu || '-'}</td>
+                <td style="padding: 12px; font-weight: bold; font-size: 13px;">${kolomNama || '-'}</td>
+                <td style="padding: 12px; text-align: center;"><span class="badge ${statusBadgeClass}">${kolomStatus || '-'}</span></td>
                 <td style="padding: 12px; font-family: monospace; font-size: 12px; color: var(--text-muted);">${koordinat}</td>
                 <td style="padding: 12px; text-align: center;">
                     ${row[5] && row[5] !== '-' ? `<a href="${row[5]}" target="_blank" class="btn-lihat">Lihat Foto</a>` : '<span style="color: #cbd5e1; font-size: 12px;">Tanpa Foto</span>'}
@@ -1150,9 +1146,11 @@ function renderTabelAdmin(namaTarget) {
             try {
                 if (kolomWaktu && kolomWaktu.includes(" ")) {
                     let parts = kolomWaktu.split(" ");
-                    let dateParts = parts[0].split("-");
+                    let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
                     let timeParts = parts[1].split(":");
-                    let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+                    
+                    // PERBAIKAN URUTAN PARSING: dateParts[2]=Thn, dateParts[1]-1=Bln, dateParts[0]=Tgl
+                    let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
                     
                     let pBulan = tglAbsen.getMonth();
                     let pTahun = tglAbsen.getFullYear();
@@ -1163,7 +1161,7 @@ function renderTabelAdmin(namaTarget) {
                     }
 
                     if (pBulan === targetBulan && pTahun === targetTahun) {
-                        let stringTanggal = tglAbsen.toDateString();
+                        let stringTanggal = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
                         if (!logPerTanggal[stringTanggal]) {
                             logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
                         }
@@ -1233,7 +1231,6 @@ function renderTabelAdmin(namaTarget) {
         if (document.getElementById('admin-stat-ps')) document.getElementById('admin-stat-ps').innerText = totalPs;
     }
 }
-
 function retrackGPS() {
     const btnGps = document.getElementById('btn-refresh-gps');
     if(btnGps) {
