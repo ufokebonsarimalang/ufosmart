@@ -1089,7 +1089,6 @@ function filterLaporanAdmin() {
     const namaDipilih = document.getElementById('filter-nama-admin').value;
     renderTabelAdmin(namaDipilih);
 }
-
 function renderTabelAdmin(namaTarget) {
     const tabelBody = document.getElementById('isi-tabel');
     if (!tabelBody) return;
@@ -1121,6 +1120,11 @@ function renderTabelAdmin(namaTarget) {
         let kolomNama = String(row[1] || "").trim();
         let kolomStatus = String(row[2] || "").trim();
 
+        // MERAPIKAN FORMAT BILA TANGGAL MASIH YYYY-MM-DD ATAU ISO
+        if (kolomWaktu.includes("T")) {
+            kolomWaktu = kolomWaktu.split("T")[0] + " " + kolomWaktu.split("T")[1].substring(0,8);
+        }
+
         if (namaTarget === "SEMUA" || kolomNama === namaTarget) {
             let tr = document.createElement('tr');
             let statusBadgeClass = 'badge-off';
@@ -1129,7 +1133,7 @@ function renderTabelAdmin(namaTarget) {
             
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
-            // LANGSUNG TAMPILKAN TEKS dari Code.gs (Tanpa re-parsing new Date)
+            // DITAMPILKAN LANGSUNG SEBAGAI TEKS MENTAH DARI GOOGLE SHEETS
             tr.innerHTML = `
                 <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${kolomWaktu || '-'}</td>
                 <td style="padding: 12px; font-weight: bold; font-size: 13px;">${kolomNama || '-'}</td>
@@ -1146,11 +1150,17 @@ function renderTabelAdmin(namaTarget) {
             try {
                 if (kolomWaktu && kolomWaktu.includes(" ")) {
                     let parts = kolomWaktu.split(" ");
-                    let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
+                    let dateParts = parts[0].split("-"); 
                     let timeParts = parts[1].split(":");
                     
-                    // PERBAIKAN URUTAN PARSING: dateParts[2]=Thn, dateParts[1]-1=Bln, dateParts[0]=Tgl
-                    let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+                    let tglAbsen = null;
+                    if (dateParts[0].length === 4) {
+                        // Format YYYY-MM-DD
+                        tglAbsen = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+                    } else {
+                        // Format DD-MM-YYYY
+                        tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+                    }
                     
                     let pBulan = tglAbsen.getMonth();
                     let pTahun = tglAbsen.getFullYear();
@@ -1161,7 +1171,7 @@ function renderTabelAdmin(namaTarget) {
                     }
 
                     if (pBulan === targetBulan && pTahun === targetTahun) {
-                        let stringTanggal = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
+                        let stringTanggal = tglAbsen.toDateString();
                         if (!logPerTanggal[stringTanggal]) {
                             logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
                         }
