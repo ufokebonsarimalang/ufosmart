@@ -269,14 +269,14 @@
 
         /* WARNA TOMBOL ABSEN AKTIF */
         .card-in {
-            background: #2563eb !important; /* Biru cerah */
+            background: #2563eb !important;
             border: 1px solid #1d4ed8 !important;
         }
         .card-in .absen-icon { background: rgba(255,255,255,0.2); color: #ffffff; }
         .card-in .absen-title { color: #ffffff !important; }
 
         .card-out {
-            background: #facc15 !important; /* Kuning cerah */
+            background: #facc15 !important;
             border: 1px solid #eab308 !important;
         }
         .card-out .absen-icon { background: rgba(0,0,0,0.1); color: #854d0e; }
@@ -291,7 +291,7 @@
             justify-content: center;
             gap: 10px;
             padding: 12px;
-            background: #ef4444 !important; /* Merah cerah */
+            background: #ef4444 !important;
             border: 1px solid #dc2626 !important;
         }
         .card-off .absen-icon { background: rgba(255,255,255,0.2); color: #ffffff; }
@@ -330,19 +330,18 @@
             color: #64748b !important;
         }
 
-        /* WARNA DARI TEKS WAKTU DIPAKSA SANGAT JELAS SAAT DISABLED */
         .card-in.btn-disabled .info-jam-absen {
-            color: #1d4ed8 !important; /* Biru Tua Jelas */
+            color: #1d4ed8 !important;
             font-weight: 800 !important;
         }
 
         .card-out.btn-disabled .info-jam-absen {
-            color: #854d0e !important; /* Cokelat/Kuning Tua Jelas */
+            color: #854d0e !important;
             font-weight: 800 !important;
         }
 
         .card-off.btn-disabled .info-jam-absen {
-            color: #dc2626 !important; /* Merah Jelas */
+            color: #dc2626 !important;
             font-weight: 800 !important;
         }
 
@@ -385,7 +384,6 @@
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
-        /* TOMBOL KELUAR DARI SISTEM (HIJAU CERAH) */
         .btn-logout { 
             background: #10b981 !important; 
             color: #ffffff !important; 
@@ -561,7 +559,7 @@
     <!-- KARTU ABSENSI -->
     <div class="btn-grid">
         <div class="absen-card-group">
-            <!-- CHECK IN (BIRU CERAH) -->
+            <!-- CHECK IN -->
             <button class="absen-card card-in" id="btn-checkin" onclick="pilihAksi('Check In')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -570,7 +568,7 @@
                 <span id="time-checkin" class="info-jam-absen" style="color: #ffffff;">--:--</span>
             </button>
 
-            <!-- CHECK OUT (KUNING CERAH) -->
+            <!-- CHECK OUT -->
             <button class="absen-card card-out" id="btn-checkout" onclick="pilihAksi('Check Out')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -580,7 +578,7 @@
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (MERAH CERAH) -->
+        <!-- TOMBOL OFF/LIBUR -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon" style="width: 28px; height: 28px;">
@@ -592,7 +590,7 @@
         </div>
     </div>
 
-    <!-- TOMBOL KELUAR DARI SISTEM (HIJAU CERAH) -->
+    <!-- TOMBOL KELUAR DARI SISTEM -->
     <button class="btn-logout" onclick="logout()">KELUAR DARI SISTEM</button>
 </div>
 
@@ -741,19 +739,6 @@ function initPeriodeKaryawan() {
     }
 }
 
-function kunciTombolKerja(statusKunci) {
-    const btnIn = document.getElementById('btn-checkin');
-    const btnOut = document.getElementById('btn-checkout');
-
-    if(statusKunci) {
-        if(btnIn) { btnIn.classList.add('btn-disabled'); btnIn.disabled = true; }
-        if(btnOut) { btnOut.classList.add('btn-disabled'); btnOut.disabled = true; }
-    } else {
-        if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
-        if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
-    }
-}
-
 function sinkronisasiWaktuServer() {
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -847,7 +832,6 @@ function prosesLogin() {
             namaLogin = data.nama;
             userPassKey = password;
 
-            // SIMPAN SESI LOGIN SUPAYA TIDAK KELUAR SAAT DI-REFRESH
             localStorage.setItem('sesi_username', username);
             localStorage.setItem('sesi_password', password);
 
@@ -857,13 +841,11 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                // MURNI STATISTIK SERVER
                 totalHadir = data.total_masuk || 0;
                 totalOff = data.total_off || 0;
                 totalPs = data.total_ps || 0;
                 totalTerlambat = data.total_terlambat || 0;
 
-                // UPDATE DETAIL WAKTU DIPAKSA LANGSUNG DITAMPILKAN
                 let detailWaktu = data.detail_waktu || {};
                 localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
@@ -1080,7 +1062,6 @@ function renderTabelAdmin(namaTarget) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
             if (hariIni.status.includes("Check In")) {
-                // Toleransi 10 menit: Dianggap terlambat jika jam masuk > 8 atau menit > 10 pada jam 8
                 if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 10)) {
                     totalTerlambatAdmin++;
                 }
@@ -1164,7 +1145,6 @@ function cekValidasiHarian() {
         localStorage.removeItem(`detailWaktu_${namaLogin}`);
     }
 
-    // TAMPILKAN JAM ABSEN DI BAWAH KARTU TERLEBIH DAHULU
     let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
     const elIn = document.getElementById('time-checkin');
     const elOut = document.getElementById('time-checkout');
@@ -1186,9 +1166,9 @@ function cekValidasiHarian() {
     const sudahOff = status.includes('OFF');
 
     if (sudahOff || sudahCheckOut) {
-        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-        btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
-        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
+        if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
+        if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
+        if(btnOff) { btnOff.disabled = true; btnOff.classList.add('btn-disabled'); }
 
         if (sudahOff) {
             document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
@@ -1199,14 +1179,14 @@ function cekValidasiHarian() {
     }
 
     if (sudahCheckIn) {
-        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
+        if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
+        if(btnOff) { btnOff.disabled = true; btnOff.classList.add('btn-disabled'); }
 
         if (isGpsValid) {
-            btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled');
+            if(btnCheckOut) { btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled'); }
             document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
         } else {
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Masuk area toko untuk Checkout!`;
         }
@@ -1214,16 +1194,15 @@ function cekValidasiHarian() {
     }
 
     if (!sudahCheckIn && !sudahOff) {
-        btnOff.disabled = false; 
-        btnOff.classList.remove('btn-disabled');
+        if(btnOff) { btnOff.disabled = false; btnOff.classList.remove('btn-disabled'); }
 
         if (isGpsValid) {
-            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+            if(btnCheckIn) { btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled'); }
+            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+            if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
+            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
 
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             if (lat === 0 && lng === 0) {
@@ -1303,9 +1282,14 @@ function eksekusiAbsenOff() {
     })
     .then(res => res.json())
     .then(data => {
-        if(data.pesan.includes("berhasil")) {
-            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-            logAbsenHariIni.status.push('OFF');
+        if (data.pesan && (data.pesan.toLowerCase().includes("berhasil") || data.pesan.toLowerCase().includes("sukses"))) {
+            const tglSekarang = new Date().toDateString();
+            
+            let logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            if (!logAbsenHariIni.status.includes('OFF')) {
+                logAbsenHariIni.status.push('OFF');
+            }
+            logAbsenHariIni.tanggal = tglSekarang;
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
             const serverDate = new Date(Date.now() + serverTimeOffset);
@@ -1317,13 +1301,15 @@ function eksekusiAbsenOff() {
             muatStatistikTerbaruServer();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
-            tampilkanPesan(data.pesan, 'info');
+            if(btn) btn.disabled = false;
+            tampilkanPesan(data.pesan || "Gagal mencatat OFF", 'info');
         }
         cekValidasiHarian();
     })
     .catch(err => {
         if(btn) btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
+        console.error(err);
     });
 }
 
@@ -1403,12 +1389,13 @@ function prosesAbsen() {
         if(spinner) spinner.style.display = 'none';
         if(btn) btn.disabled = false;
          
-        if(data.pesan.includes("berhasil")) {
+        if (data.pesan && (data.pesan.toLowerCase().includes("berhasil") || data.pesan.toLowerCase().includes("sukses"))) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-            logAbsenHariIni.status.push(tipeAbsen);
+            if (!logAbsenHariIni.status.includes(tipeAbsen)) {
+                logAbsenHariIni.status.push(tipeAbsen);
+            }
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
-            // CATAT JAM ABSEN SECARA LOKAL SEMENTARA AGAR LANGSUNG MUNCUL
             let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
             detailWaktu[tipeAbsen] = waktuSekarang;
             localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
@@ -1433,7 +1420,7 @@ function prosesAbsen() {
             muatStatistikTerbaruServer();
             tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
         } else {
-            tampilkanPesan(data.pesan, 'info');
+            tampilkanPesan(data.pesan || "Gagal mencatat absensi", 'info');
         }
         kembaliKeDashboard();
     })
@@ -1441,11 +1428,11 @@ function prosesAbsen() {
         if(spinner) spinner.style.display = 'none';
         if(btn) btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
+        console.error(err);
     });
 }
 
 function logout() {
-    // Hapus sesi login saat pengguna menekan tombol KELUAR
     localStorage.removeItem('sesi_username');
     localStorage.removeItem('sesi_password');
 
@@ -1514,7 +1501,6 @@ window.downloadCSV = function() {
     document.body.removeChild(link);
 };
 
-// OTOMATIS LOGIN KEMBALI SAAT HALAMAN DI-REFRESH
 window.addEventListener('DOMContentLoaded', () => {
     const savedUser = localStorage.getItem('sesi_username');
     const savedPass = localStorage.getItem('sesi_password');
