@@ -416,7 +416,7 @@ function prosesAbsenOff() {
 
 function eksekusiAbsenOff() {
     tutupModal();
-    kirimKeServer("OFF", "");
+    ("OFF", "");
 }
 
 function prosesAbsen() {
@@ -444,6 +444,8 @@ function kirimKeServer(statusAbsen, fotoData) {
     .then(res => res.json())
     .then(data => {
         if(btn) btn.disabled = false;
+
+        // Simpan status ke localStorage agar langsung terkunci di browser
         let log = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
         if(!log.status.includes(statusAbsen)) log.status.push(statusAbsen);
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(log));
@@ -454,8 +456,13 @@ function kirimKeServer(statusAbsen, fotoData) {
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detail));
 
         tampilkanPesan("Berhasil mencatat " + statusAbsen, "sukses");
-        kembaliKeDashboard();
-        prosesLogin(); 
+        
+        // Tutup modal pesan, lalu langsung kunci dashboard berdasarkan status terbaru
+        setTimeout(() => {
+            tutupModal();
+            kembaliKeDashboard();
+            cekValidasiHarian(); // Memastikan tombol langsung disable setelah OFF / Check Out
+        }, 1500);
     })
     .catch(() => {
         if(btn) btn.disabled = false;
