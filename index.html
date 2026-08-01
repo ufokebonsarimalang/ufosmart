@@ -847,17 +847,19 @@ function prosesLogin() {
                 totalPs = data.total_ps || 0;
                 totalTerlambat = data.total_terlambat || 0;
 
+                // SIMPAN DETAIL WAKTU & STATUS ABSEN HARI INI DARI SERVER
                 let detailWaktu = data.detail_waktu || {};
                 localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
                 const tglSekarang = new Date().toDateString();
-                if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
-                    localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
-                        tanggal: tglSekarang, 
-                        status: data.status_hari_ini 
-                    }));
-                }
-                 
+                let statusHariIni = data.status_hari_ini || [];
+                
+                // Paksa perbarui penyimpanan lokal dengan data mutakhir dari Google Sheets
+                localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
+                    tanggal: tglSekarang, 
+                    status: statusHariIni 
+                }));
+
                 tampilkanStatistik();
                 initPeriodeKaryawan();
                 document.getElementById('view-dashboard').style.display = 'block';
@@ -866,7 +868,7 @@ function prosesLogin() {
                 document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
 
                 sinkronisasiWaktuServer();
-                startGPS();
+                startGPS(); // startGPS() nanti akan otomatis memanggil cekValidasiHarian()
             }
         } else {
             tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
@@ -879,7 +881,6 @@ function prosesLogin() {
         console.error(err);
     });
 }
-
 function muatJamAbsenServer() {
     fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
@@ -1154,7 +1155,8 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    if (logAbsenHariIni.tanggal !== tglSekarang) {
+    // Jika tanggal berubah (hari baru), reset catatan lokal
+    if (logAbsenHariIni.tanggal && logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
         localStorage.removeItem(`detailWaktu_${namaLogin}`); 
@@ -1176,6 +1178,7 @@ function cekValidasiHarian() {
     const sudahCheckOut = status.includes('Check Out');
     const sudahOff = status.includes('OFF');
 
+    // KONDISI 1: SUDAH CHECK OUT ATAU SUDAH OFF -> MATIKAN SEMUA TOMBOL
     if (sudahOff || sudahCheckOut) {
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
@@ -1184,12 +1187,13 @@ function cekValidasiHarian() {
         if (sudahOff) {
             document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
         } else {
-            document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
+            document.getElementById('status-log').innerText = "Anda sudah selesai bekerja hari ini. Terima kasih!";
         }
         return;
     }
 
-    if (sudahCheckIn) {
+    // KONDISI 2: SUDAH CHECK IN (TAPI BELUM CHECK OUT)
+    if (sudahCheckIn && !sudahCheckOut) {
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
@@ -1204,6 +1208,7 @@ function cekValidasiHarian() {
         return;
     }
 
+    // KONDISI 3: BELUM ABSEN SAMA SEKALI HARI INI
     if (!sudahCheckIn && !sudahOff) {
         btnOff.disabled = false; 
         btnOff.classList.remove('btn-disabled');
@@ -1225,7 +1230,6 @@ function cekValidasiHarian() {
         }
     }
 }
-
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
     document.getElementById('view-dashboard').style.display = 'none';
