@@ -809,6 +809,7 @@ function tutupModal() {
 }
 
 // Gunakan fetch biasa dengan mode redirect follow untuk melewati hambatan CORS
+// 1. FUNGSI PROSES LOGIN (Memanggil sinkronisasi penuh)
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
@@ -842,20 +843,14 @@ function prosesLogin() {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                totalHadir = data.total_masuk || 0;
-                totalOff = data.total_off || 0;
-                totalPs = data.total_ps || 0;
-                totalTerlambat = data.total_terlambat || 0;
-
-                tampilkanStatistik();
                 initPeriodeKaryawan();
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
-                document.getElementById('status-log').innerHTML = "⏳ Memeriksa status absensi server & GPS...";
+                document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & sinkronisasi data dari server...";
 
-                // SINKRONKAN LANGSUNG DARI GOOGLE SHEETS
-                muatStatusHariIniDariServer();
+                // SINKRONISASI TOTAL STATISTIK & STATUS ABSEN HARI INI DARI GOOGLE SHEETS
+                sinkronisasiFullServer();
 
                 sinkronisasiWaktuServer();
                 startGPS();
@@ -870,6 +865,114 @@ function prosesLogin() {
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
+}
+
+// 2. FUNGSI SINKRONISASI PENUH (Statistik Bulanan + Status Hari Ini dari Server)
+function sinkronisasiFullServer() {
+    fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        redirect: 'follow', 
+        body: JSON.stringify({ aksi: "get_laporan" }) 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data || data.length <= 1) return;
+
+        let sekarang = new Date();
+        let targetBulan = sekarang.getMonth();
+        let targetTahun = sekarang.getFullYear();
+
+        // Siklus Periode Absensi (Tanggal 26 s.d. 25)
+        if (sekarang.getDate() >= 26) {
+            targetBulan += 1;
+            if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
+        }
+
+        let hitungHadir = 0, hitungOff = 0, hitungPs = 0, hitungTerlambat = 0;
+        let logPerTanggal = {};
+        
+        let tglSekarangFormatted = Utilities_formatTanggalHariIni();
+        let statusHariIni = [];
+        let detailWaktuHariIni = {};
+
+        for (let i = 1; i < data.length; i++) {
+            let row = data[i];
+            let kolomWaktu = String(row[0] || "").trim();
+            let kolomNama = String(row[1] || "").trim();
+            let kolomStatus = String(row[2] || "").trim();
+
+            if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
+                let parts = kolomWaktu.split(" ");
+                let dateParts = parts[0].split("-");
+                let timeParts = parts[1].split(":");
+
+                // Rekap khusus Hari Ini
+                if (parts[0] === tglSekarangFormatted) {
+                    if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
+                    if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
+                }
+
+                // Hitung Statistik Bulanan (Periode 26 - 25)
+                try {
+                    let tglAbsen = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+                    let pBulan = tglAbsen.getMonth();
+                    let pTahun = tglAbsen.getFullYear();
+
+                    if (tglAbsen.getDate() >= 26) {
+                        pBulan += 1;
+                        if (pBulan > 11) { pBulan = 0; pTahun += 1; }
+                    }
+
+                    if (pBulan === targetBulan && pTahun === targetTahun) {
+                        let strTgl = tglAbsen.toDateString();
+                        if (!logPerTanggal[strTgl]) {
+                            logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                        }
+                        logPerTanggal[strTgl].status.push(kolomStatus);
+                        if (kolomStatus === "Check In") {
+                            logPerTanggal[strTgl].jamCheckIn.push(tglAbsen.getHours());
+                            logPerTanggal[strTgl].menitCheckIn.push(tglAbsen.getMinutes());
+                        }
+                        if (kolomStatus === "Check Out") {
+                            logPerTanggal[strTgl].jamCheckOut.push(tglAbsen.getHours());
+                        }
+                    }
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        // Kalkulasi rekap per tanggal untuk periode aktif
+        for (let tgl in logPerTanggal) {
+            let item = logPerTanggal[tgl];
+            if (item.status.includes("OFF")) hitungOff++;
+            if (item.status.includes("Check In")) {
+                if (item.jamCheckIn[0] > 8 || (item.jamCheckIn[0] === 8 && item.menitCheckIn[0] > 10)) {
+                    hitungTerlambat++;
+                }
+            }
+            if (item.status.includes("Check In") && item.status.includes("Check Out")) {
+                hitungHadir++;
+                let lastOut = item.jamCheckOut[item.jamCheckOut.length - 1];
+                if (lastOut === 17 || lastOut === 18) hitungPs++;
+            }
+        }
+
+        // Update Variabel & Layar Utama
+        totalHadir = hitungHadir;
+        totalOff = hitungOff;
+        totalPs = hitungPs;
+        totalTerlambat = hitungTerlambat;
+        tampilkanStatistik();
+
+        // Simpan status & jam absen hari ini ke Storage lokal sebagai pendamping
+        const tglSekarang = new Date().toDateString();
+        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: statusHariIni }));
+        localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktuHariIni));
+
+        // Evaluasi dan Kunci Tombol berdasarkan data aktual
+        cekValidasiHarian();
+    })
+    .catch(err => console.error("Gagal sinkronisasi data dari server:", err));
 }
     function muatStatusHariIniDariServer() {
     fetch(SCRIPT_URL, { 
