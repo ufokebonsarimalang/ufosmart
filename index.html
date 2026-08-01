@@ -1109,9 +1109,33 @@ function renderTabelAdmin(namaTarget) {
         if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
     }
 
+    // --- 1. TAMPILKAN SELALU LABEL PERIODE DENGAN BENAR ---
+    const labelPeriode = document.getElementById('periode-admin-text');
+    if (labelPeriode) {
+        labelPeriode.style.display = 'inline-block';
+        const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        let blnMulai, thnMulai, blnSelesai, thnSelesai;
+        
+        if (sekarang.getDate() >= 26) {
+            blnMulai = namaBulan[sekarang.getMonth()];
+            thnMulai = sekarang.getFullYear();
+            let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
+            blnSelesai = namaBulan[targetBulanDepan.getMonth()];
+            thnSelesai = targetBulanDepan.getFullYear();
+        } else {
+            let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
+            blnMulai = namaBulan[targetBulanLalu.getMonth()];
+            thnMulai = targetBulanLalu.getFullYear();
+            blnSelesai = namaBulan[sekarang.getMonth()];
+            thnSelesai = sekarang.getFullYear();
+        }
+        labelPeriode.innerText = `Periode: 26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}`;
+    }
+
     let totalMasuk = 0, totalOff = 0, totalPs = 0, totalTerlambatAdmin = 0;
     let logPerTanggal = {};
 
+    // --- 2. LOOP DATA UNTUK TABEL & STATISTIK ---
     for (let i = 1; i < dataLaporanGlobal.length; i++) {
         let row = dataLaporanGlobal[i];
         if (!row || row.length < 3) continue;
@@ -1119,11 +1143,6 @@ function renderTabelAdmin(namaTarget) {
         let kolomWaktu = String(row[0] || "").trim();
         let kolomNama = String(row[1] || "").trim();
         let kolomStatus = String(row[2] || "").trim();
-
-        // MERAPIKAN FORMAT BILA TANGGAL MASIH YYYY-MM-DD ATAU ISO
-        if (kolomWaktu.includes("T")) {
-            kolomWaktu = kolomWaktu.split("T")[0] + " " + kolomWaktu.split("T")[1].substring(0,8);
-        }
 
         if (namaTarget === "SEMUA" || kolomNama === namaTarget) {
             let tr = document.createElement('tr');
@@ -1133,7 +1152,6 @@ function renderTabelAdmin(namaTarget) {
             
             let koordinat = (row[3] && row[4]) ? `${parseFloat(row[3]).toFixed(5)}, ${parseFloat(row[4]).toFixed(5)}` : '-';
 
-            // DITAMPILKAN LANGSUNG SEBAGAI TEKS MENTAH DARI GOOGLE SHEETS
             tr.innerHTML = `
                 <td style="padding: 12px; font-weight: 500; font-size: 13px; white-space: nowrap;">${kolomWaktu || '-'}</td>
                 <td style="padding: 12px; font-weight: bold; font-size: 13px;">${kolomNama || '-'}</td>
@@ -1146,21 +1164,19 @@ function renderTabelAdmin(namaTarget) {
             tabelBody.appendChild(tr);
         }
 
+        // Kalkulasi Statistik per Karyawan (jika filter spesifik dipilih)
         if (namaTarget !== "SEMUA" && kolomNama === namaTarget) {
             try {
                 if (kolomWaktu && kolomWaktu.includes(" ")) {
                     let parts = kolomWaktu.split(" ");
-                    let dateParts = parts[0].split("-"); 
+                    let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
                     let timeParts = parts[1].split(":");
                     
-                    let tglAbsen = null;
-                    if (dateParts[0].length === 4) {
-                        // Format YYYY-MM-DD
-                        tglAbsen = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
-                    } else {
-                        // Format DD-MM-YYYY
-                        tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
-                    }
+                    let day = parseInt(dateParts[0], 10);
+                    let month = parseInt(dateParts[1], 10) - 1;
+                    let year = parseInt(dateParts[2], 10);
+
+                    let tglAbsen = new Date(year, month, day, parseInt(timeParts[0], 10), parseInt(timeParts[1], 10));
                     
                     let pBulan = tglAbsen.getMonth();
                     let pTahun = tglAbsen.getFullYear();
@@ -1171,7 +1187,7 @@ function renderTabelAdmin(namaTarget) {
                     }
 
                     if (pBulan === targetBulan && pTahun === targetTahun) {
-                        let stringTanggal = tglAbsen.toDateString();
+                        let stringTanggal = parts[0];
                         if (!logPerTanggal[stringTanggal]) {
                             logPerTanggal[stringTanggal] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
                         }
@@ -1191,34 +1207,13 @@ function renderTabelAdmin(namaTarget) {
         }
     }
 
+    // --- 3. ATUR TAMPILAN STATISTIK BOX ---
     const boxStat = document.getElementById('stat-karyawan-admin');
-    const labelPeriode = document.getElementById('periode-admin-text');
 
     if (namaTarget === "SEMUA") {
         if (boxStat) boxStat.style.display = 'none';
-        if (labelPeriode) labelPeriode.style.display = 'none';
     } else {
         if (boxStat) boxStat.style.display = 'grid';
-        if (labelPeriode) {
-            labelPeriode.style.display = 'block';
-            const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            let blnMulai, thnMulai, blnSelesai, thnSelesai;
-            
-            if (sekarang.getDate() >= 26) {
-                blnMulai = namaBulan[sekarang.getMonth()];
-                thnMulai = sekarang.getFullYear();
-                let targetBulanDepan = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 1);
-                blnSelesai = namaBulan[targetBulanDepan.getMonth()];
-                thnSelesai = targetBulanDepan.getFullYear();
-            } else {
-                let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
-                blnMulai = namaBulan[targetBulanLalu.getMonth()];
-                thnMulai = targetBulanLalu.getFullYear();
-                blnSelesai = namaBulan[sekarang.getMonth()];
-                thnSelesai = sekarang.getFullYear();
-            }
-            labelPeriode.innerText = `Periode: 26 ${blnMulai} ${thnMulai} - 25 ${blnSelesai} ${thnSelesai}`;
-        }
 
         for (let tgl in logPerTanggal) {
             let hariIni = logPerTanggal[tgl];
