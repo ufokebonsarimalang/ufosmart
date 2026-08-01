@@ -531,7 +531,7 @@
         </div>
         <div class="stat-item">
             <span>Total Terlambat</span>
-            <span id="total-terlambat" style="color: var(--danger) !important;">0 Kali</span>
+            <span id="total-terlambat" style="color: var(--danger) !important;">0 Hari</span>
         </div>
     </div>
 
@@ -740,6 +740,7 @@ function kunciTombolKerja(statusKunci) {
 function sinkronisasiWaktuServer() {
     fetch(SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow',
         body: JSON.stringify({ aksi: "get_server_time" })
     })
     .then(res => res.json())
@@ -807,7 +808,7 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
-// Gunakan fetch biasa dengan no-cors / mode standar yang aman
+// Gunakan fetch biasa dengan mode redirect follow untuk melewati hambatan CORS
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
@@ -820,6 +821,7 @@ function prosesLogin() {
          
     fetch(SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow',
         body: JSON.stringify({ aksi: "login", username: username, password: password })
     })
     .then(res => res.json())
@@ -879,7 +881,7 @@ function prosesLogin() {
 }
 
 function muatJamAbsenServer() {
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
+    fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
     .then(data => {
         if (!data || data.length <= 1) return;
@@ -921,7 +923,7 @@ function muatDataAdmin() {
     
     tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Memuat data laporan...</td></tr>";
          
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ aksi: "get_laporan" }) })
+    fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
     .then(data => {
         dataLaporanGlobal = data; 
@@ -1281,6 +1283,7 @@ function eksekusiAbsenOff() {
      
     fetch(SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow',
         body: JSON.stringify({ 
             aksi: "absen", 
             nama: namaLogin, 
@@ -1385,6 +1388,7 @@ function prosesAbsen() {
      
     fetch(SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow',
         body: JSON.stringify({ 
             aksi: "absen", nama: namaLogin, status: tipeAbsen, lat: lat, lng: lng, foto: dataFoto 
         })
