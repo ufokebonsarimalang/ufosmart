@@ -1304,27 +1304,38 @@ function eksekusiAbsenOff() {
     })
     .then(res => res.json())
     .then(data => {
-        if(data.pesan.includes("berhasil")) {
-            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-            logAbsenHariIni.status.push('OFF');
-            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
-
+        if(data.pesan && (data.pesan.includes("berhasil") || data.pesan.includes("sukses"))) {
+            // Ambil waktu server saat ini untuk ditampilkan
             const serverDate = new Date(Date.now() + serverTimeOffset);
             const waktuSelesaiFormatted = serverDate.toLocaleTimeString('id-ID');
+            const tglSekarang = new Date().toDateString();
+
+            // Simpan status OFF ke LocalStorage agar langsung valid hari ini
+            let logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            if (!logAbsenHariIni.status.includes('OFF')) {
+                logAbsenHariIni.status.push('OFF');
+            }
+            logAbsenHariIni.tanggal = tglSekarang;
+            localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+
+            // Simpan detail jam OFF agar timer/jam langsung muncul di bawah tombol
             let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
             detailWaktu['OFF'] = waktuSelesaiFormatted;
             localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
+            // Muat ulang statistik dari server dan perbarui tampilan tombol
             muatStatistikTerbaruServer();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
-            tampilkanPesan(data.pesan, 'info');
+            if(btn) btn.disabled = false;
+            tampilkanPesan(data.pesan || "Gagal mencatat OFF", 'info');
         }
         cekValidasiHarian();
     })
     .catch(err => {
         if(btn) btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
+        console.error(err);
     });
 }
 
