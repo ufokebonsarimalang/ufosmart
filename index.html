@@ -44,7 +44,6 @@
         .jam-digital { font-size: 36px; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; line-height: 1; }
         .tanggal-digital { font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 600; text-transform: capitalize; }
 
-        #periode-karyawan-text { background: #ffffff !important; border: 1px solid var(--border-color) !important; border-left: 4px solid var(--primary) !important; border-radius: var(--radius-md) !important; padding: 12px !important; margin-bottom: 14px !important; box-shadow: var(--shadow-sm) !important; text-align: center; }
         .stat-box { background: #ffffff !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-md) !important; padding: 16px !important; margin-bottom: 16px !important; box-shadow: var(--shadow-sm) !important; display: flex; flex-direction: column; gap: 8px; }
         .stat-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-muted); font-weight: 500; }
         .stat-item span:last-child { font-weight: 700; color: var(--text-main); }
@@ -129,8 +128,6 @@
         <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
     </div>
 
-    <div id="periode-karyawan-text" style="display: none;"></div>
-
     <div class="stat-box">
         <div class="stat-item"><span>Total Kehadiran</span><span id="total-masuk">0 hari</span></div>
         <div class="stat-item"><span>Total OFF (Libur)</span><span id="total-off" style="color: var(--danger) !important;">0 hari</span></div>
@@ -139,7 +136,6 @@
     </div>
 
     <div id="status-log">Menghubungkan GPS...</div>
-    <button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-bottom: 16px; padding: 8px 14px; font-size: 11px; background: #f1f5f9; color: var(--text-muted); width: auto; display: inline-flex; border-radius: 20px; border: 1px solid var(--border-color);">🔄 Refresh Lokasi GPS</button>
  
     <div class="btn-grid">
         <div class="absen-card-group">
@@ -207,7 +203,7 @@
 </div> 
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+const SCRIPT_URL = "MASUKKAN_URL_WEB_APP_ANDA_DISINI"; // <-- Masukkan URL Web App Google Script Anda
 const TOKO_LAT = -8.020496288923635;
 const TOKO_LNG = 112.61885029434528;
 const RADIUS_MAKSIMAL = 100;
@@ -260,10 +256,8 @@ function tutupModal() { document.getElementById('modal-notif').style.display = '
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
-    const btn = document.getElementById('btn-login'); 
     const spinner = document.getElementById('login-spinner');
 
-    if(btn) btn.disabled = true;
     if(spinner) spinner.style.display = 'inline-block';
          
     fetch(SCRIPT_URL, {
@@ -273,7 +267,6 @@ function prosesLogin() {
     })
     .then(res => res.json())
     .then(data => {
-        if(btn) btn.disabled = false;
         if(spinner) spinner.style.display = 'none';
              
         if(data.status === "sukses") {
@@ -311,7 +304,6 @@ function prosesLogin() {
         }
     })
     .catch(err => {
-        if(btn) btn.disabled = false;
         if(spinner) spinner.style.display = 'none';
         tampilkanPesan("Gagal terhubung ke server.", "info");
     });
@@ -409,14 +401,9 @@ function kembaliKeDashboard() {
 }
 
 function prosesAbsenOff() {
-    document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
-    document.getElementById('modal-pesan').innerHTML = '<p style="margin-bottom: 12px;">Yakin ingin mengambil hari OFF hari ini?</p><button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; padding: 10px; border-radius: 8px;">YA, LIBUR</button>';
-    document.getElementById('modal-notif').style.display = 'flex';
-}
-
-function eksekusiAbsenOff() {
-    tutupModal();
-    ("OFF", "");
+    if (confirm("Yakin ingin mengambil hari OFF (libur) hari ini?")) {
+        kirimKeServer("OFF", "");
+    }
 }
 
 function prosesAbsen() {
@@ -444,25 +431,24 @@ function kirimKeServer(statusAbsen, fotoData) {
     .then(res => res.json())
     .then(data => {
         if(btn) btn.disabled = false;
-
-        // Simpan status ke localStorage agar langsung terkunci di browser
+        
         let log = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
         if(!log.status.includes(statusAbsen)) log.status.push(statusAbsen);
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(log));
 
-        let jamStr = new Date().toLocaleTimeString('id-ID');
+        let jamStr = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
         let detail = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
         detail[statusAbsen] = jamStr;
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detail));
 
         tampilkanPesan("Berhasil mencatat " + statusAbsen, "sukses");
         
-        // Tutup modal pesan, lalu langsung kunci dashboard berdasarkan status terbaru
         setTimeout(() => {
             tutupModal();
             kembaliKeDashboard();
-            cekValidasiHarian(); // Memastikan tombol langsung disable setelah OFF / Check Out
-        }, 1500);
+            cekValidasiHarian();
+            prosesLogin(); // Sinkronisasi ulang data terbaru dari server
+        }, 1200);
     })
     .catch(() => {
         if(btn) btn.disabled = false;
