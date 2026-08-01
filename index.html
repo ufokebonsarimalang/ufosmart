@@ -807,6 +807,7 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
+// Gunakan fetch biasa dengan no-cors / mode standar yang aman
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
@@ -828,26 +829,24 @@ function prosesLogin() {
              
         if(data.status === "sukses") {
             namaLogin = data.nama;
+            userPassKey = password;
+
+            localStorage.setItem('sesi_username', username);
+            localStorage.setItem('sesi_password', password);
+
             document.getElementById('view-login').style.display = 'none';
-                 
+                
             if(data.role === "admin") {
                 document.getElementById('view-admin').style.display = 'block';
                 muatDataAdmin();
             } else {
-                let lokalHadir = localStorage.getItem(`totalHadir_${namaLogin}`);
-                let lokalOff = localStorage.getItem(`totalOff_${namaLogin}`);
-                let lokalPs = localStorage.getItem(`totalPs_${namaLogin}`);
-                let lokalTerlambat = localStorage.getItem(`totalTerlambat_${namaLogin}`);
+                totalHadir = data.total_masuk || 0;
+                totalOff = data.total_off || 0;
+                totalPs = data.total_ps || 0;
+                totalTerlambat = data.total_terlambat || 0;
 
-                totalHadir = lokalHadir !== null ? parseInt(lokalHadir) : (data.total_masuk || 0);
-                totalOff = lokalOff !== null ? parseInt(lokalOff) : (data.total_off || 0);
-                totalPs = lokalPs !== null ? parseInt(lokalPs) : (data.total_ps || 0);
-                totalTerlambat = lokalTerlambat !== null ? parseInt(lokalTerlambat) : (data.total_terlambat || 0);
-
-                localStorage.setItem(`totalHadir_${namaLogin}`, totalHadir);
-                localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
-                localStorage.setItem(`totalPs_${namaLogin}`, totalPs);
-                localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
+                let detailWaktu = data.detail_waktu || {};
+                localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
                 const tglSekarang = new Date().toDateString();
                 if (data.status_hari_ini && Array.isArray(data.status_hari_ini) && data.status_hari_ini.length > 0) {
@@ -865,7 +864,6 @@ function prosesLogin() {
                 document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
 
                 sinkronisasiWaktuServer();
-                muatJamAbsenServer();
                 startGPS();
             }
         } else {
