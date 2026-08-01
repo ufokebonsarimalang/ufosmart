@@ -847,28 +847,18 @@ function prosesLogin() {
                 totalPs = data.total_ps || 0;
                 totalTerlambat = data.total_terlambat || 0;
 
-                // SIMPAN DETAIL WAKTU & STATUS ABSEN HARI INI DARI SERVER
-                let detailWaktu = data.detail_waktu || {};
-                localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
-
-                const tglSekarang = new Date().toDateString();
-                let statusHariIni = data.status_hari_ini || [];
-                
-                // Paksa perbarui penyimpanan lokal dengan data mutakhir dari Google Sheets
-                localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
-                    tanggal: tglSekarang, 
-                    status: statusHariIni 
-                }));
-
                 tampilkanStatistik();
                 initPeriodeKaryawan();
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
-                document.getElementById('status-log').innerHTML = "⏳ Memeriksa lokasi GPS...";
+                document.getElementById('status-log').innerHTML = "⏳ Memeriksa status absensi server & GPS...";
+
+                // SINKRONKAN LANGSUNG DARI GOOGLE SHEETS
+                muatStatusHariIniDariServer();
 
                 sinkronisasiWaktuServer();
-                startGPS(); // startGPS() nanti akan otomatis memanggil cekValidasiHarian()
+                startGPS();
             }
         } else {
             tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
@@ -880,6 +870,51 @@ function prosesLogin() {
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
+}
+    function muatStatusHariIniDariServer() {
+    fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        redirect: 'follow', 
+        body: JSON.stringify({ aksi: "get_laporan" }) 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data || data.length <= 1) return;
+        
+        const tglSekarangFormatted = Utilities_formatTanggalHariIni();
+        let statusHariIni = [];
+        let detailWaktu = {};
+
+        for (let i = 1; i < data.length; i++) {
+            let row = data[i];
+            let kolomWaktu = String(row[0] || "");
+            let kolomNama = String(row[1] || "");
+            let kolomStatus = String(row[2] || "");
+
+            // Jika Nama & Tanggal cocok dengan hari ini di Google Sheets
+            if (kolomNama === namaLogin && kolomWaktu.includes(tglSekarangFormatted)) {
+                if (!statusHariIni.includes(kolomStatus)) {
+                    statusHariIni.push(kolomStatus);
+                }
+                let jamSaja = kolomWaktu.split(" ")[1];
+                if (jamSaja) {
+                    detailWaktu[kolomStatus] = jamSaja;
+                }
+            }
+        }
+
+        // Tulis ulang cache lokal berdasarkan data sah Google Sheets
+        const tglSekarang = new Date().toDateString();
+        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
+            tanggal: tglSekarang, 
+            status: statusHariIni 
+        }));
+        localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
+
+        // Evaluasi dan kunci tombol
+        cekValidasiHarian();
+    })
+    .catch(err => console.error("Gagal sinkron status dari server:", err));
 }
 function muatJamAbsenServer() {
     fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
