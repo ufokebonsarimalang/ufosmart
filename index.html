@@ -1156,22 +1156,15 @@ function startGPS() {
 function cekValidasiHarian() {
     tampilkanStatistik(); 
     const tglSekarang = new Date().toDateString();
-    
-    // Periksa apakah status di localStorage sudah ada tanggal hari ini
-    let logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
-    if (logAbsenHariIni.tanggal !== tglSekarang) {
-        // Jika tanggal beda atau kosong, paksa sinkronkan dari data detail_waktu server
-        let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
-        let statusServer = [];
-        if (detailWaktu['Check In']) statusServer.push('Check In');
-        if (detailWaktu['Check Out']) statusServer.push('Check Out');
-        if (detailWaktu['OFF']) statusServer.push('OFF');
+    const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-        logAbsenHariIni = { tanggal: tglSekarang, status: statusServer };
-        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
+    if (logAbsenHariIni.tanggal !== tglSekarang) {
+        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
+        localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
+        localStorage.removeItem(`detailWaktu_${namaLogin}`);
     }
 
-    // TAMPILKAN JAM ABSEN DI BAWAH KARTU
+    // TAMPILKAN JAM ABSEN DI BAWAH KARTU TERLEBIH DAHULU
     let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
     const elIn = document.getElementById('time-checkin');
     const elOut = document.getElementById('time-checkout');
@@ -1181,7 +1174,8 @@ function cekValidasiHarian() {
     if (elOut) elOut.innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
     if (elOff) elOff.innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
-    const status = logAbsenHariIni.status || [];
+    const currentLog = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+    const status = currentLog.status || [];
 
     const btnCheckIn = document.getElementById('btn-checkin');
     const btnCheckOut = document.getElementById('btn-checkout');
@@ -1192,23 +1186,27 @@ function cekValidasiHarian() {
     const sudahOff = status.includes('OFF');
 
     if (sudahOff || sudahCheckOut) {
-        if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
-        if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
-        if(btnOff) { btnOff.disabled = true; btnOff.classList.add('btn-disabled'); }
+        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+        btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
+        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
-        document.getElementById('status-log').innerText = sudahOff ? "Status hari ini: OFF (Libur)." : "Terima kasih kerja keras Anda hari ini.";
+        if (sudahOff) {
+            document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
+        } else {
+            document.getElementById('status-log').innerText = "Terima kasih kerja keras Anda hari ini.";
+        }
         return;
     }
 
     if (sudahCheckIn) {
-        if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
-        if(btnOff) { btnOff.disabled = true; btnOff.classList.add('btn-disabled'); }
+        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
         if (isGpsValid) {
-            if(btnCheckOut) { btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled'); }
+            btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled');
             document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
         } else {
-            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Masuk area toko untuk Checkout!`;
         }
@@ -1216,15 +1214,16 @@ function cekValidasiHarian() {
     }
 
     if (!sudahCheckIn && !sudahOff) {
-        if(btnOff) { btnOff.disabled = false; btnOff.classList.remove('btn-disabled'); }
+        btnOff.disabled = false; 
+        btnOff.classList.remove('btn-disabled');
 
         if (isGpsValid) {
-            if(btnCheckIn) { btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled'); }
-            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
+            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            if(btnCheckIn) { btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled'); }
-            if(btnCheckOut) { btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled'); }
+            btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
+            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
 
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             if (lat === 0 && lng === 0) {
@@ -1279,7 +1278,7 @@ function prosesAbsenOff() {
     document.getElementById('modal-pesan').innerHTML = `
         <p style="margin-bottom: 12px;">Apakah Anda yakin ingin mengambil hari OFF (Libur) hari ini?</p>
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button onclick="()" style="background: var(--danger); color: white; border: none; padding: 12px; border-radius: 10px; flex: 1; font-weight: bold; cursor: pointer;">YA, LIBUR</button>
+            <button onclick="eksekusiAbsenOff()" style="background: var(--danger); color: white; border: none; padding: 12px; border-radius: 10px; flex: 1; font-weight: bold; cursor: pointer;">YA, LIBUR</button>
             <button onclick="tutupModal()" style="background: #e2e8f0; color: #334155; border: none; padding: 12px; border-radius: 10px; flex: 1; font-weight: bold; cursor: pointer;">BATAL</button>
         </div>
     `;
@@ -1304,19 +1303,11 @@ function eksekusiAbsenOff() {
     })
     .then(res => res.json())
     .then(data => {
-        // Toleransi pengecekan pesan sukses dari server (berhasil ataupun sukses)
-        if (data.pesan && (data.pesan.toLowerCase().includes("berhasil") || data.pesan.toLowerCase().includes("sukses"))) {
-            const tglSekarang = new Date().toDateString();
-            
-            // Simpan status OFF ke LocalStorage
-            let logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-            if (!logAbsenHariIni.status.includes('OFF')) {
-                logAbsenHariIni.status.push('OFF');
-            }
-            logAbsenHariIni.tanggal = tglSekarang;
+        if(data.pesan.includes("berhasil")) {
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            logAbsenHariIni.status.push('OFF');
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
-            // Tampilkan jam/timer di bawah tombol OFF secara instan
             const serverDate = new Date(Date.now() + serverTimeOffset);
             const waktuSelesaiFormatted = serverDate.toLocaleTimeString('id-ID');
             let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
@@ -1326,15 +1317,13 @@ function eksekusiAbsenOff() {
             muatStatistikTerbaruServer();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
-            if(btn) btn.disabled = false;
-            tampilkanPesan(data.pesan || "Gagal mencatat OFF", 'info');
+            tampilkanPesan(data.pesan, 'info');
         }
         cekValidasiHarian();
     })
     .catch(err => {
         if(btn) btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
-        console.error(err);
     });
 }
 
