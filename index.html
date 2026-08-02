@@ -274,6 +274,7 @@
         }
         .card-in .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
         .card-in .absen-title { color: #ffffff !important; }
+        .card-in .info-jam-absen { color: #ffffff !important; font-weight: 700 !important; } /* WARNA JAM CHECK IN (PUTIH SERASI) */
 
         .card-out {
             background: #facc15 !important;
@@ -281,6 +282,7 @@
         }
         .card-out .absen-icon { background: rgba(0, 0, 0, 0.1); color: #854d0e; }
         .card-out .absen-title { color: #854d0e !important; }
+        .card-out .info-jam-absen { color: #854d0e !important; font-weight: 700 !important; } /* WARNA JAM CHECK OUT (COKELAT GELAP SERASI) */
 
         .card-off-wrapper {
             width: 100%;
@@ -296,6 +298,7 @@
         }
         .card-off .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
         .card-off .absen-title { color: #ffffff !important; }
+        .card-off .info-jam-absen { color: #ffffff !important; font-weight: 700 !important; } /* WARNA JAM OFF (PUTIH SERASI) */
 
         .absen-title {
             font-size: 13px;
@@ -470,6 +473,9 @@
             color: #94a3b8 !important;
         }
         .btn-disabled .absen-title {
+            color: #94a3b8 !important;
+        }
+        .btn-disabled .info-jam-absen {
             color: #94a3b8 !important;
         }
     </style>
@@ -911,7 +917,6 @@ function sinkronisasiFullServer() {
                 }
 
                 try {
-                    // PERBAIKAN URUTAN PARSING DARI TANGGAL INDONESIA (dd-MM-yyyy)
                     let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
                     
                     let pBulan = tglAbsen.getMonth();
@@ -969,7 +974,8 @@ function sinkronisasiFullServer() {
     })
     .catch(err => console.error("Gagal sinkronisasi data dari server:", err));
 }
-    function muatStatusHariIniDariServer() {
+
+function muatStatusHariIniDariServer() {
     fetch(SCRIPT_URL, { 
         method: 'POST', 
         redirect: 'follow', 
@@ -989,7 +995,6 @@ function sinkronisasiFullServer() {
             let kolomNama = String(row[1] || "");
             let kolomStatus = String(row[2] || "");
 
-            // Jika Nama & Tanggal cocok dengan hari ini di Google Sheets
             if (kolomNama === namaLogin && kolomWaktu.includes(tglSekarangFormatted)) {
                 if (!statusHariIni.includes(kolomStatus)) {
                     statusHariIni.push(kolomStatus);
@@ -1001,7 +1006,6 @@ function sinkronisasiFullServer() {
             }
         }
 
-        // Tulis ulang cache lokal berdasarkan data sah Google Sheets
         const tglSekarang = new Date().toDateString();
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
             tanggal: tglSekarang, 
@@ -1009,11 +1013,11 @@ function sinkronisasiFullServer() {
         }));
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
 
-        // Evaluasi dan kunci tombol
         cekValidasiHarian();
     })
     .catch(err => console.error("Gagal sinkron status dari server:", err));
 }
+
 function muatJamAbsenServer() {
     fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
@@ -1089,6 +1093,7 @@ function filterLaporanAdmin() {
     const namaDipilih = document.getElementById('filter-nama-admin').value;
     renderTabelAdmin(namaDipilih);
 }
+
 function renderTabelAdmin(namaTarget) {
     const tabelBody = document.getElementById('isi-tabel');
     if (!tabelBody) return;
@@ -1109,7 +1114,6 @@ function renderTabelAdmin(namaTarget) {
         if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
     }
 
-    // --- 1. TAMPILKAN SELALU LABEL PERIODE DENGAN BENAR ---
     const labelPeriode = document.getElementById('periode-admin-text');
     if (labelPeriode) {
         labelPeriode.style.display = 'inline-block';
@@ -1135,7 +1139,6 @@ function renderTabelAdmin(namaTarget) {
     let totalMasuk = 0, totalOff = 0, totalPs = 0, totalTerlambatAdmin = 0;
     let logPerTanggal = {};
 
-    // --- 2. LOOP DATA UNTUK TABEL & STATISTIK ---
     for (let i = 1; i < dataLaporanGlobal.length; i++) {
         let row = dataLaporanGlobal[i];
         if (!row || row.length < 3) continue;
@@ -1164,12 +1167,11 @@ function renderTabelAdmin(namaTarget) {
             tabelBody.appendChild(tr);
         }
 
-        // Kalkulasi Statistik per Karyawan (jika filter spesifik dipilih)
         if (namaTarget !== "SEMUA" && kolomNama === namaTarget) {
             try {
                 if (kolomWaktu && kolomWaktu.includes(" ")) {
                     let parts = kolomWaktu.split(" ");
-                    let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
+                    let dateParts = parts[0].split("-");
                     let timeParts = parts[1].split(":");
                     
                     let day = parseInt(dateParts[0], 10);
@@ -1207,7 +1209,6 @@ function renderTabelAdmin(namaTarget) {
         }
     }
 
-    // --- 3. ATUR TAMPILAN STATISTIK BOX ---
     const boxStat = document.getElementById('stat-karyawan-admin');
 
     if (namaTarget === "SEMUA") {
@@ -1236,6 +1237,7 @@ function renderTabelAdmin(namaTarget) {
         if (document.getElementById('admin-stat-ps')) document.getElementById('admin-stat-ps').innerText = totalPs;
     }
 }
+
 function retrackGPS() {
     const btnGps = document.getElementById('btn-refresh-gps');
     if(btnGps) {
@@ -1295,7 +1297,6 @@ function cekValidasiHarian() {
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
-    // Jika tanggal berubah (hari baru), reset catatan lokal
     if (logAbsenHariIni.tanggal && logAbsenHariIni.tanggal !== tglSekarang) {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: [] }));
         localStorage.removeItem(`waktuCheckIn_${namaLogin}`); 
@@ -1318,7 +1319,6 @@ function cekValidasiHarian() {
     const sudahCheckOut = status.includes('Check Out');
     const sudahOff = status.includes('OFF');
 
-    // KONDISI 1: SUDAH CHECK OUT ATAU SUDAH OFF -> MATIKAN SEMUA TOMBOL
     if (sudahOff || sudahCheckOut) {
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
@@ -1332,7 +1332,6 @@ function cekValidasiHarian() {
         return;
     }
 
-    // KONDISI 2: SUDAH CHECK IN (TAPI BELUM CHECK OUT)
     if (sudahCheckIn && !sudahCheckOut) {
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
@@ -1348,7 +1347,6 @@ function cekValidasiHarian() {
         return;
     }
 
-    // KONDISI 3: BELUM ABSEN SAMA SEKALI HARI INI
     if (!sudahCheckIn && !sudahOff) {
         btnOff.disabled = false; 
         btnOff.classList.remove('btn-disabled');
@@ -1370,6 +1368,7 @@ function cekValidasiHarian() {
         }
     }
 }
+
 function pilihAksi(tipe) {
     tipeAbsen = tipe;
     document.getElementById('view-dashboard').style.display = 'none';
