@@ -699,7 +699,8 @@ let modeKamera = "user";
 let gpsWatcher = null;
 let serverTimeOffset = 0; 
 let dataLaporanGlobal = [];
-let isDataLoaded = false; // Flag kunci sampai data server siap
+let isDataLoaded = false; 
+let isEksekusiOffRunning = false; // Flag khusus agar tulisan "Memproses..." tidak tertimpa
 
 function initPeriodeKaryawan() {
     const labelPeriodeKaryawan = document.getElementById('periode-karyawan-text');
@@ -853,12 +854,10 @@ function prosesLogin() {
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
-                // 1. Kunci rapat seluruh tombol saat pertama kali login
                 isDataLoaded = false;
                 kunciTombolKerja(true);
                 document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & sinkronisasi data dari server...";
 
-                // 2. Sinkronisasi data dulu, baru buka tombol
                 sinkronisasiFullServer();
                 sinkronisasiWaktuServer();
             }
@@ -882,7 +881,7 @@ function sinkronisasiFullServer() {
     })
     .then(res => res.json())
     .then(data => {
-        isDataLoaded = true; // Set data berhasil dimuat dari server
+        isDataLoaded = true;
 
         if (!data || data.length <= 1) {
             cekValidasiHarian();
@@ -976,7 +975,6 @@ function sinkronisasiFullServer() {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: statusHariIni }));
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktuHariIni));
 
-        // Jalankan pengecekan aturan tombol dan lacak GPS
         cekValidasiHarian();
         startGPS();
     })
@@ -1235,10 +1233,15 @@ function startGPS() {
 function cekValidasiHarian() {
     tampilkanStatistik(); 
     
-    // PENTING: Tahan tombol jika data dari server belum selesai memuat
     if (!isDataLoaded) {
         kunciTombolKerja(true);
         return;
+    }
+
+    const textOff = document.getElementById('text-off');
+    // Hanya ubah teks jika TIDAK sedang dalam eksekusi klik OFF
+    if (!isEksekusiOffRunning && textOff) {
+        textOff.innerText = "Ambil Hari OFF";
     }
 
     const tglSekarang = new Date().toDateString();
@@ -1369,11 +1372,12 @@ function prosesAbsenOff() {
 function eksekusiAbsenOff() {
     tutupModal(); 
     
+    isEksekusiOffRunning = true; // Tandai proses penekanan tombol OFF dimulai
+
     const btn = document.getElementById('btn-off');
     const spinner = document.getElementById('off-spinner');
     const textBtn = document.getElementById('text-off');
 
-    // 1. Kunci tombol OFF secara visual & jalankan spinner untuk cegah double submit
     if (btn) {
         btn.disabled = true;
         btn.classList.add('btn-disabled');
@@ -1395,7 +1399,10 @@ function eksekusiAbsenOff() {
     })
     .then(res => res.json())
     .then(data => {
+        isEksekusiOffRunning = false; // Selesai proses
+        
         if (spinner) spinner.style.display = 'none';
+        if (textBtn) textBtn.innerText = "Ambil Hari OFF"; 
 
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1413,14 +1420,17 @@ function eksekusiAbsenOff() {
             totalOff++;
             localStorage.setItem(`totalOff_${namaLogin}`, totalOff);
             tampilkanStatistik();
+            
+            cekValidasiHarian();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
-            if (textBtn) textBtn.innerText = "Ambil Hari OFF";
             tampilkanPesan(data.pesan || "Gagal memproses data OFF.", 'info');
+            cekValidasiHarian();
         }
-        cekValidasiHarian();
     })
     .catch(err => {
+        isEksekusiOffRunning = false; // Selesai proses jika eror
+        
         if (spinner) spinner.style.display = 'none';
         if (textBtn) textBtn.innerText = "Ambil Hari OFF";
         if (btn) {
@@ -1428,6 +1438,7 @@ function eksekusiAbsenOff() {
             btn.classList.remove('btn-disabled');
         }
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
+        cekValidasiHarian();
     });
 }
 
@@ -1494,7 +1505,6 @@ function prosesAbsen() {
     const btnBatal = document.getElementById('btnBatalKamera');
     const spinner = document.getElementById('absen-spinner');
      
-    // 2. Kunci tombol kirim kamera & tombol batal agar tidak ditekan berkali-kali saat proses
     if(btn) {
         btn.disabled = true;
         btn.classList.add('btn-disabled');
@@ -1583,6 +1593,7 @@ function logout() {
     }
     namaLogin = "";
     isDataLoaded = false;
+    isEksekusiOffRunning = false;
     document.getElementById('user').value = "";
     document.getElementById('pass').value = "";
     document.getElementById('view-dashboard').style.display = 'none';
