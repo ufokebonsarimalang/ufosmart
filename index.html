@@ -216,7 +216,7 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
-        /* DESAIN BOX ABSENSI DENGAN WARNA KHUSUS */
+        /* DESAIN BOX ABSENSI DENGAN WARNA WARNI KHUSUS */
         .btn-grid {
             display: flex;
             flex-direction: column;
@@ -267,36 +267,38 @@
             stroke-linejoin: round;
         }
 
-      /* CHECK IN (Tombol Biru -> Teks Jam Biru Muda/Putih Terang yang kontras & elegan) */
-.card-in {
-    background: #2563eb !important;
-    border: 1px solid #1d4ed8 !important;
-}
-.card-in .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
-.card-in .absen-title { color: #ffffff !important; }
-.card-in .info-jam-absen { color: #dbeafe !important; font-weight: 800 !important; } /* Teks Jam menyesuaikan tema Biru Muda */
+        /* PEWARNAAN TEKS JAM SESUAI TEMA BOX MASING-MASING */
+        .card-in {
+            background: #2563eb !important;
+            border: 1px solid #1d4ed8 !important;
+        }
+        .card-in .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+        .card-in .absen-title { color: #ffffff !important; }
+        .card-in .info-jam-absen { color: #dbeafe !important; font-weight: 800 !important; }
 
-/* CHECK OUT (Tombol Kuning -> Teks Jam Kuning Tua/Cokelat Khas Tombol Out) */
-.card-out {
-    background: #facc15 !important;
-    border: 1px solid #eab308 !important;
-}
-.card-out .absen-icon { background: rgba(0, 0, 0, 0.1); color: #854d0e; }
-.card-out .absen-title { color: #854d0e !important; }
-.card-out .info-jam-absen { color: #713f12 !important; font-weight: 800 !important; } /* Teks Jam menyesuaikan tema Kuning/Cokelat */
+        .card-out {
+            background: #facc15 !important;
+            border: 1px solid #eab308 !important;
+        }
+        .card-out .absen-icon { background: rgba(0, 0, 0, 0.1); color: #854d0e; }
+        .card-out .absen-title { color: #854d0e !important; }
+        .card-out .info-jam-absen { color: #713f12 !important; font-weight: 800 !important; }
 
-/* OFF (Tombol Merah -> Teks Jam Merah Muda/Putih Terang) */
-.card-off {
-    flex-direction: row;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px;
-    background: #ef4444 !important;
-    border: 1px solid #dc2626 !important;
-}
-.card-off .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
-.card-off .absen-title { color: #ffffff !important; }
-.card-off .info-jam-absen { color: #fecdd3 !important; font-weight: 800 !important; } /* Teks Jam menyesuaikan tema Merah Muda */
+        .card-off-wrapper {
+            width: 100%;
+        }
+
+        .card-off {
+            flex-direction: row;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: #ef4444 !important;
+            border: 1px solid #dc2626 !important;
+        }
+        .card-off .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+        .card-off .absen-title { color: #ffffff !important; }
+        .card-off .info-jam-absen { color: #fecdd3 !important; font-weight: 800 !important; }
 
         .absen-title {
             font-size: 13px;
@@ -351,7 +353,6 @@
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
-        /* TOMBOL KELUAR DARI SISTEM (MERAH CERAH) */
         .btn-logout { 
             background: #ef4444 !important; 
             color: #ffffff !important; 
@@ -539,13 +540,13 @@
         </div>
     </div>
 
-    <div id="status-log">Menghubungkan GPS...</div>
+    <div id="status-log">⏳ Memuat data absensi dari server...</div>
 
     <button id="btn-refresh-gps" onclick="retrackGPS()" style="margin-bottom: 16px; padding: 8px 14px; font-size: 11px; background: #f1f5f9; color: var(--text-muted); width: auto; display: inline-flex; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: none;">
         🔄 Refresh Lokasi GPS
     </button>
  
-    <!-- KARTU ABSENSI DENGAN WARNA WARNI BOX (CHECK IN, CHECK OUT, OFF) -->
+    <!-- KARTU ABSENSI DENGAN WARNA WARNI BOX -->
     <div class="btn-grid">
         <div class="absen-card-group">
             <!-- CHECK IN (BIRU CERAH) -->
@@ -554,7 +555,7 @@
                     <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
                 </div>
                 <span class="absen-title">Check In</span>
-                <span id="time-checkin" class="info-jam-absen" style="color: #ffffff;">--:--</span>
+                <span id="time-checkin" class="info-jam-absen">--:--</span>
             </button>
 
             <!-- CHECK OUT (KUNING CERAH) -->
@@ -563,23 +564,24 @@
                     <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
                 </div>
                 <span class="absen-title">Check Out</span>
-                <span id="time-checkout" class="info-jam-absen" style="color: #854d0e;">--:--</span>
+                <span id="time-checkout" class="info-jam-absen">--:--</span>
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (MERAH CERAH) -->
+        <!-- TOMBOL OFF/LIBUR (MERAH CERAH DENGAN SPINNER) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon" style="width: 28px; height: 28px;">
                     <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <span class="absen-title">Ambil Hari OFF</span>
-                <span id="time-off" class="info-jam-absen" style="color: #ffffff;"></span>
+                <span class="absen-title" id="text-off">Ambil Hari OFF</span>
+                <span id="time-off" class="info-jam-absen"></span>
+                <div class="spinner" id="off-spinner" style="margin-left: 6px;"></div>
             </button>
         </div>
     </div>
 
-    <!-- TOMBOL KELUAR DARI SISTEM (MERAH CERAH) -->
+    <!-- TOMBOL KELUAR DARI SISTEM -->
     <button class="btn-logout" onclick="logout()">KELUAR DARI SISTEM</button>
 </div>
 
@@ -601,7 +603,7 @@
         <span>Kirim Absensi Sekarang</span>
         <div class="spinner" id="absen-spinner"></div>
     </button>
-    <button class="btn-kembali" onclick="kembaliKeDashboard()">Batal / Kembali</button>
+    <button class="btn-kembali" id="btnBatalKamera" onclick="kembaliKeDashboard()">Batal / Kembali</button>
 </div>
 
 <!-- VIEW ADMIN -->
@@ -621,7 +623,6 @@
         </div>
     </div>
 
-    <!-- FILTER PER KARYAWAN & STATISTIK ADMIN -->
     <div style="background: #f8fafc; padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-color); text-align: left;">
         <label style="font-weight: 700; display: block; margin-bottom: 8px; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">
             🔍 Filter Karyawan:
@@ -698,6 +699,7 @@ let modeKamera = "user";
 let gpsWatcher = null;
 let serverTimeOffset = 0; 
 let dataLaporanGlobal = [];
+let isDataLoaded = false; // Flag kunci sampai data server siap
 
 function initPeriodeKaryawan() {
     const labelPeriodeKaryawan = document.getElementById('periode-karyawan-text');
@@ -716,7 +718,7 @@ function initPeriodeKaryawan() {
         } else {
             let targetBulanLalu = new Date(sekarang.getFullYear(), sekarang.getMonth() - 1, 1);
             blnMulai = namaBulanFull[targetBulanLalu.getMonth()];
-            thnMulai = targetBulanLalu.getFullYear();
+            thnMulai = sekarang.getFullYear();
             blnSelesai = namaBulanFull[sekarang.getMonth()];
             thnSelesai = sekarang.getFullYear();
         }
@@ -731,13 +733,16 @@ function initPeriodeKaryawan() {
 function kunciTombolKerja(statusKunci) {
     const btnIn = document.getElementById('btn-checkin');
     const btnOut = document.getElementById('btn-checkout');
+    const btnOff = document.getElementById('btn-off');
 
     if(statusKunci) {
         if(btnIn) { btnIn.classList.add('btn-disabled'); btnIn.disabled = true; }
         if(btnOut) { btnOut.classList.add('btn-disabled'); btnOut.disabled = true; }
+        if(btnOff) { btnOff.classList.add('btn-disabled'); btnOff.disabled = true; }
     } else {
         if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
         if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
+        if(btnOff) { btnOff.classList.remove('btn-disabled'); btnOff.disabled = false; }
     }
 }
 
@@ -812,8 +817,6 @@ function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
 
-// Gunakan fetch biasa dengan mode redirect follow untuk melewati hambatan CORS
-// 1. FUNGSI PROSES LOGIN (Memanggil sinkronisasi penuh)
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
@@ -836,7 +839,6 @@ function prosesLogin() {
              
         if(data.status === "sukses") {
             namaLogin = data.nama;
-            userPassKey = password;
 
             localStorage.setItem('sesi_username', username);
             localStorage.setItem('sesi_password', password);
@@ -851,13 +853,14 @@ function prosesLogin() {
                 document.getElementById('view-dashboard').style.display = 'block';
                 document.getElementById('nama-user').innerText = namaLogin;
                 
+                // 1. Kunci rapat seluruh tombol saat pertama kali login
+                isDataLoaded = false;
+                kunciTombolKerja(true);
                 document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & sinkronisasi data dari server...";
 
-                // SINKRONISASI TOTAL STATISTIK & STATUS ABSEN HARI INI DARI GOOGLE SHEETS
+                // 2. Sinkronisasi data dulu, baru buka tombol
                 sinkronisasiFullServer();
-
                 sinkronisasiWaktuServer();
-                startGPS();
             }
         } else {
             tampilkanPesan("Username atau Password salah! Periksa kembali data Anda.", "info");
@@ -871,7 +874,6 @@ function prosesLogin() {
     });
 }
 
-// 2. FUNGSI SINKRONISASI PENUH (Statistik Bulanan + Status Hari Ini dari Server)
 function sinkronisasiFullServer() {
     fetch(SCRIPT_URL, { 
         method: 'POST', 
@@ -880,7 +882,13 @@ function sinkronisasiFullServer() {
     })
     .then(res => res.json())
     .then(data => {
-        if (!data || data.length <= 1) return;
+        isDataLoaded = true; // Set data berhasil dimuat dari server
+
+        if (!data || data.length <= 1) {
+            cekValidasiHarian();
+            startGPS();
+            return;
+        }
 
         let sekarang = new Date();
         let targetBulan = sekarang.getMonth();
@@ -906,7 +914,7 @@ function sinkronisasiFullServer() {
 
             if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
                 let parts = kolomWaktu.split(" ");
-                let dateParts = parts[0].split("-"); // [dd, MM, yyyy]
+                let dateParts = parts[0].split("-");
                 let timeParts = parts[1].split(":");
 
                 if (parts[0] === tglSekarangFormatted) {
@@ -968,81 +976,16 @@ function sinkronisasiFullServer() {
         localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ tanggal: tglSekarang, status: statusHariIni }));
         localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktuHariIni));
 
+        // Jalankan pengecekan aturan tombol dan lacak GPS
         cekValidasiHarian();
+        startGPS();
     })
-    .catch(err => console.error("Gagal sinkronisasi data dari server:", err));
-}
-
-function muatStatusHariIniDariServer() {
-    fetch(SCRIPT_URL, { 
-        method: 'POST', 
-        redirect: 'follow', 
-        body: JSON.stringify({ aksi: "get_laporan" }) 
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (!data || data.length <= 1) return;
-        
-        const tglSekarangFormatted = Utilities_formatTanggalHariIni();
-        let statusHariIni = [];
-        let detailWaktu = {};
-
-        for (let i = 1; i < data.length; i++) {
-            let row = data[i];
-            let kolomWaktu = String(row[0] || "");
-            let kolomNama = String(row[1] || "");
-            let kolomStatus = String(row[2] || "");
-
-            if (kolomNama === namaLogin && kolomWaktu.includes(tglSekarangFormatted)) {
-                if (!statusHariIni.includes(kolomStatus)) {
-                    statusHariIni.push(kolomStatus);
-                }
-                let jamSaja = kolomWaktu.split(" ")[1];
-                if (jamSaja) {
-                    detailWaktu[kolomStatus] = jamSaja;
-                }
-            }
-        }
-
-        const tglSekarang = new Date().toDateString();
-        localStorage.setItem(`absen_${namaLogin}`, JSON.stringify({ 
-            tanggal: tglSekarang, 
-            status: statusHariIni 
-        }));
-        localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
-
+    .catch(err => {
+        console.error("Gagal sinkronisasi data dari server:", err);
+        isDataLoaded = true;
         cekValidasiHarian();
-    })
-    .catch(err => console.error("Gagal sinkron status dari server:", err));
-}
-
-function muatJamAbsenServer() {
-    fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
-    .then(res => res.json())
-    .then(data => {
-        if (!data || data.length <= 1) return;
-        
-        let tglSekarangFormatted = Utilities_formatTanggalHariIni();
-        let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
-
-        for (let i = 1; i < data.length; i++) {
-            let row = data[i];
-            let waktu = row[0];
-            let nama = row[1];
-            let status = row[2];
-
-            if (nama === namaLogin && waktu && waktu.includes(tglSekarangFormatted)) {
-                let jamSaja = waktu.split(" ")[1];
-                if (jamSaja) {
-                    detailWaktu[status] = jamSaja;
-                }
-            }
-        }
-
-        localStorage.setItem(`detailWaktu_${namaLogin}`, JSON.stringify(detailWaktu));
-        cekValidasiHarian();
-    })
-    .catch(err => console.error("Gagal muat jam absen server:", err));
+        startGPS();
+    });
 }
 
 function Utilities_formatTanggalHariIni() {
@@ -1261,7 +1204,6 @@ function retrackGPS() {
 
 function startGPS() {
     isGpsValid = false;
-    document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & mendeteksi lokasi GPS...";
 
     if (navigator.geolocation) {
         gpsWatcher = navigator.geolocation.watchPosition(
@@ -1292,6 +1234,13 @@ function startGPS() {
 
 function cekValidasiHarian() {
     tampilkanStatistik(); 
+    
+    // PENTING: Tahan tombol jika data dari server belum selesai memuat
+    if (!isDataLoaded) {
+        kunciTombolKerja(true);
+        return;
+    }
+
     const tglSekarang = new Date().toDateString();
     const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || {};
 
@@ -1419,9 +1368,19 @@ function prosesAbsenOff() {
 
 function eksekusiAbsenOff() {
     tutupModal(); 
+    
     const btn = document.getElementById('btn-off');
-    if(btn) btn.disabled = true;
-     
+    const spinner = document.getElementById('off-spinner');
+    const textBtn = document.getElementById('text-off');
+
+    // 1. Kunci tombol OFF secara visual & jalankan spinner untuk cegah double submit
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('btn-disabled');
+    }
+    if (spinner) spinner.style.display = 'inline-block';
+    if (textBtn) textBtn.innerText = "Memproses...";
+
     fetch(SCRIPT_URL, {
         method: 'POST',
         redirect: 'follow',
@@ -1436,9 +1395,13 @@ function eksekusiAbsenOff() {
     })
     .then(res => res.json())
     .then(data => {
-        if(data.pesan.includes("berhasil")) {
+        if (spinner) spinner.style.display = 'none';
+
+        if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
-            logAbsenHariIni.status.push('OFF');
+            if(!logAbsenHariIni.status.includes('OFF')) {
+                logAbsenHariIni.status.push('OFF');
+            }
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
             const serverDate = new Date(Date.now() + serverTimeOffset);
@@ -1452,12 +1415,18 @@ function eksekusiAbsenOff() {
             tampilkanStatistik();
             tampilkanPesan("Berhasil mengambil hari OFF dan tercatat di server!", "sukses");
         } else {
-            tampilkanPesan(data.pesan, 'info');
+            if (textBtn) textBtn.innerText = "Ambil Hari OFF";
+            tampilkanPesan(data.pesan || "Gagal memproses data OFF.", 'info');
         }
         cekValidasiHarian();
     })
     .catch(err => {
-        if(btn) btn.disabled = false;
+        if (spinner) spinner.style.display = 'none';
+        if (textBtn) textBtn.innerText = "Ambil Hari OFF";
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
     });
 }
@@ -1522,9 +1491,15 @@ function prosesAbsen() {
     const dataFoto = canvas.toDataURL('image/jpeg', 0.5);
 
     const btn = document.getElementById('btnAbsen');
+    const btnBatal = document.getElementById('btnBatalKamera');
     const spinner = document.getElementById('absen-spinner');
      
-    if(btn) btn.disabled = true;
+    // 2. Kunci tombol kirim kamera & tombol batal agar tidak ditekan berkali-kali saat proses
+    if(btn) {
+        btn.disabled = true;
+        btn.classList.add('btn-disabled');
+    }
+    if(btnBatal) btn.disabled = true;
     if(spinner) spinner.style.display = 'inline-block';
      
     fetch(SCRIPT_URL, {
@@ -1537,11 +1512,17 @@ function prosesAbsen() {
     .then(res => res.json())
     .then(data => {
         if(spinner) spinner.style.display = 'none';
-        if(btn) btn.disabled = false;
+        if(btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
+        if(btnBatal) btn.disabled = false;
          
-        if(data.pesan.includes("berhasil")) {
-            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`));
-            logAbsenHariIni.status.push(tipeAbsen);
+        if(data.pesan && data.pesan.includes("berhasil")) {
+            const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
+            if(!logAbsenHariIni.status.includes(tipeAbsen)) {
+                logAbsenHariIni.status.push(tipeAbsen);
+            }
             localStorage.setItem(`absen_${namaLogin}`, JSON.stringify(logAbsenHariIni));
 
             let detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
@@ -1580,13 +1561,17 @@ function prosesAbsen() {
             tampilkanStatistik();
             tampilkanPesan("Absen " + tipeAbsen + " berhasil pada pukul " + waktuSekarang + "!" + infoDurasi, 'sukses');
         } else {
-            tampilkanPesan(data.pesan, 'info');
+            tampilkanPesan(data.pesan || "Gagal memproses data absensi.", 'info');
         }
         kembaliKeDashboard();
     })
     .catch(err => {
         if(spinner) spinner.style.display = 'none';
-        if(btn) btn.disabled = false;
+        if(btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
+        if(btnBatal) btn.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
     });
 }
@@ -1597,6 +1582,7 @@ function logout() {
         gpsWatcher = null;
     }
     namaLogin = "";
+    isDataLoaded = false;
     document.getElementById('user').value = "";
     document.getElementById('pass').value = "";
     document.getElementById('view-dashboard').style.display = 'none';
