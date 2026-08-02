@@ -825,7 +825,11 @@ function prosesLogin() {
     const btn = document.getElementById('btn-login'); 
     const spinner = document.getElementById('login-spinner');
 
-    if(btn) btn.disabled = true;
+    // Ubah tampilan tombol saat proses login berlangsung
+    if(btn) {
+        btn.disabled = true;
+        btn.classList.add('btn-disabled'); // Mengubah warna tombol jadi redup/abu-abu
+    }
     if(spinner) spinner.style.display = 'inline-block';
          
     fetch(SCRIPT_URL, {
@@ -835,7 +839,11 @@ function prosesLogin() {
     })
     .then(res => res.json())
     .then(data => {
-        if(btn) btn.disabled = false;
+        // Kembalikan tombol ke kondisi semula jika ada respon
+        if(btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
         if(spinner) spinner.style.display = 'none';
              
         if(data.status === "sukses") {
@@ -866,13 +874,16 @@ function prosesLogin() {
         }
     })
     .catch(err => {
-        if(btn) btn.disabled = false;
+        // Kembalikan tombol jika terjadi error koneksi
+        if(btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
         if(spinner) spinner.style.display = 'none';
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
 }
-
 function sinkronisasiFullServer() {
     fetch(SCRIPT_URL, { 
         method: 'POST', 
