@@ -1219,7 +1219,7 @@ function renderTabelAdmin(namaTarget) {
             let hariIni = logPerTanggal[tgl];
             if (hariIni.status.includes("OFF")) totalOff++;
             if (hariIni.status.includes("Check In")) {
-                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 0)) {
+                if (hariIni.jamCheckIn[0] > 8 || (hariIni.jamCheckIn[0] === 8 && hariIni.menitCheckIn[0] > 10)) {
                     totalTerlambatAdmin++;
                 }
             }
@@ -1555,7 +1555,7 @@ function prosesAbsen() {
 
             if (tipeAbsen === 'Check In') {
                 localStorage.setItem(`waktuCheckIn_${namaLogin}`, waktuMilidetikSekarang);
-                if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 0)) {
+                if (jamSekarang > 8 || (jamSekarang === 8 && serverDate.getMinutes() > 10)) {
                     totalTerlambat++;
                     localStorage.setItem(`totalTerlambat_${namaLogin}`, totalTerlambat);
                 }
