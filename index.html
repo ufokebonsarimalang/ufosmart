@@ -603,7 +603,6 @@
         <span id="text-absen-kirim">Kirim Absensi Sekarang</span>
         <div class="spinner" id="absen-spinner"></div>
     </button>
-    <button class="btn-kembali" id="btnBatalKamera" onclick="kembaliKeDashboard()">Batal / Kembali</button>
 </div>
 
 <!-- VIEW ADMIN -->
@@ -1518,7 +1517,6 @@ function prosesAbsen() {
     const dataFoto = canvas.toDataURL('image/jpeg', 0.5);
 
     const btn = document.getElementById('btnAbsen');
-    const btnBatal = document.getElementById('btnBatalKamera');
     const spinner = document.getElementById('absen-spinner');
     const textKirim = document.getElementById('text-absen-kirim');
      
@@ -1526,7 +1524,6 @@ function prosesAbsen() {
         btn.disabled = true;
         btn.classList.add('btn-disabled');
     }
-    if(btnBatal) btnBatal.disabled = true;
     if(spinner) spinner.style.display = 'inline-block';
     if(textKirim) textKirim.innerText = "Memproses...";
      
@@ -1545,7 +1542,6 @@ function prosesAbsen() {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
-        if(btnBatal) btnBatal.disabled = false;
          
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1601,7 +1597,6 @@ function prosesAbsen() {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
-        if(btnBatal) btnBatal.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
     });
 }
