@@ -267,14 +267,14 @@
             stroke-linejoin: round;
         }
 
-        /* PEWARNAAN TEKS JAM SESUAI TEMA BOX MASING-MASING */
+        /* PEWARNAAN TEKS JAM & TOMBOL CHECK-IN/CHECK-OUT */
         .card-in {
             background: #2563eb !important;
             border: 1px solid #1d4ed8 !important;
         }
         .card-in .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
         .card-in .absen-title { color: #ffffff !important; }
-        .card-in .info-jam-absen { color: #dbeafe !important; font-weight: 800 !important; }
+        .card-in .info-jam-absen { color: #2563eb !important; font-weight: 800 !important; }
 
         .card-out {
             background: #facc15 !important;
@@ -282,7 +282,7 @@
         }
         .card-out .absen-icon { background: rgba(0, 0, 0, 0.1); color: #854d0e; }
         .card-out .absen-title { color: #854d0e !important; }
-        .card-out .info-jam-absen { color: #713f12 !important; font-weight: 800 !important; }
+        .card-out .info-jam-absen { color: #f97316 !important; font-weight: 800 !important; }
 
         .card-off-wrapper {
             width: 100%;
@@ -312,6 +312,10 @@
             min-height: 14px;
             display: block;
             text-align: center;
+            background: #ffffff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            width: 100%;
         }
 
         /* General Buttons */
@@ -459,13 +463,22 @@
         }
 
         .btn-disabled {
-            opacity: 0.85 !important;
+            background-color: #e2e8f0 !important;
+            border-color: #cbd5e1 !important;
+            color: #94a3b8 !important;
+            box-shadow: none !important;
             cursor: not-allowed !important;
             pointer-events: none;
+            opacity: 0.9;
         }
         
         .btn-disabled .absen-icon {
-            opacity: 0.7;
+            background-color: #cbd5e1 !important;
+            color: #94a3b8 !important;
+        }
+
+        .btn-disabled .absen-title {
+            color: #64748b !important;
         }
     </style>
 </head>
@@ -1284,6 +1297,7 @@ function cekValidasiHarian() {
     }
 
     if (sudahCheckIn && !sudahCheckOut) {
+        // SETELAH CHECK IN BERHASIL: TOMBOL CHECK IN JADI ABU-ABU (DISABLED)
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
