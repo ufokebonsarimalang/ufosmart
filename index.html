@@ -500,7 +500,7 @@
     </div>
      
     <button class="btn-primary" id="btn-login" onclick="prosesLogin()">
-        <span>MASUK KE SISTEM</span>
+        <span id="text-login">MASUK KE SISTEM</span>
         <div class="spinner" id="login-spinner"></div>
     </button>
 </div>
@@ -600,7 +600,7 @@
     </button>
      
     <button class="btn-absen-kirim" id="btnAbsen" onclick="prosesAbsen()">
-        <span>Kirim Absensi Sekarang</span>
+        <span id="text-absen-kirim">Kirim Absensi Sekarang</span>
         <div class="spinner" id="absen-spinner"></div>
     </button>
     <button class="btn-kembali" id="btnBatalKamera" onclick="kembaliKeDashboard()">Batal / Kembali</button>
@@ -809,7 +809,7 @@ function tampilkanPesan(pesan, status) {
     document.getElementById('modal-pesan').innerHTML = `<p>${pesan}</p>`;
     
     const tombolTutup = document.getElementById('btn-modal-tutup');
-    if (tombolTutup) tombolTutup.style.display = 'block'; // Tampilkan tombol TUTUP untuk pesan biasa
+    if (tombolTutup) tombolTutup.style.display = 'block';
     
     document.getElementById('modal-notif').style.display = 'flex';
 }
@@ -821,16 +821,17 @@ function tutupModal() {
 function prosesLogin() {
     const username = document.getElementById('user').value.trim();
     const password = document.getElementById('pass').value.trim();
-    
+     
     const btn = document.getElementById('btn-login'); 
     const spinner = document.getElementById('login-spinner');
+    const textLogin = document.getElementById('text-login');
 
-    // Ubah tampilan tombol saat proses login berlangsung
     if(btn) {
         btn.disabled = true;
-        btn.classList.add('btn-disabled'); // Mengubah warna tombol jadi redup/abu-abu
+        btn.classList.add('btn-disabled');
     }
     if(spinner) spinner.style.display = 'inline-block';
+    if(textLogin) textLogin.innerText = "Memproses...";
          
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -839,12 +840,12 @@ function prosesLogin() {
     })
     .then(res => res.json())
     .then(data => {
-        // Kembalikan tombol ke kondisi semula jika ada respon
         if(btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
         if(spinner) spinner.style.display = 'none';
+        if(textLogin) textLogin.innerText = "MASUK KE SISTEM";
              
         if(data.status === "sukses") {
             namaLogin = data.nama;
@@ -874,16 +875,17 @@ function prosesLogin() {
         }
     })
     .catch(err => {
-        // Kembalikan tombol jika terjadi error koneksi
         if(btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
         if(spinner) spinner.style.display = 'none';
+        if(textLogin) textLogin.innerText = "MASUK KE SISTEM";
         tampilkanPesan("Gagal terhubung ke server. Pastikan koneksi internet aktif.", "info");
         console.error(err);
     });
 }
+
 function sinkronisasiFullServer() {
     fetch(SCRIPT_URL, { 
         method: 'POST', 
@@ -1008,14 +1010,14 @@ function Utilities_formatTanggalHariIni() {
 function muatDataAdmin() {
     const tabelBody = document.getElementById('isi-tabel');
     if(!tabelBody) return;
-    
+     
     tabelBody.innerHTML = "<tr><td colspan='5' style='text-align: center; padding: 30px;'>Memuat data laporan...</td></tr>";
-         
+          
     fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
     .then(res => res.json())
     .then(data => {
         dataLaporanGlobal = data; 
-        
+         
         const dropdown = document.getElementById('filter-nama-admin');
         if(dropdown) {
             dropdown.innerHTML = '<option value="SEMUA">-- Tampilkan Semua Karyawan --</option>';
@@ -1367,7 +1369,6 @@ function kembaliKeDashboard() {
     cekValidasiHarian();
 }
 
-/* PERBAIKAN: POP-UP KONFIRMASI RAPIH TANPA TOMBOL TUTUP BAWAAN */
 function prosesAbsenOff() {
     document.getElementById('modal-title').innerText = 'Konfirmasi Libur';
     document.getElementById('modal-pesan').innerHTML = `
@@ -1379,7 +1380,7 @@ function prosesAbsenOff() {
     `;
     
     const tombolTutup = document.getElementById('btn-modal-tutup');
-    if (tombolTutup) tombolTutup.style.display = 'none'; // Sembunyikan tombol TUTUP agar box tidak penuh
+    if (tombolTutup) tombolTutup.style.display = 'none';
     
     document.getElementById('modal-notif').style.display = 'flex';
 }
@@ -1519,13 +1520,15 @@ function prosesAbsen() {
     const btn = document.getElementById('btnAbsen');
     const btnBatal = document.getElementById('btnBatalKamera');
     const spinner = document.getElementById('absen-spinner');
+    const textKirim = document.getElementById('text-absen-kirim');
      
     if(btn) {
         btn.disabled = true;
         btn.classList.add('btn-disabled');
     }
-    if(btnBatal) btn.disabled = true;
+    if(btnBatal) btnBatal.disabled = true;
     if(spinner) spinner.style.display = 'inline-block';
+    if(textKirim) textKirim.innerText = "Memproses...";
      
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1537,11 +1540,12 @@ function prosesAbsen() {
     .then(res => res.json())
     .then(data => {
         if(spinner) spinner.style.display = 'none';
+        if(textKirim) textKirim.innerText = "Kirim Absensi Sekarang";
         if(btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
-        if(btnBatal) btn.disabled = false;
+        if(btnBatal) btnBatal.disabled = false;
          
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1592,11 +1596,12 @@ function prosesAbsen() {
     })
     .catch(err => {
         if(spinner) spinner.style.display = 'none';
+        if(textKirim) textKirim.innerText = "Kirim Absensi Sekarang";
         if(btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
         }
-        if(btnBatal) btn.disabled = false;
+        if(btnBatal) btnBatal.disabled = false;
         tampilkanPesan("Terjadi kesalahan jaringan.", "info");
     });
 }
@@ -1655,11 +1660,11 @@ window.downloadCSV = function() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    
+     
     const tgl = new Date();
     const formatTanggal = `${tgl.getFullYear()}${(tgl.getMonth()+1).toString().padStart(2,'0')}${tgl.getDate().toString().padStart(2,'0')}`;
     const namaFile = `Rekap_Absen_UFO_${formatTanggal}.csv`;
-    
+     
     link.setAttribute("href", url);
     link.setAttribute("download", namaFile);
     link.style.display = 'none';
