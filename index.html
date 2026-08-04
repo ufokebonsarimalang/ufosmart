@@ -473,7 +473,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Styling Tombol Disabled (Abu-abu) Khusus untuk Check-In & Check-Out */
+        /* Styling Tombol Disabled (Abu-abu) untuk SEMUA tombol termasuk OFF */
         .btn-disabled {
             background-color: #e2e8f0 !important;
             border-color: #cbd5e1 !important;
@@ -493,22 +493,8 @@
             color: #64748b !important;
         }
 
-        /* KHUSUS TOMBOL OFF: Ketika berubah jadi abu-abu/disabled, background tetap merah dan tulisan/jam tetap merah/putih terang */
-        .card-off.btn-disabled {
-            background-color: #ef4444 !important;
-            border-color: #dc2626 !important;
-            opacity: 1 !important;
-            pointer-events: none;
-        }
-        .card-off.btn-disabled .absen-icon {
-            background-color: rgba(255, 255, 255, 0.25) !important;
-            color: #ffffff !important;
-        }
-        .card-off.btn-disabled .absen-title {
-            color: #ffffff !important;
-        }
-        .card-off.btn-disabled .info-jam-absen {
-            color: #ffffff !important;
+        .btn-disabled .info-jam-absen {
+            color: #94a3b8 !important;
         }
     </style>
 </head>
@@ -601,7 +587,7 @@
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (BACKGROUND MERAH, TULISAN PUTIH, TETAP MERAH SAAT NONAKTIF) -->
+        <!-- TOMBOL OFF/LIBUR (BACKGROUND MERAH MENYALA, TEKS PUTIH) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon">
