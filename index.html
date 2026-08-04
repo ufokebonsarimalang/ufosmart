@@ -1260,7 +1260,7 @@ function cekValidasiHarian() {
 
     const textOff = document.getElementById('text-off');
     if (!isEksekusiOffRunning && textOff) {
-        textOff.innerText = "Ambil Hari OFF";
+        textOff.innerText = "OFF";
     }
 
     const tglSekarang = new Date().toDateString();
@@ -1432,7 +1432,7 @@ function eksekusiAbsenOff() {
         isEksekusiOffRunning = false;
         
         if (spinner) spinner.style.display = 'none';
-        if (textBtn) textBtn.innerText = "Ambil Hari OFF"; 
+        if (textBtn) textBtn.innerText = "OFF"; 
 
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1462,7 +1462,7 @@ function eksekusiAbsenOff() {
         isEksekusiOffRunning = false;
         
         if (spinner) spinner.style.display = 'none';
-        if (textBtn) textBtn.innerText = "Ambil Hari OFF";
+        if (textBtn) textBtn.innerText = "OFF";
         if (btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
