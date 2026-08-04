@@ -1,0 +1,30 @@
+{
+  "name": "UFO SMART",
+  "short_name": "Ufo Absensi",
+  "start_url": "./indexhttps://ufokebonsarimalang.github.io/ufosmart/.html",
+  "display": "standalone",
+  "background_color": "rgb(37, 99, 235)",
+  "theme_color": "#1565c0",
+  "icons": [
+    {
+      "src": "logo-app.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo-app.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "com.ufokebonsari.absensi",
+  "description": "absensi harian karyawan ufo",
+  "dir": "auto",
+  "orientation": "portrait",
+  "lang": "id",
+  "categories": [
+    "productivity"
+  ]
+}
