@@ -427,13 +427,14 @@
             text-decoration: none;
         }
 
+        /* SPINNER LEBIH JELAS & TEBAL */
         .spinner {
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
-            border-top: 2px solid #fff;
-            width: 16px;
-            height: 16px;
-            animation: spin 0.8s linear infinite;
+            border-top: 3px solid #ffffff;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.6s linear infinite;
             display: none;
         }
 
@@ -458,24 +459,13 @@
         }
 
         .btn-disabled {
-            background-color: #f1f5f9 !important;
-            color: #94a3b8 !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: none !important;
+            opacity: 0.85 !important;
             cursor: not-allowed !important;
-            opacity: 0.6;
             pointer-events: none;
         }
         
         .btn-disabled .absen-icon {
-            background-color: #e2e8f0 !important;
-            color: #94a3b8 !important;
-        }
-        .btn-disabled .absen-title {
-            color: #94a3b8 !important;
-        }
-        .btn-disabled .info-jam-absen {
-            color: #94a3b8 !important;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -1349,9 +1339,16 @@ function jalankanKamera() {
     .then(stream => {
         streamKamera = stream;
         elKamera.srcObject = stream;
+        
+        var playPromise = elKamera.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Autoplay dicegah oleh browser, mencoba memutar ulang...", error);
+            });
+        }
     })
     .catch(err => {
-        tampilkanPesan("Gagal membuka kamera.", "info");
+        tampilkanPesan("Gagal membuka kamera. Pastikan izin kamera diaktifkan.", "info");
         kembaliKeDashboard();
     });
 }
