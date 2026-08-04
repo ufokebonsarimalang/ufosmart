@@ -232,12 +232,12 @@
 
         .absen-card {
             border-radius: var(--radius-md);
-            padding: 16px 10px;
+            padding: 12px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: var(--shadow-sm);
@@ -249,17 +249,17 @@
         }
 
         .absen-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .absen-icon svg {
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             stroke-width: 2.2;
             fill: none;
             stroke: currentColor;
@@ -291,17 +291,17 @@
         .card-off {
             flex-direction: row;
             justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            background: #ef4444 !important;
-            border: 1px solid #dc2626 !important;
+            gap: 8px;
+            padding: 10px;
+            background: #ffffff !important;
+            border: 1.5px solid #ef4444 !important;
         }
-        .card-off .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
-        .card-off .absen-title { color: #ffffff !important; }
-        .card-off .info-jam-absen { color: #fecdd3 !important; font-weight: 800 !important; }
+        .card-off .absen-icon { background: #fee2e2; color: #ef4444; width: 30px; height: 30px; }
+        .card-off .absen-title { color: #ef4444 !important; }
+        .card-off .info-jam-absen { color: #ef4444 !important; font-weight: 800 !important; background: transparent; width: auto; padding: 0; }
 
         .absen-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
         }
 
@@ -313,7 +313,7 @@
             display: block;
             text-align: center;
             background: #ffffff;
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 6px;
             width: 100%;
         }
@@ -440,6 +440,11 @@
             height: 18px;
             animation: spin 0.6s linear infinite;
             display: none;
+        }
+
+        .card-off .spinner {
+            border: 3px solid rgba(239, 68, 68, 0.2);
+            border-top: 3px solid #ef4444;
         }
 
         @keyframes spin {
@@ -571,13 +576,13 @@
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (MERAH CERAH DENGAN SPINNER) -->
+        <!-- TOMBOL OFF/LIBUR (TULISAN MERAH & BOX TIDAK PANJANG) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
-                <div class="absen-icon" style="width: 28px; height: 28px;">
+                <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <span class="absen-title" id="text-off">Ambil Hari OFF</span>
+                <span class="absen-title" id="text-off">OFF</span>
                 <span id="time-off" class="info-jam-absen"></span>
                 <div class="spinner" id="off-spinner" style="margin-left: 6px;"></div>
             </button>
@@ -1273,7 +1278,7 @@ function cekValidasiHarian() {
     const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
     document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
     document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
-    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
+    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? ": " + detailWaktu['OFF'] : "";
 
     const btnCheckIn = document.getElementById('btn-checkin');
     const btnCheckOut = document.getElementById('btn-checkout');
@@ -1297,7 +1302,6 @@ function cekValidasiHarian() {
     }
 
     if (sudahCheckIn && !sudahCheckOut) {
-        // SETELAH CHECK IN BERHASIL: TOMBOL CHECK IN JADI ABU-ABU (DISABLED)
         btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
         btnOff.disabled = true; btnOff.classList.add('btn-disabled');
 
