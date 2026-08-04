@@ -286,19 +286,24 @@
 
         .card-off-wrapper {
             width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         .card-off {
             flex-direction: row;
             justify-content: center;
             gap: 8px;
-            padding: 10px;
-            background: #ffffff !important;
-            border: 1.5px solid #ef4444 !important;
+            padding: 10px 16px;
+            background: #ef4444 !important;
+            border: 1px solid #dc2626 !important;
+            width: auto !important;
+            max-width: 220px;
+            margin: 0 auto;
         }
-        .card-off .absen-icon { background: #fee2e2; color: #ef4444; width: 30px; height: 30px; }
-        .card-off .absen-title { color: #ef4444 !important; }
-        .card-off .info-jam-absen { color: #ef4444 !important; font-weight: 800 !important; background: transparent; width: auto; padding: 0; }
+        .card-off .absen-icon { background: rgba(255, 255, 255, 0.2); color: #ffffff; width: 28px; height: 28px; }
+        .card-off .absen-title { color: #ffffff !important; }
+        .card-off .info-jam-absen { color: #fecdd3 !important; font-weight: 800 !important; background: transparent; width: auto; padding: 0; }
 
         .absen-title {
             font-size: 12px;
@@ -358,17 +363,17 @@
         }
 
         .btn-logout { 
-            background: #ef4444 !important; 
+            background: #10b981 !important; 
             color: #ffffff !important; 
-            border: 1px solid #dc2626 !important;
+            border: 1px solid #059669 !important;
             font-size: 12px; 
             padding: 10px; 
             margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
         }
 
         .btn-logout:hover {
-            background: #dc2626 !important;
+            background: #059669 !important;
         }
 
         .btn-kembali {
@@ -442,11 +447,6 @@
             display: none;
         }
 
-        .card-off .spinner {
-            border: 3px solid rgba(239, 68, 68, 0.2);
-            border-top: 3px solid #ef4444;
-        }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -465,25 +465,6 @@
             background: white; padding: 24px; border-radius: var(--radius-lg);
             width: 100%; max-width: 320px; text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-disabled {
-            background-color: #e2e8f0 !important;
-            border-color: #cbd5e1 !important;
-            color: #94a3b8 !important;
-            box-shadow: none !important;
-            cursor: not-allowed !important;
-            pointer-events: none;
-            opacity: 0.9;
-        }
-        
-        .btn-disabled .absen-icon {
-            background-color: #cbd5e1 !important;
-            color: #94a3b8 !important;
-        }
-
-        .btn-disabled .absen-title {
-            color: #64748b !important;
         }
     </style>
 </head>
@@ -554,10 +535,10 @@
         🔄 Refresh Lokasi GPS
     </button>
  
-    <!-- KARTU ABSENSI DENGAN WARNA WARNI BOX -->
+    <!-- KARTU ABSENSI DENGAN SEMUA TOMBOL MENYALA (AKTIF) -->
     <div class="btn-grid">
         <div class="absen-card-group">
-            <!-- CHECK IN (BIRU CERAH) -->
+            <!-- CHECK IN (BIRU CERAH - MENYALA) -->
             <button class="absen-card card-in" id="btn-checkin" onclick="pilihAksi('Check In')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -566,7 +547,7 @@
                 <span id="time-checkin" class="info-jam-absen">--:--</span>
             </button>
 
-            <!-- CHECK OUT (KUNING CERAH) -->
+            <!-- CHECK OUT (KUNING CERAH - MENYALA) -->
             <button class="absen-card card-out" id="btn-checkout" onclick="pilihAksi('Check Out')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -576,20 +557,20 @@
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (TULISAN MERAH & BOX TIDAK PANJANG) -->
+        <!-- TOMBOL OFF/LIBUR (BOX MERAH, TIDAK PANJANG, MENYALA) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <span class="absen-title" id="text-off">OFF</span>
+                <span class="absen-title" id="text-off">Ambil Hari OFF</span>
                 <span id="time-off" class="info-jam-absen"></span>
                 <div class="spinner" id="off-spinner" style="margin-left: 6px;"></div>
             </button>
         </div>
     </div>
 
-    <!-- TOMBOL KELUAR DARI SISTEM -->
+    <!-- TOMBOL KELUAR DARI SISTEM (WARNA HIJAU) -->
     <button class="btn-logout" onclick="logout()">KELUAR DARI SISTEM</button>
 </div>
 
@@ -739,19 +720,14 @@ function initPeriodeKaryawan() {
 }
 
 function kunciTombolKerja(statusKunci) {
+    // SEMUA TOMBOL SELALU AKTIF (MENYALA) SESUAI PERMINTAAN USER
     const btnIn = document.getElementById('btn-checkin');
     const btnOut = document.getElementById('btn-checkout');
     const btnOff = document.getElementById('btn-off');
 
-    if(statusKunci) {
-        if(btnIn) { btnIn.classList.add('btn-disabled'); btnIn.disabled = true; }
-        if(btnOut) { btnOut.classList.add('btn-disabled'); btnOut.disabled = true; }
-        if(btnOff) { btnOff.classList.add('btn-disabled'); btnOff.disabled = true; }
-    } else {
-        if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
-        if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
-        if(btnOff) { btnOff.classList.remove('btn-disabled'); btnOff.disabled = false; }
-    }
+    if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
+    if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
+    if(btnOff) { btnOff.classList.remove('btn-disabled'); btnOff.disabled = false; }
 }
 
 function sinkronisasiWaktuServer() {
@@ -871,7 +847,7 @@ function prosesLogin() {
                 document.getElementById('nama-user').innerText = namaLogin;
                 
                 isDataLoaded = false;
-                kunciTombolKerja(true);
+                kunciTombolKerja(false);
                 document.getElementById('status-log').innerHTML = "⏳ Menghubungkan & sinkronisasi data dari server...";
 
                 sinkronisasiFullServer();
@@ -1254,13 +1230,12 @@ function cekValidasiHarian() {
     tampilkanStatistik(); 
     
     if (!isDataLoaded) {
-        kunciTombolKerja(true);
         return;
     }
 
     const textOff = document.getElementById('text-off');
     if (!isEksekusiOffRunning && textOff) {
-        textOff.innerText = "OFF";
+        textOff.innerText = "Ambil Hari OFF";
     }
 
     const tglSekarang = new Date().toDateString();
@@ -1278,21 +1253,13 @@ function cekValidasiHarian() {
     const detailWaktu = JSON.parse(localStorage.getItem(`detailWaktu_${namaLogin}`)) || {};
     document.getElementById('time-checkin').innerText = detailWaktu['Check In'] ? "IN: " + detailWaktu['Check In'] : "--:--";
     document.getElementById('time-checkout').innerText = detailWaktu['Check Out'] ? "OUT: " + detailWaktu['Check Out'] : "--:--";
-    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? ": " + detailWaktu['OFF'] : "";
-
-    const btnCheckIn = document.getElementById('btn-checkin');
-    const btnCheckOut = document.getElementById('btn-checkout');
-    const btnOff = document.getElementById('btn-off');
+    document.getElementById('time-off').innerText = detailWaktu['OFF'] ? "Jam: " + detailWaktu['OFF'] : "";
 
     const sudahCheckIn = status.includes('Check In');
     const sudahCheckOut = status.includes('Check Out');
     const sudahOff = status.includes('OFF');
 
     if (sudahOff || sudahCheckOut) {
-        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-        btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
-        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
-
         if (sudahOff) {
             document.getElementById('status-log').innerText = "Status hari ini: OFF (Libur).";
         } else {
@@ -1302,14 +1269,9 @@ function cekValidasiHarian() {
     }
 
     if (sudahCheckIn && !sudahCheckOut) {
-        btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-        btnOff.disabled = true; btnOff.classList.add('btn-disabled');
-
         if (isGpsValid) {
-            btnCheckOut.disabled = false; btnCheckOut.classList.remove('btn-disabled');
             document.getElementById('status-log').innerHTML = "Status : Sedang bekerja<br>Silahkan Checkout saat pulang";
         } else {
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Masuk area toko untuk Checkout!`;
         }
@@ -1317,22 +1279,14 @@ function cekValidasiHarian() {
     }
 
     if (!sudahCheckIn && !sudahOff) {
-        btnOff.disabled = false; 
-        btnOff.classList.remove('btn-disabled');
-
         if (isGpsValid) {
-            btnCheckIn.disabled = false; btnCheckIn.classList.remove('btn-disabled');
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
             document.getElementById('status-log').innerHTML = "🟢 GPS Terverifikasi: Silakan Check In atau OFF";
         } else {
-            btnCheckIn.disabled = true; btnCheckIn.classList.add('btn-disabled');
-            btnCheckOut.disabled = true; btnCheckOut.classList.add('btn-disabled');
-
             var jarak = (lat && lng) ? Math.round(hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG)) : 0;
             if (lat === 0 && lng === 0) {
                 document.getElementById('status-log').innerHTML = "⏳ Menghubungkan GPS...<br>Gunakan tombol OFF jika hari ini libur.";
             } else {
-                document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Hanya tombol OFF yang aktif.`;
+                document.getElementById('status-log').innerHTML = `🔴 Diluar Area (+${jarak}m dari toko).<br>Tombol tetap aktif untuk digunakan.`;
             }
         }
     }
@@ -1432,7 +1386,11 @@ function eksekusiAbsenOff() {
         isEksekusiOffRunning = false;
         
         if (spinner) spinner.style.display = 'none';
-        if (textBtn) textBtn.innerText = "OFF"; 
+        if (textBtn) textBtn.innerText = "Ambil Hari OFF"; 
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-disabled');
+        }
 
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1462,7 +1420,7 @@ function eksekusiAbsenOff() {
         isEksekusiOffRunning = false;
         
         if (spinner) spinner.style.display = 'none';
-        if (textBtn) textBtn.innerText = "OFF";
+        if (textBtn) textBtn.innerText = "Ambil Hari OFF";
         if (btn) {
             btn.disabled = false;
             btn.classList.remove('btn-disabled');
@@ -1473,17 +1431,6 @@ function eksekusiAbsenOff() {
 }
 
 function prosesAbsen() {
-    if(lat === 0 && lng === 0) { 
-        tampilkanPesan("Lokasi GPS belum terbaca...", "info"); 
-        return;
-    }
-
-    var jarak = hitungJarak(lat, lng, TOKO_LAT, TOKO_LNG);
-    if (jarak > RADIUS_MAKSIMAL) {
-        tampilkanPesan("Anda berada di luar radius toko.", "info");
-        return;
-    }
-     
     const serverDate = new Date(Date.now() + serverTimeOffset);
     const jamSekarang = serverDate.getHours();
     const waktuSekarang = serverDate.toLocaleTimeString('id-ID');
