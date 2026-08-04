@@ -267,7 +267,7 @@
             stroke-linejoin: round;
         }
 
-        /* PEWARNAAN TEKS JAM & TOMBOL CHECK-IN/CHECK-OUT */
+        /* PEWARNAAN WARNA UTUH TOMBOL CHECK-IN & CHECK-OUT */
         .card-in {
             background: #2563eb !important;
             border: 1px solid #1d4ed8 !important;
@@ -465,6 +465,12 @@
             background: white; padding: 24px; border-radius: var(--radius-lg);
             width: 100%; max-width: 320px; text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styling khusus agar tombol kembali menyala cerah penuh (tidak redup/abu-abu) */
+        .absen-card {
+            opacity: 1 !important;
+            filter: none !important;
         }
     </style>
 </head>
@@ -720,14 +726,14 @@ function initPeriodeKaryawan() {
 }
 
 function kunciTombolKerja(statusKunci) {
-    // SEMUA TOMBOL SELALU AKTIF (MENYALA) SESUAI PERMINTAAN USER
+    // SEMUA TOMBOL SELALU DIAKTIFKAN PENUH (MENYALA, TIDAK ADA DISABLED/ABU-ABU)
     const btnIn = document.getElementById('btn-checkin');
     const btnOut = document.getElementById('btn-checkout');
     const btnOff = document.getElementById('btn-off');
 
-    if(btnIn) { btnIn.classList.remove('btn-disabled'); btnIn.disabled = false; }
-    if(btnOut) { btnOut.classList.remove('btn-disabled'); btnOut.disabled = false; }
-    if(btnOff) { btnOff.classList.remove('btn-disabled'); btnOff.disabled = false; }
+    if(btnIn) { btnIn.disabled = false; }
+    if(btnOut) { btnOut.disabled = false; }
+    if(btnOff) { btnOff.disabled = false; }
 }
 
 function sinkronisasiWaktuServer() {
@@ -1358,14 +1364,9 @@ function eksekusiAbsenOff() {
     
     isEksekusiOffRunning = true;
 
-    const btn = document.getElementById('btn-off');
     const spinner = document.getElementById('off-spinner');
     const textBtn = document.getElementById('text-off');
 
-    if (btn) {
-        btn.disabled = true;
-        btn.classList.add('btn-disabled');
-    }
     if (spinner) spinner.style.display = 'inline-block';
     if (textBtn) textBtn.innerText = "Memproses...";
 
@@ -1387,10 +1388,6 @@ function eksekusiAbsenOff() {
         
         if (spinner) spinner.style.display = 'none';
         if (textBtn) textBtn.innerText = "Ambil Hari OFF"; 
-        if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('btn-disabled');
-        }
 
         if(data.pesan && data.pesan.includes("berhasil")) {
             const logAbsenHariIni = JSON.parse(localStorage.getItem(`absen_${namaLogin}`)) || { status: [] };
@@ -1421,10 +1418,6 @@ function eksekusiAbsenOff() {
         
         if (spinner) spinner.style.display = 'none';
         if (textBtn) textBtn.innerText = "Ambil Hari OFF";
-        if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('btn-disabled');
-        }
         tampilkanPesan("Terjadi kesalahan jaringan saat mengirim data OFF.", "info");
         cekValidasiHarian();
     });
