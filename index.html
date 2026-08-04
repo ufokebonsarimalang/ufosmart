@@ -216,7 +216,7 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
-        /* DESAIN BOX ABSENSI (WARNA MENYALA & TIDAK TERLALU PANJANG) */
+        /* DESAIN BOX ABSENSI */
         .btn-grid {
             display: flex;
             flex-direction: column;
@@ -287,7 +287,7 @@
         .card-out .absen-title { color: #713f12 !important; }
         .card-out .info-jam-absen { color: #c2410c !important; font-weight: 800 !important; }
 
-        /* TOMBOL OFF/LIBUR (KOTAK TIDAK PANJANG, WARNA MERAH MENYALA, TULISAN MERAH) */
+        /* TOMBOL OFF/LIBUR (BACKGROUND MERAH MENYALA, TEKS PUTIH) */
         .card-off-wrapper {
             width: 100%;
             display: flex;
@@ -299,16 +299,16 @@
             justify-content: center;
             gap: 8px;
             padding: 10px 16px;
-            background: #ffffff !important;
-            border: 2px solid #ef4444 !important;
+            background: #ef4444 !important;
+            border: 1px solid #dc2626 !important;
             width: auto !important;
             max-width: 220px;
             margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
-        .card-off .absen-icon { background: #fee2e2; color: #ef4444; width: 28px; height: 28px; }
-        .card-off .absen-title { color: #ef4444 !important; }
-        .card-off .info-jam-absen { color: #ef4444 !important; font-weight: 800 !important; background: transparent; width: auto; padding: 0; }
+        .card-off .absen-icon { background: rgba(255, 255, 255, 0.25); color: #ffffff; width: 28px; height: 28px; }
+        .card-off .absen-title { color: #ffffff !important; }
+        .card-off .info-jam-absen { color: #ffffff !important; font-weight: 800 !important; background: transparent; width: auto; padding: 0; }
 
         .absen-title {
             font-size: 12px;
@@ -367,7 +367,7 @@
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
-        /* TOMBOL KELUAR DARI SISTEM (WARNA HIJAU MENYALA) */
+        /* TOMBOL KELUAR DARI SISTEM (HIJAU MENYALA) */
         .btn-logout { 
             background: #059669 !important; 
             color: #ffffff !important; 
@@ -453,11 +453,6 @@
             display: none;
         }
 
-        .card-off .spinner {
-            border: 3px solid rgba(239, 68, 68, 0.2);
-            border-top: 3px solid #ef4444;
-        }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -478,7 +473,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Styling Tombol Disabled (Abu-abu) Saat Tidak Aktif */
+        /* Styling Tombol Disabled (Abu-abu) Khusus untuk Check-In & Check-Out */
         .btn-disabled {
             background-color: #e2e8f0 !important;
             border-color: #cbd5e1 !important;
@@ -496,6 +491,24 @@
 
         .btn-disabled .absen-title {
             color: #64748b !important;
+        }
+
+        /* KHUSUS TOMBOL OFF: Ketika berubah jadi abu-abu/disabled, background tetap merah dan tulisan/jam tetap merah/putih terang */
+        .card-off.btn-disabled {
+            background-color: #ef4444 !important;
+            border-color: #dc2626 !important;
+            opacity: 1 !important;
+            pointer-events: none;
+        }
+        .card-off.btn-disabled .absen-icon {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+        }
+        .card-off.btn-disabled .absen-title {
+            color: #ffffff !important;
+        }
+        .card-off.btn-disabled .info-jam-absen {
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -566,7 +579,7 @@
         🔄 Refresh Lokasi GPS
     </button>
  
-    <!-- KARTU ABSENSI DENGAN WARNA MENYALA -->
+    <!-- KARTU ABSENSI -->
     <div class="btn-grid">
         <div class="absen-card-group">
             <!-- CHECK IN (BIRU MENYALA) -->
@@ -588,7 +601,7 @@
             </button>
         </div>
 
-        <!-- TOMBOL OFF/LIBUR (TIDAK PANJANG, TEKS MERAH, BORDER MERAH MENYALA) -->
+        <!-- TOMBOL OFF/LIBUR (BACKGROUND MERAH, TULISAN PUTIH, TETAP MERAH SAAT NONAKTIF) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon">
