@@ -894,6 +894,7 @@ function sinkronisasiFullServer() {
         let targetBulan = sekarang.getMonth();
         let targetTahun = sekarang.getFullYear();
 
+        // Periode gaji/absensi: tanggal 26 bulan lalu s.d 25 bulan ini
         if (sekarang.getDate() >= 26) {
             targetBulan += 1;
             if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
@@ -902,11 +903,12 @@ function sinkronisasiFullServer() {
         let hitungHadir = 0, hitungOff = 0, hitungPs = 0, hitungTerlambat = 0;
         let logPerTanggal = {};
         
-        let tglSekarangFormatted = Utilities_formatTanggalHariIni(); 
-        let tglSekarangIso = sekarang.toISOString().split("T")[0]; 
+        let tglSekarangFormatted = Utilities_formatTanggalHariIni(); // format dd-MM-yyyy
+        let tglSekarangIso = sekarang.toISOString().split("T")[0]; // format yyyy-MM-dd
         let statusHariIni = [];
         let detailWaktuHariIni = {};
 
+        // Cek jadwal OFF dari admin untuk hari ini
         let keyCloudHariIni = `${namaLogin}_${tglSekarangIso}`;
         if (dataJadwalCloud && dataJadwalCloud[keyCloudHariIni] === "OFF") {
             if (!statusHariIni.includes("OFF")) statusHariIni.push("OFF");
@@ -931,6 +933,7 @@ function sinkronisasiFullServer() {
                     }
 
                     try {
+                        // Format tanggal server: DD-MM-YYYY
                         let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
                         
                         let pBulan = tglAbsen.getMonth();
@@ -972,6 +975,7 @@ function sinkronisasiFullServer() {
             }
         }
 
+        // Gabungkan perhitungan dengan jadwal OFF dari cloud admin
         if (dataJadwalCloud) {
             for (let key in dataJadwalCloud) {
                 if (key.startsWith(namaLogin + "_")) {
@@ -998,6 +1002,7 @@ function sinkronisasiFullServer() {
             }
         }
 
+        // Hitung total akumulasi untuk ditampilkan di dashboard
         for (let tgl in logPerTanggal) {
             let item = logPerTanggal[tgl];
             if (item.status.includes("OFF")) hitungOff++;
@@ -1017,6 +1022,8 @@ function sinkronisasiFullServer() {
         totalOff = hitungOff;
         totalPs = hitungPs;
         totalTerlambat = hitungTerlambat;
+        
+        // Perbarui tampilan statistik di layar
         tampilkanStatistik();
 
         const tglSekarang = new Date().toDateString();
@@ -1033,7 +1040,6 @@ function sinkronisasiFullServer() {
         startGPS();
     });
 }
-
 function Utilities_formatTanggalHariIni() {
     let d = new Date();
     let tgl = d.getDate().toString().padStart(2, '0');
