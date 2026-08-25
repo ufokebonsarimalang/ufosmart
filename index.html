@@ -905,20 +905,13 @@ function prosesLogin() {
 }
 
 function sinkronisasiFullServer() {
-    fetch(SCRIPT_URL, { 
-        method: 'POST', 
-        redirect: 'follow', 
-        body: JSON.stringify({ aksi: "get_laporan" }) 
-    })
-    .then(res => res.json())
-    .then(data => {
+    // Tarik data laporan absen DAN data jadwal cloud secara bersamaan
+    Promise.all([
+        fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) }).then(res => res.json()),
+        fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_jadwal_off" }) }).then(res => res.json()).catch(() => ({}))
+    ])
+    .then(([dataLaporan, dataJadwalCloud]) => {
         isDataLoaded = true;
-
-        if (!data || data.length <= 1) {
-            cekValidasiHarian();
-            startGPS();
-            return;
-        }
 
         let sekarang = new Date();
         let targetBulan = sekarang.getMonth();
@@ -932,52 +925,102 @@ function sinkronisasiFullServer() {
         let hitungHadir = 0, hitungOff = 0, hitungPs = 0, hitungTerlambat = 0;
         let logPerTanggal = {};
         
-        let tglSekarangFormatted = Utilities_formatTanggalHariIni();
+        let tglSekarangFormatted = Utilities_formatTanggalHariIni(); // format dd-MM-yyyy
+        let tglSekarangIso = sekarang.toISOString().split("T")[0]; // format yyyy-MM-dd (untuk cek cloud)
         let statusHariIni = [];
         let detailWaktuHariIni = {};
 
-        for (let i = 1; i < data.length; i++) {
-            let row = data[i];
-            let kolomWaktu = String(row[0] || "").trim();
-            let kolomNama = String(row[1] || "").trim();
-            let kolomStatus = String(row[2] || "").trim();
+        // 1. Cek apakah Admin menyetting OFF di Cloud untuk hari ini
+        let keyCloudHariIni = `${namaLogin}_${tglSekarangIso}`;
+        if (dataJadwalCloud && dataJadwalCloud[keyCloudHariIni] === "OFF") {
+            if (!statusHariIni.includes("OFF")) statusHariIni.push("OFF");
+            detailWaktuHariIni["OFF"] = "08:00:00 (Admin)";
+        }
 
-            if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
-                let parts = kolomWaktu.split(" ");
-                let dateParts = parts[0].split("-");
-                let timeParts = parts[1].split(":");
+        if (dataLaporan && dataLaporan.length > 1) {
+            for (let i = 1; i < dataLaporan.length; i++) {
+                let row = dataLaporan[i];
+                let kolomWaktu = String(row[0] || "").trim();
+                let kolomNama = String(row[1] || "").trim();
+                let kolomStatus = String(row[2] || "").trim();
 
-                if (parts[0] === tglSekarangFormatted) {
-                    if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
-                    if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
+                if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
+                    let parts = kolomWaktu.split(" ");
+                    let dateParts = parts[0].split("-");
+                    let timeParts = parts[1].split(":");
+
+                    if (parts[0] === tglSekarangFormatted) {
+                        if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
+                        if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
+                    }
+
+                    try {
+                        let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+                        
+                        let pBulan = tglAbsen.getMonth();
+                        let pTahun = tglAbsen.getFullYear();
+
+                        if (tglAbsen.getDate() >= 26) {
+                            pBulan += 1;
+                            if (pBulan > 11) { pBulan = 0; pTahun += 1; }
+                        }
+
+                        if (pBulan === targetBulan && pTahun === targetTahun) {
+                            let strTgl = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
+                            let strIso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                            let keyMapCloud = `${namaLogin}_${strIso}`;
+
+                            if (!logPerTanggal[strTgl]) {
+                                logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                            }
+                            
+                            // Masukkan status dari laporan atau dari cloud admin
+                            let statusFinal = kolomStatus;
+                            if (dataJadwalCloud && dataJadwalCloud[keyMapCloud]) {
+                                statusFinal = dataJadwalCloud[keyMapCloud];
+                            }
+
+                            if (!logPerTanggal[strTgl].status.includes(statusFinal)) {
+                                logPerTanggal[strTgl].status.push(statusFinal);
+                            }
+
+                            if (kolomStatus === "Check In") {
+                                logPerTanggal[strTgl].jamCheckIn.push(tglAbsen.getHours());
+                                logPerTanggal[strTgl].menitCheckIn.push(tglAbsen.getMinutes());
+                            }
+                            if (kolomStatus === "Check Out") {
+                                logPerTanggal[strTgl].jamCheckOut.push(tglAbsen.getHours());
+                            }
+                        }
+                    } catch(e) { console.error(e); }
                 }
+            }
+        }
 
-                try {
-                    let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
+        // Hitung statistik bulanan termasuk data dari cloud admin
+        if (dataJadwalCloud) {
+            for (let key in dataJadwalCloud) {
+                if (key.startsWith(namaLogin + "_")) {
+                    let tglIsoKey = key.split("_")[1]; // yyyy-MM-dd
+                    let pParts = tglIsoKey.split("-");
+                    let dObj = new Date(parseInt(pParts[0]), parseInt(pParts[1]) - 1, parseInt(pParts[2]));
                     
-                    let pBulan = tglAbsen.getMonth();
-                    let pTahun = tglAbsen.getFullYear();
-
-                    if (tglAbsen.getDate() >= 26) {
-                        pBulan += 1;
-                        if (pBulan > 11) { pBulan = 0; pTahun += 1; }
+                    let bCheck = dObj.getMonth();
+                    let tCheck = dObj.getFullYear();
+                    if (dObj.getDate() >= 26) {
+                        bCheck += 1;
+                        if (bCheck > 11) { bCheck = 0; tCheck += 1; }
                     }
 
-                    if (pBulan === targetBulan && pTahun === targetTahun) {
-                        let strTgl = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
-                        if (!logPerTanggal[strTgl]) {
-                            logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
-                        }
-                        logPerTanggal[strTgl].status.push(kolomStatus);
-                        if (kolomStatus === "Check In") {
-                            logPerTanggal[strTgl].jamCheckIn.push(tglAbsen.getHours());
-                            logPerTanggal[strTgl].menitCheckIn.push(tglAbsen.getMinutes());
-                        }
-                        if (kolomStatus === "Check Out") {
-                            logPerTanggal[strTgl].jamCheckOut.push(tglAbsen.getHours());
+                    if (bCheck === targetBulan && tCheck === targetTahun) {
+                        let strTglFormat = `${pParts[2]}-${pParts[1]}-${pParts[0]}`;
+                        if (!logPerTanggal[strTglFormat]) {
+                            logPerTanggal[strTglFormat] = { status: [dataJadwalCloud[key]], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                        } else if (!logPerTanggal[strTglFormat].status.includes(dataJadwalCloud[key])) {
+                            logPerTanggal[strTglFormat].status.push(dataJadwalCloud[key]);
                         }
                     }
-                } catch(e) { console.error(e); }
+                }
             }
         }
 
@@ -1009,6 +1052,13 @@ function sinkronisasiFullServer() {
         cekValidasiHarian();
         startGPS();
     })
+    .catch(err => {
+        console.error("Gagal sinkronisasi data dari server:", err);
+        isDataLoaded = true;
+        cekValidasiHarian();
+        startGPS();
+    });
+}
     .catch(err => {
         console.error("Gagal sinkronisasi data dari server:", err);
         isDataLoaded = true;
