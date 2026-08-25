@@ -66,6 +66,7 @@
             padding: 28px 24px;
         }
 
+        /* Header UI */
         .logo-container {
             width: 80px;
             height: 80px;
@@ -102,6 +103,7 @@
             font-weight: 500;
         }
 
+        /* Time Section */
         .time-wrapper {
             background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
             border: 1px solid #dbeafe;
@@ -127,6 +129,7 @@
             text-transform: capitalize;
         }
 
+        /* Information & Stats Cards */
         #periode-karyawan-text {
             background: #ffffff !important;
             border: 1px solid var(--border-color) !important;
@@ -164,6 +167,7 @@
             color: var(--text-main);
         }
 
+        /* GPS Status Log */
         #status-log {
             font-size: 12px !important;
             color: var(--text-main) !important;
@@ -177,6 +181,7 @@
             line-height: 1.5 !important;
         }
 
+        /* Modern Form Inputs */
         .input-group {
             text-align: left;
             margin-bottom: 16px;
@@ -211,6 +216,7 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
+        /* DESAIN BOX ABSENSI */
         .btn-grid {
             display: flex;
             flex-direction: column;
@@ -261,6 +267,7 @@
             stroke-linejoin: round;
         }
 
+        /* TOMBOL CHECK-IN (BIRU MENYALA) */
         .card-in {
             background: #1d4ed8 !important;
             border: 1px solid #1e40af !important;
@@ -270,6 +277,7 @@
         .card-in .absen-title { color: #ffffff !important; }
         .card-in .info-jam-absen { color: #1d4ed8 !important; font-weight: 800 !important; }
 
+        /* TOMBOL CHECK-OUT (KUNING/ORANGE MENYALA) */
         .card-out {
             background: #eab308 !important;
             border: 1px solid #ca8a04 !important;
@@ -279,6 +287,7 @@
         .card-out .absen-title { color: #713f12 !important; }
         .card-out .info-jam-absen { color: #c2410c !important; font-weight: 800 !important; }
 
+        /* TOMBOL OFF/LIBUR (BACKGROUND MERAH MENYALA, TEKS PUTIH) */
         .card-off-wrapper {
             width: 100%;
             display: flex;
@@ -319,6 +328,7 @@
             width: 100%;
         }
 
+        /* General Buttons */
         button { 
             width: 100%; 
             padding: 14px; 
@@ -357,6 +367,7 @@
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
         }
 
+        /* TOMBOL KELUAR DARI SISTEM (HIJAU MENYALA) */
         .btn-logout { 
             background: #059669 !important; 
             color: #ffffff !important; 
@@ -381,6 +392,7 @@
             box-shadow: none;
         }
 
+        /* Camera View */
         #kamera { 
             width: 100%; 
             aspect-ratio: 3 / 4;
@@ -391,6 +403,7 @@
             max-height: 380px;
         }
 
+        /* Table & Admin View */
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -429,6 +442,7 @@
             text-decoration: none;
         }
 
+        /* SPINNER LEBIH JELAS & TEBAL */
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
@@ -444,6 +458,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Modal Overlay */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.6); 
@@ -458,6 +473,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
+        /* Styling Tombol Disabled (Abu-abu) untuk SEMUA tombol termasuk OFF */
         .btn-disabled {
             background-color: #e2e8f0 !important;
             border-color: #cbd5e1 !important;
@@ -521,6 +537,7 @@
         <div class="tanggal-digital" id="live-tanggal">Mencari Tanggal...</div>
     </div>
 
+    <!-- Elemen Periode Karyawan -->
     <div id="periode-karyawan-text" style="display: none;"></div>
 
     <div class="stat-box">
@@ -548,8 +565,10 @@
         🔄 Refresh Lokasi GPS
     </button>
  
+    <!-- KARTU ABSENSI -->
     <div class="btn-grid">
         <div class="absen-card-group">
+            <!-- CHECK IN (BIRU MENYALA) -->
             <button class="absen-card card-in" id="btn-checkin" onclick="pilihAksi('Check In')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M15 15l-3 3m0 0l-3-3m3 3V10M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -558,6 +577,7 @@
                 <span id="time-checkin" class="info-jam-absen">--:--</span>
             </button>
 
+            <!-- CHECK OUT (KUNING MENYALA) -->
             <button class="absen-card card-out" id="btn-checkout" onclick="pilihAksi('Check Out')">
                 <div class="absen-icon">
                     <svg viewBox="0 0 24 24"><path d="M9 11l3-3m0 0l3 3m-3-3v8M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 7v-1a3 3 0 013-3h10a3 3 0 013 3v1"/></svg>
@@ -567,6 +587,7 @@
             </button>
         </div>
 
+        <!-- TOMBOL OFF/LIBUR (BACKGROUND MERAH MENYALA, TEKS PUTIH) -->
         <div class="card-off-wrapper">
             <button class="absen-card card-off" id="btn-off" onclick="prosesAbsenOff()">
                 <div class="absen-icon">
@@ -579,6 +600,7 @@
         </div>
     </div>
 
+    <!-- TOMBOL KELUAR DARI SISTEM (HIJAU MENYALA) -->
     <button class="btn-logout" onclick="logout()">KELUAR DARI SISTEM</button>
 </div>
 
@@ -883,18 +905,25 @@ function prosesLogin() {
 }
 
 function sinkronisasiFullServer() {
-    Promise.all([
-        fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) }).then(res => res.json()),
-        fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_jadwal_off" }) }).then(res => res.json()).catch(() => ({}))
-    ])
-    .then(([dataLaporan, dataJadwalCloud]) => {
+    fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        redirect: 'follow', 
+        body: JSON.stringify({ aksi: "get_laporan" }) 
+    })
+    .then(res => res.json())
+    .then(data => {
         isDataLoaded = true;
+
+        if (!data || data.length <= 1) {
+            cekValidasiHarian();
+            startGPS();
+            return;
+        }
 
         let sekarang = new Date();
         let targetBulan = sekarang.getMonth();
         let targetTahun = sekarang.getFullYear();
 
-        // Periode gaji/absensi: tanggal 26 bulan lalu s.d 25 bulan ini
         if (sekarang.getDate() >= 26) {
             targetBulan += 1;
             if (targetBulan > 11) { targetBulan = 0; targetTahun += 1; }
@@ -903,106 +932,55 @@ function sinkronisasiFullServer() {
         let hitungHadir = 0, hitungOff = 0, hitungPs = 0, hitungTerlambat = 0;
         let logPerTanggal = {};
         
-        let tglSekarangFormatted = Utilities_formatTanggalHariIni(); // format dd-MM-yyyy
-        let tglSekarangIso = sekarang.toISOString().split("T")[0]; // format yyyy-MM-dd
+        let tglSekarangFormatted = Utilities_formatTanggalHariIni();
         let statusHariIni = [];
         let detailWaktuHariIni = {};
 
-        // Cek jadwal OFF dari admin untuk hari ini
-        let keyCloudHariIni = `${namaLogin}_${tglSekarangIso}`;
-        if (dataJadwalCloud && dataJadwalCloud[keyCloudHariIni] === "OFF") {
-            if (!statusHariIni.includes("OFF")) statusHariIni.push("OFF");
-            detailWaktuHariIni["OFF"] = "08:00:00 (Admin)";
-        }
+        for (let i = 1; i < data.length; i++) {
+            let row = data[i];
+            let kolomWaktu = String(row[0] || "").trim();
+            let kolomNama = String(row[1] || "").trim();
+            let kolomStatus = String(row[2] || "").trim();
 
-        if (dataLaporan && dataLaporan.length > 1) {
-            for (let i = 1; i < dataLaporan.length; i++) {
-                let row = dataLaporan[i];
-                let kolomWaktu = String(row[0] || "").trim();
-                let kolomNama = String(row[1] || "").trim();
-                let kolomStatus = String(row[2] || "").trim();
+            if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
+                let parts = kolomWaktu.split(" ");
+                let dateParts = parts[0].split("-");
+                let timeParts = parts[1].split(":");
 
-                if (kolomNama === namaLogin && kolomWaktu && kolomWaktu.includes(" ")) {
-                    let parts = kolomWaktu.split(" ");
-                    let dateParts = parts[0].split("-");
-                    let timeParts = parts[1].split(":");
-
-                    if (parts[0] === tglSekarangFormatted) {
-                        if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
-                        if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
-                    }
-
-                    try {
-                        // Format tanggal server: DD-MM-YYYY
-                        let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
-                        
-                        let pBulan = tglAbsen.getMonth();
-                        let pTahun = tglAbsen.getFullYear();
-
-                        if (tglAbsen.getDate() >= 26) {
-                            pBulan += 1;
-                            if (pBulan > 11) { pBulan = 0; pTahun += 1; }
-                        }
-
-                        if (pBulan === targetBulan && pTahun === targetTahun) {
-                            let strTgl = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
-                            let strIso = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                            let keyMapCloud = `${namaLogin}_${strIso}`;
-
-                            if (!logPerTanggal[strTgl]) {
-                                logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
-                            }
-                            
-                            let statusFinal = kolomStatus;
-                            if (dataJadwalCloud && dataJadwalCloud[keyMapCloud]) {
-                                statusFinal = dataJadwalCloud[keyMapCloud];
-                            }
-
-                            if (!logPerTanggal[strTgl].status.includes(statusFinal)) {
-                                logPerTanggal[strTgl].status.push(statusFinal);
-                            }
-
-                            if (kolomStatus === "Check In") {
-                                logPerTanggal[strTgl].jamCheckIn.push(tglAbsen.getHours());
-                                logPerTanggal[strTgl].menitCheckIn.push(tglAbsen.getMinutes());
-                            }
-                            if (kolomStatus === "Check Out") {
-                                logPerTanggal[strTgl].jamCheckOut.push(tglAbsen.getHours());
-                            }
-                        }
-                    } catch(e) { console.error(e); }
+                if (parts[0] === tglSekarangFormatted) {
+                    if (!statusHariIni.includes(kolomStatus)) statusHariIni.push(kolomStatus);
+                    if (parts[1]) detailWaktuHariIni[kolomStatus] = parts[1];
                 }
-            }
-        }
 
-        // Gabungkan perhitungan dengan jadwal OFF dari cloud admin
-        if (dataJadwalCloud) {
-            for (let key in dataJadwalCloud) {
-                if (key.startsWith(namaLogin + "_")) {
-                    let tglIsoKey = key.split("_")[1]; 
-                    let pParts = tglIsoKey.split("-");
-                    let dObj = new Date(parseInt(pParts[0]), parseInt(pParts[1]) - 1, parseInt(pParts[2]));
+                try {
+                    let tglAbsen = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]), parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2] || 0));
                     
-                    let bCheck = dObj.getMonth();
-                    let tCheck = dObj.getFullYear();
-                    if (dObj.getDate() >= 26) {
-                        bCheck += 1;
-                        if (bCheck > 11) { bCheck = 0; tCheck += 1; }
+                    let pBulan = tglAbsen.getMonth();
+                    let pTahun = tglAbsen.getFullYear();
+
+                    if (tglAbsen.getDate() >= 26) {
+                        pBulan += 1;
+                        if (pBulan > 11) { pBulan = 0; pTahun += 1; }
                     }
 
-                    if (bCheck === targetBulan && tCheck === targetTahun) {
-                        let strTglFormat = `${pParts[2]}-${pParts[1]}-${pParts[0]}`;
-                        if (!logPerTanggal[strTglFormat]) {
-                            logPerTanggal[strTglFormat] = { status: [dataJadwalCloud[key]], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
-                        } else if (!logPerTanggal[strTglFormat].status.includes(dataJadwalCloud[key])) {
-                            logPerTanggal[strTglFormat].status.push(dataJadwalCloud[key]);
+                    if (pBulan === targetBulan && pTahun === targetTahun) {
+                        let strTgl = dateParts[0] + "-" + dateParts[1] + "-" + dateParts[2];
+                        if (!logPerTanggal[strTgl]) {
+                            logPerTanggal[strTgl] = { status: [], jamCheckIn: [], menitCheckIn: [], jamCheckOut: [] };
+                        }
+                        logPerTanggal[strTgl].status.push(kolomStatus);
+                        if (kolomStatus === "Check In") {
+                            logPerTanggal[strTgl].jamCheckIn.push(tglAbsen.getHours());
+                            logPerTanggal[strTgl].menitCheckIn.push(tglAbsen.getMinutes());
+                        }
+                        if (kolomStatus === "Check Out") {
+                            logPerTanggal[strTgl].jamCheckOut.push(tglAbsen.getHours());
                         }
                     }
-                }
+                } catch(e) { console.error(e); }
             }
         }
 
-        // Hitung total akumulasi untuk ditampilkan di dashboard
         for (let tgl in logPerTanggal) {
             let item = logPerTanggal[tgl];
             if (item.status.includes("OFF")) hitungOff++;
@@ -1022,8 +1000,6 @@ function sinkronisasiFullServer() {
         totalOff = hitungOff;
         totalPs = hitungPs;
         totalTerlambat = hitungTerlambat;
-        
-        // Perbarui tampilan statistik di layar
         tampilkanStatistik();
 
         const tglSekarang = new Date().toDateString();
@@ -1040,6 +1016,7 @@ function sinkronisasiFullServer() {
         startGPS();
     });
 }
+
 function Utilities_formatTanggalHariIni() {
     let d = new Date();
     let tgl = d.getDate().toString().padStart(2, '0');
@@ -1704,11 +1681,11 @@ window.downloadCSV = function() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    
+     
     const tgl = new Date();
     const formatTanggal = `${tgl.getFullYear()}${(tgl.getMonth()+1).toString().padStart(2,'0')}${tgl.getDate().toString().padStart(2,'0')}`;
     const namaFile = `Rekap_Absen_UFO_${formatTanggal}.csv`;
-    
+     
     link.setAttribute("href", url);
     link.setAttribute("download", namaFile);
     link.style.display = 'none';
