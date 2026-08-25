@@ -1650,32 +1650,54 @@ window.downloadCSV = function() {
         return;
     }
 
-    let csvContent = "\uFEFF"; 
+    let csvContent = "\uFEFF"; // BOM agar karakter UTF-8 / Excel terbaca sempurna
     let barisData = [];
 
+    // Header kolom dibuat terpisah agar rapi per kolom di Excel
+    barisData.push(["Waktu", "Nama Karyawan", "Status", "Latitude", "Longitude", "Link Foto Selfie"]);
+
     if (dataLaporanGlobal && dataLaporanGlobal.length > 1) {
-        barisData = dataLaporanGlobal;
+        for (let i = 1; i < dataLaporanGlobal.length; i++) {
+            let row = dataLaporanGlobal[i];
+            let waktu = String(row[0] || "").trim();
+            let nama = String(row[1] || "").trim();
+            let status = String(row[2] || "").trim();
+            let lat = row[3] && row[3] !== "-" ? row[3] : "";
+            let lng = row[4] && row[4] !== "-" ? row[4] : "";
+            let foto = row[5] && row[5] !== "-" ? row[5] : "-";
+
+            barisData.push([waktu, nama, status, lat, lng, foto]);
+        }
     } else {
-        barisData.push(["Waktu", "Nama Karyawan", "Status", "Koordinat (GPS)"]);
         barisTabel.forEach(tr => {
             let td = tr.querySelectorAll("td");
             if (td.length >= 4) {
+                let koordinatText = td[3].innerText.trim();
+                let latVal = "", lngVal = "";
+                if (koordinatText.includes(",")) {
+                    let splitCoord = koordinatText.split(",");
+                    latVal = splitCoord[0].trim();
+                    lngVal = splitCoord[1].trim();
+                }
                 barisData.push([
                     td[0].innerText.trim(),
                     td[1].innerText.trim(),
                     td[2].innerText.trim(),
-                    td[3].innerText.trim()
+                    latVal,
+                    lngVal,
+                    td[4] ? td[4].innerText.trim() : "-"
                 ]);
             }
         });
     }
 
+    // Menggunakan pemisah titik koma (;) agar otomatis rapi per kolom saat dibuka di Excel Indonesia
     barisData.forEach(function(rowArray) {
         let row = rowArray.map(val => {
             let cleanVal = String(val).replace(/"/g, '""');
             return `"${cleanVal}"`;
         });
-        csvContent += row.join(",") + "\r\n";
+        csvContent += row.join(";") + "\r\n";
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
