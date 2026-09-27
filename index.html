@@ -1958,13 +1958,7 @@ function sinkronisasiFullServer() {
         startGPS();
     });
 }
-    .catch(err => {
-        console.error("Gagal sinkronisasi data:", err);
-        isDataLoaded = true;
-        cekValidasiHarian();
-        startGPS();
-    });
-}
+    
 
 function Utilities_formatTanggalHariIni() {
     let d = new Date();
