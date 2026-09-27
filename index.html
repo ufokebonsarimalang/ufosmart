@@ -1845,17 +1845,34 @@ function tampilkanPesan(pesan, status) {
 function tutupModal() {
     document.getElementById('modal-notif').style.display = 'none';
 }
-
+function getKodePeriodeAktif() {
+    let now = new Date();
+    let y = now.getFullYear();
+    let m = now.getMonth();
+    if (now.getDate() >= 26) {
+        m = m + 1;
+        if (m > 11) { m = 0; y++; }
+    }
+    return y + "-" + String(m + 1).padStart(2, '0');
+}
 function sinkronisasiFullServer() {
+    const _periode = getKodePeriodeAktif();
+
     fetch(SCRIPT_URL, {
         method: 'POST',
         redirect: 'follow',
-        body: JSON.stringify({ aksi: "get_laporan" })
+        body: JSON.stringify({ aksi: "get_laporan", periode: _periode })
     })
     .then(res => res.json())
     .then(data => {
         isDataLoaded = true;
-        if (!data || data.length <= 1) {
+
+        // Handle kalau GAS balikin {data: [...], namaSheet: "..."}
+        if (data && data.data && Array.isArray(data.data)) {
+            data = data.data;
+        }
+
+        if (!data || !Array.isArray(data) || data.length <= 1) {
             cekValidasiHarian();
             startGPS();
             return;
@@ -1941,6 +1958,13 @@ function sinkronisasiFullServer() {
         startGPS();
     });
 }
+    .catch(err => {
+        console.error("Gagal sinkronisasi data:", err);
+        isDataLoaded = true;
+        cekValidasiHarian();
+        startGPS();
+    });
+}
 
 function Utilities_formatTanggalHariIni() {
     let d = new Date();
@@ -1952,9 +1976,24 @@ function muatDataAdmin() {
     if (!tabelBody) return;
     tabelBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:var(--text-muted);'><i class='fas fa-spinner fa-spin'></i> Memuat data...</td></tr>";
 
-    fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ aksi: "get_laporan" }) })
+    const _periode = getKodePeriodeAktif();
+
+    fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        redirect: 'follow', 
+        body: JSON.stringify({ aksi: "get_laporan", periode: _periode }) 
+    })
     .then(res => res.json())
     .then(data => {
+        // Handle kalau GAS balikin {data: [...], namaSheet: "..."}
+        if (data && data.data && Array.isArray(data.data)) {
+            data = data.data;
+        }
+
+        if (!data || !Array.isArray(data)) {
+            data = [];
+        }
+
         dataLaporanGlobal = data;
         const dropdown = document.getElementById('filter-nama-admin');
         if (dropdown) {
