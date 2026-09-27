@@ -1849,9 +1849,9 @@ function getKodePeriodeAktif() {
     let now = new Date();
     let y = now.getFullYear();
     let m = now.getMonth();
-    if (now.getDate() >= 26) {
-        m = m + 1;
-        if (m > 11) { m = 0; y++; }
+    if (now.getDate() < 26) {
+        m = m - 1;
+        if (m < 0) { m = 11; y--; }
     }
     return y + "-" + String(m + 1).padStart(2, '0');
 }
